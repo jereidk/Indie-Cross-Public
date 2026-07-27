@@ -71,8 +71,42 @@ jobs:
           haxelib setup ~/haxelib
           haxelib install hxpkg --quiet
           haxelib run hxpkg install --quiet
-          haxelib --quiet --always run lime setup flixel
           haxelib list
+
+      # Lime pinned to FunkinCrew's git fork (see .hxpkg) doesn't ship the
+      # prebuilt lime.ndll that haxelib's zip releases include -- it has to
+      # be compiled locally, or "lime setup"/any lime command fails with
+      # "Could not load lime.ndll". Self-healing (checks the file first,
+      # only rebuilds when actually missing) instead of gating strictly on
+      # cache-hit, matching NightmareVision-Android-Support's own workaround
+      # for this exact fork.
+      - name: Wrap g++-13 to force C++23
+        run: |
+          mkdir -p /tmp/cxx-wrap
+          printf '#!/bin/bash\nexec /usr/bin/g++-13 "$@" -std=c++23\n' > /tmp/cxx-wrap/g++-13
+          chmod +x /tmp/cxx-wrap/g++-13
+          echo "/tmp/cxx-wrap" >> $GITHUB_PATH
+
+      - name: Rebuild Linux Lime ndll
+        timeout-minutes: 15
+        env:
+          CC: gcc-13
+          CXX: g++-13
+        run: |
+          set -euo pipefail
+          if [ -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
+            echo "lime.ndll already present, skipping rebuild."
+          else
+            echo "lime.ndll missing -- rebuilding from source."
+            haxelib run lime rebuild cpp -release
+            if [ ! -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
+              echo "ERROR: Missing Lime ndll after rebuild"
+              exit 1
+            fi
+          fi
+
+      - name: Setup Lime for Flixel
+        run: haxelib --quiet --always run lime setup flixel
 
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
