@@ -60,11 +60,11 @@ jobs:
       # hxpkg reads .hxpkg and installs everything in one pass -- replaces
       # the old per-library haxelib install/git calls (each with its own
       # progress spam) with one compact install log. flixel/flixel-addons/
-      # flixel-ui/openfl/lime are now pinned in .hxpkg to whatever was
-      # "latest" as of this project's last real commit (Aug 2022) -- the
-      # old unpinned "always latest" install pulled Flixel 6.2.0 today,
-      # whose FlxAnimationController/FlxCamera/tween API has diverged far
-      # enough from what this ~2022 codebase targets to fail the build.
+      # openfl/lime/hxcpp are pinned in .hxpkg to FunkinCrew's forks (same
+      # commits NightmareVision-Android-Support uses) instead of stock
+      # HaxeFlixel -- unpinned "latest" stock Flixel (6.2.0) had diverged
+      # far enough from what this codebase targets (FlxAnimationController/
+      # FlxCamera/tween API) to fail the build outright.
       - name: Install Haxelib (via hxpkg)
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         run: |

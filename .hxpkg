@@ -3,27 +3,33 @@
         "profile": "default",
         "pkgs": [
             {
-                "name": "hxcpp"
+                "name": "hxcpp",
+                "link": "https://github.com/FunkinCrew/hxcpp",
+                "branch": "5932340d095a7eea8635fe4d1355f1c0efd0b3c2"
             },
             {
                 "name": "lime",
-                "version": "7.9.0"
+                "link": "https://github.com/FunkinCrew/lime",
+                "branch": "6421de16b9dfa4fb55c19f12db65d392a57585c8"
             },
             {
                 "name": "openfl",
-                "version": "9.1.0"
+                "link": "https://github.com/FunkinCrew/openfl",
+                "branch": "a85b45f21c7e1a4c19663a193bf4ea961faf0dfa"
             },
             {
                 "name": "flixel",
-                "version": "4.11.0"
+                "link": "https://github.com/FunkinCrew/flixel",
+                "branch": "622bb65e7f49f0e1a03826b6593369d3ad5e54fa"
             },
             {
                 "name": "flixel-ui",
-                "version": "2.4.0"
+                "version": "2.6.4"
             },
             {
                 "name": "flixel-addons",
-                "version": "2.11.0"
+                "link": "https://github.com/FunkinCrew/flixel-addons",
+                "branch": "187f93b34f93c6a405d634a42913c745e443463a"
             },
             {
                 "name": "linc_luajit",
