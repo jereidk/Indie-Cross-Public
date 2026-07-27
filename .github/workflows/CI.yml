@@ -30,7 +30,13 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 11
+          # android-actions/setup-android@v3's own sdkmanager (cmdline-tools
+          # 16.0) refuses to run at all below JDK 17 ("This tool requires JDK
+          # 17 or later") -- JDK 11 was this workflow's original 2021-era
+          # pin, no longer viable just to get past SDK setup. 17 also matches
+          # NightmareVision-Android-Support's proven-working config for this
+          # exact Lime/Haxe/Flixel/Android stack.
+          java-version: 17
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
