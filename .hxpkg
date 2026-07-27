@@ -6,19 +6,24 @@
                 "name": "hxcpp"
             },
             {
-                "name": "lime"
+                "name": "lime",
+                "version": "7.9.0"
             },
             {
-                "name": "openfl"
+                "name": "openfl",
+                "version": "9.1.0"
             },
             {
-                "name": "flixel"
+                "name": "flixel",
+                "version": "4.11.0"
             },
             {
-                "name": "flixel-ui"
+                "name": "flixel-ui",
+                "version": "2.4.0"
             },
             {
-                "name": "flixel-addons"
+                "name": "flixel-addons",
+                "version": "2.11.0"
             },
             {
                 "name": "linc_luajit",

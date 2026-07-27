@@ -59,9 +59,12 @@ jobs:
 
       # hxpkg reads .hxpkg and installs everything in one pass -- replaces
       # the old per-library haxelib install/git calls (each with its own
-      # progress spam) with one compact install log. Same libraries, same
-      # unpinned "latest" behavior as before (no version pins added here --
-      # see .hxpkg).
+      # progress spam) with one compact install log. flixel/flixel-addons/
+      # flixel-ui/openfl/lime are now pinned in .hxpkg to whatever was
+      # "latest" as of this project's last real commit (Aug 2022) -- the
+      # old unpinned "always latest" install pulled Flixel 6.2.0 today,
+      # whose FlxAnimationController/FlxCamera/tween API has diverged far
+      # enough from what this ~2022 codebase targets to fail the build.
       - name: Install Haxelib (via hxpkg)
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         run: |
