@@ -50,7 +50,12 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-${{ hashFiles('.hxpkg') }}
+          # v2 bump: an earlier run (before the NightmareVision cache import
+          # existed) failed mid-job on this same .hxpkg hash, likely still
+          # saving a partial cache (packages cloned, ndll/so not yet built).
+          # A stale hit there would skip the import step entirely -- bump
+          # forces one clean miss so the import actually gets exercised.
+          key: haxelibs-android-port-v2-${{ hashFiles('.hxpkg') }}
 
       # Best-effort: pulls NightmareVision-Android-Support's already-warm
       # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
