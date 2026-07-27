@@ -44,7 +44,9 @@ jobs:
       - name: Setup Haxe
         uses: krdlab/setup-haxe@v2.1.0
         with:
-          haxe-version: 4.2.5
+          # Matches NightmareVision-Android-Support's proven-working pin for
+          # this exact Lime/Haxe/Flixel/Android stack.
+          haxe-version: 4.3.7
 
       - name: Cache Haxe libraries
         id: haxelibs-cache
@@ -64,7 +66,7 @@ jobs:
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         run: |
           haxelib setup ~/haxelib
-          haxelib git hxpkg https://github.com/ADA-Funni/hxpkg add-hmm-compatibility --quiet
+          haxelib install hxpkg --quiet
           haxelib run hxpkg install
           haxelib --quiet --always run lime setup flixel
           haxelib list
