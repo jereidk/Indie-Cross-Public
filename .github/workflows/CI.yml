@@ -61,17 +61,18 @@ jobs:
       # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
       # below) instead of compiling lime/hxcpp/flixel/openfl from source.
       # Silently no-ops (continue-on-error) if NIGHTMAREVISION_CACHE_TOKEN
-      # isn't set or the export workflow has no successful run -- "Install
-      # Haxelib (via hxpkg)" right after this still runs regardless and just
-      # fills in whatever's missing (fast if this step already did its job,
-      # a full from-scratch install otherwise).
+      # isn't set or the export workflow has no successful run -- id/output
+      # lets the next two steps pick the right path instead of always
+      # running hxpkg's own batch installer (see why below).
       - name: Import NightmareVision haxelib/Lime cache
+        id: nv-import
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
         run: |
           set -x
+          echo "imported=false" >> "$GITHUB_OUTPUT"
           RUN_ID=$(gh run list --repo jereidk/NightmareVision-Android-Support \
             --workflow exportHaxelibForIndieCross.yml --status success --limit 1 \
             --json databaseId --jq '.[0].databaseId')
@@ -83,7 +84,24 @@ jobs:
             --name haxelib-cache-export --dir /tmp/nv-cache-import
           tar -xzf /tmp/nv-cache-import/haxelib-root.tar.gz -C "$HOME"
           tar -xzf /tmp/nv-cache-import/haxelib-project.tar.gz -C .
+          haxelib setup ~/haxelib
           echo "Imported NightmareVision's haxelib/Lime cache."
+          echo "imported=true" >> "$GITHUB_OUTPUT"
+
+      # Only linc_luajit/extension-androidtools -- NightmareVision doesn't
+      # depend on either, so the import above can't have brought them.
+      # Deliberately NOT going through hxpkg here: its own --force flag
+      # (needed once .haxelib already exists, which it now does) re-clones
+      # git-linked packages from scratch per NightmareVision's own
+      # devBuilds.yml comment on this exact behavior -- that would discard
+      # the compiled lime.ndll/liblime .so the import just brought in,
+      # defeating the entire point of importing anything.
+      - name: Install remaining Haxelib packages (post-import)
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-import.outputs.imported == 'true'
+        run: |
+          haxelib git linc_luajit https://github.com/jereidk/linc_luajit --quiet
+          haxelib git extension-androidtools https://github.com/jereidk/extension-androidtools --quiet
+          haxelib list
 
       # hxpkg reads .hxpkg and installs everything in one pass -- replaces
       # the old per-library haxelib install/git calls (each with its own
@@ -92,12 +110,12 @@ jobs:
       # commits NightmareVision-Android-Support uses) instead of stock
       # HaxeFlixel -- unpinned "latest" stock Flixel (6.2.0) had diverged
       # far enough from what this codebase targets (FlxAnimationController/
-      # FlxCamera/tween API) to fail the build outright. If the import step
-      # above already populated everything, this is fast -- hxpkg only
-      # fetches what's still missing (linc_luajit/extension-androidtools,
-      # which aren't part of NightmareVision's own dependency set).
+      # FlxCamera/tween API) to fail the build outright. Only runs when the
+      # import above didn't happen/didn't work -- see the step above for why
+      # a successful import skips this entirely instead of also running it
+      # with --force.
       - name: Install Haxelib (via hxpkg)
-        if: steps.haxelibs-cache.outputs.cache-hit != 'true'
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-import.outputs.imported != 'true'
         run: |
           haxelib setup ~/haxelib
           haxelib install hxpkg --quiet
