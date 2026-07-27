@@ -53,21 +53,20 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-${{ hashFiles('Project.xml') }}
+          key: haxelibs-android-port-${{ hashFiles('.hxpkg') }}
 
-      - name: Install Haxelib
+      # hxpkg reads .hxpkg and installs everything in one pass -- replaces
+      # the old per-library haxelib install/git calls (each with its own
+      # progress spam) with one compact install log. Same libraries, same
+      # unpinned "latest" behavior as before (no version pins added here --
+      # see .hxpkg).
+      - name: Install Haxelib (via hxpkg)
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         run: |
           haxelib setup ~/haxelib
-          haxelib install hxcpp > /dev/null
-          haxelib --quiet install lime
-          haxelib --quiet install openfl
-          haxelib --quiet install flixel
+          haxelib git hxpkg https://github.com/ADA-Funni/hxpkg add-hmm-compatibility --quiet
+          haxelib run hxpkg install
           haxelib --quiet --always run lime setup flixel
-          haxelib --quiet install flixel-ui
-          haxelib --quiet install flixel-addons
-          haxelib git linc_luajit https://github.com/MAJigsaw77/linc_luajit.git --quiet
-          haxelib git extension-androidtools https://github.com/MAJigsaw77/extension-androidtools.git --quiet
           haxelib list
 
       - name: Create Version Tag

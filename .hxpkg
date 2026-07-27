@@ -1,0 +1,33 @@
+[
+    {
+        "profile": "default",
+        "pkgs": [
+            {
+                "name": "hxcpp"
+            },
+            {
+                "name": "lime"
+            },
+            {
+                "name": "openfl"
+            },
+            {
+                "name": "flixel"
+            },
+            {
+                "name": "flixel-ui"
+            },
+            {
+                "name": "flixel-addons"
+            },
+            {
+                "name": "linc_luajit",
+                "link": "https://github.com/MAJigsaw77/linc_luajit"
+            },
+            {
+                "name": "extension-androidtools",
+                "link": "https://github.com/MAJigsaw77/extension-androidtools"
+            }
+        ]
+    }
+]
