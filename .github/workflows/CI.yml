@@ -67,7 +67,7 @@ jobs:
         run: |
           haxelib setup ~/haxelib
           haxelib install hxpkg --quiet
-          haxelib run hxpkg install
+          haxelib run hxpkg install --quiet
           haxelib --quiet --always run lime setup flixel
           haxelib list
 
