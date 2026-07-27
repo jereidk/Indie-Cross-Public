@@ -1,8 +1,5 @@
 package;
 
-#if android
-import android.net.Uri;
-#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -73,7 +70,12 @@ class VideoHandler
 	function checkFile(fileName:String):String
 	{
 		#if android
-		return Uri.fromFile(fileName);
+		// extension-androidtools dropped Uri.fromFile() (and the native org.haxe.extension.Hardware
+		// method it called) entirely -- fileName here is always already an absolute path
+		// (SUtil.getPath() + Paths.video(...)), so build the file:// URI ourselves, same as the
+		// linux/windows branches below. Unlike the old Uri.fromFile(), this doesn't URL-encode the
+		// path -- only matters for 'cuphead/the devil' (the one video filename with a space).
+		return 'file://' + fileName;
 		#elseif linux
 		return 'file://' + Sys.getCwd() + fileName;
 		#elseif windows

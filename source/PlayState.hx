@@ -1,7 +1,10 @@
 package;
 
 #if android
-import android.Hardware;
+// Hardware.vibrate() has no replacement in extension-androidtools (the Hardware -> Tools
+// rename dropped it, and Lime's own lime.system.System has no equivalent either). Commented
+// out instead of removed so it's easy to restore if a JNI vibrate binding ever gets added back.
+// import android.Hardware;
 #end
 import lime.math.Vector2;
 import offsetMenus.AnimationDebug;
@@ -3209,7 +3212,7 @@ class PlayState extends MusicBeatState
 
 									FlxG.camera.shake(0.005);
 									#if android
-									Hardware.vibrate(500);
+									// Hardware.vibrate(500);
 									#end
 								});
 							}
@@ -3296,7 +3299,7 @@ class PlayState extends MusicBeatState
 
 										FlxG.camera.shake(0.005);
 										#if android
-										Hardware.vibrate(500);
+										// Hardware.vibrate(500);
 										#end
 									});
 								}
@@ -5320,7 +5323,7 @@ class PlayState extends MusicBeatState
 									}
 									FlxG.camera.shake(0.05, 0.5);
 									#if android
-									Hardware.vibrate(500);
+									// Hardware.vibrate(500);
 									#end
 									trace('oh shit');
 									healthChange(-1);
@@ -5399,7 +5402,7 @@ class PlayState extends MusicBeatState
 
 						FlxG.camera.shake(0.005);
 						#if android
-						Hardware.vibrate(500);
+						// Hardware.vibrate(500);
 						#end
 
 						chromVal = 0.0025;
@@ -5761,7 +5764,7 @@ class PlayState extends MusicBeatState
 
 			FlxG.camera.shake(0.02, 0.01);
 			#if android
-			Hardware.vibrate(10);
+			// Hardware.vibrate(10);
 			#end
 
 			canPressSpace = false;
@@ -5788,7 +5791,7 @@ class PlayState extends MusicBeatState
 		{
 			FlxG.camera.shake(0.1, 0.01);
 			#if android
-			Hardware.vibrate(10);
+			// Hardware.vibrate(10);
 			#end
 		}
 
@@ -6614,7 +6617,7 @@ class PlayState extends MusicBeatState
 									{
 										FlxG.camera.shake(0.01, 0.01);
 										#if android
-										Hardware.vibrate(10);
+										// Hardware.vibrate(10);
 										#end
 									}
 									// camHUD.shake(0.05, 0.01);
@@ -6813,7 +6816,7 @@ class PlayState extends MusicBeatState
 										FlxG.camera.shake(0.015, 0.1);
 										camHUD.shake(0.005, 0.1);
 										#if android
-										Hardware.vibrate(100);
+										// Hardware.vibrate(100);
 										#end
 
 										chromVal = FlxG.random.float(0.005, 0.01);
@@ -6830,7 +6833,7 @@ class PlayState extends MusicBeatState
 										{
 											FlxG.camera.shake(0.01, 0.01);
 											#if android
-											Hardware.vibrate(10);
+											// Hardware.vibrate(10);
 											#end
 										}
 
@@ -7082,7 +7085,7 @@ class PlayState extends MusicBeatState
 							FlxG.camera.shake(0.075, 0.375 * amt);
 							camHUD.shake(0.05, 0.375 * amt);
 							#if android
-							Hardware.vibrate(375 * amt);
+							// Hardware.vibrate(375 * amt);
 							#end
 							new FlxTimer().start(0.375 * (amt - 1), function(tmr:FlxTimer)
 							{
@@ -8533,7 +8536,7 @@ class PlayState extends MusicBeatState
 		FlxG.sound.play(Paths.sound('inked', 'bendy'));
 		FlxG.camera.shake(0.03, 0.05);
 		#if android
-		Hardware.vibrate(50);
+		// Hardware.vibrate(50);
 		#end
 		// inkTime = 1000;
 
@@ -9146,7 +9149,7 @@ class PlayState extends MusicBeatState
 						{
 							FlxG.camera.shake(0.20, 0.05);
 							#if android
-							Hardware.vibrate(50);
+							// Hardware.vibrate(50);
 							#end
 						});
 						new FlxTimer().start(0.66, function(tmr:FlxTimer)
@@ -11159,7 +11162,7 @@ class PlayState extends MusicBeatState
 
 					FlxG.camera.shake(0.005);
 					#if android
-					Hardware.vibrate(500);
+					// Hardware.vibrate(500);
 					#end
 				}
 
@@ -11251,7 +11254,7 @@ class PlayState extends MusicBeatState
 
 				FlxG.camera.shake(0.20, 0.05);
 				#if android
-				Hardware.vibrate(50);
+				// Hardware.vibrate(50);
 				#end
 			});
 			new FlxTimer().start(0.66, function(tmr:FlxTimer)
@@ -11488,7 +11491,7 @@ class PlayState extends MusicBeatState
 					#end
 					FlxG.camera.shake(0.005);
 					#if android
-					Hardware.vibrate(500);
+					// Hardware.vibrate(500);
 					#end
 
 					camMovement.cancel();
@@ -12628,7 +12631,7 @@ class PlayState extends MusicBeatState
 				FlxG.camera.shake(0.015, 0.1);
 				camHUD.shake(0.005, 0.1);
 				#if android
-				Hardware.vibrate(100);
+				// Hardware.vibrate(100);
 				#end
 
 				chromVal = 0.01;

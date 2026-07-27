@@ -1,7 +1,10 @@
 package;
 
 #if android
-import android.Hardware;
+// Hardware.vibrate() has no replacement in extension-androidtools (the Hardware -> Tools
+// rename dropped it, and Lime's own lime.system.System has no equivalent either). Commented
+// out instead of removed so it's easy to restore if a JNI vibrate binding ever gets added back.
+// import android.Hardware;
 #end
 import offsetMenus.IconOffsets;
 // import GameJolt.GameJoltInfo;

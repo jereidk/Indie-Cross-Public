@@ -1,11 +1,11 @@
 package;
 
 #if android
-import android.Hardware;
-import android.Permissions;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
-import android.os.Environment;
+import extension.androidtools.Permissions;
+import extension.androidtools.os.Build.VERSION;
+import extension.androidtools.os.Build.VERSION_CODES;
+import extension.androidtools.os.Environment;
+import extension.androidtools.widget.Toast;
 #end
 import flash.system.System;
 import flixel.FlxG;
@@ -61,29 +61,29 @@ class SUtil
 	public static function check()
 	{
 		#if android
-		if (!Permissions.getGrantedPermissions().contains(PermissionsList.WRITE_EXTERNAL_STORAGE)
-			&& !Permissions.getGrantedPermissions().contains(PermissionsList.READ_EXTERNAL_STORAGE))
+		if (VERSION.SDK_INT >= VERSION_CODES.M)
 		{
-			if (VERSION.SDK_INT >= VERSION_CODES.M)
-			{
-				Permissions.requestPermissions([PermissionsList.WRITE_EXTERNAL_STORAGE, PermissionsList.READ_EXTERNAL_STORAGE]);
+			// extension-androidtools' Permissions.getGrantedPermissions() is bound to the same
+			// native JNI method as requestPermissions() (wrong arity, and the native side returns
+			// void, not a permission array) -- there's no working synchronous permission-check in
+			// this library anymore, so just request unconditionally (a no-op dialog-wise if
+			// already granted) and let the try/catch below handle an actual denial.
+			Permissions.requestPermissions(['WRITE_EXTERNAL_STORAGE', 'READ_EXTERNAL_STORAGE']);
 
-				/**
-				 * Basically for now i can't force the app to stop while its requesting a android permission, so this makes the app to stop while its requesting the specific permission
-				 */
-				Application.current.window.alert('If you accepted the permissions you are all good!' + "\nIf you didn't then expect a crash"
-					+ 'Press Ok to see what happens',
-					'Permissions?');
-			}
-			else
-			{
-				Application.current.window.alert('Please grant the game storage permissions in app settings' + '\nPress Ok to close the app', 'Permissions?');
-				System.exit(1);
-			}
+			/**
+			 * Basically for now i can't force the app to stop while its requesting a android permission, so this makes the app to stop while its requesting the specific permission
+			 */
+			Application.current.window.alert('If you accepted the permissions you are all good!' + "\nIf you didn't then expect a crash"
+				+ 'Press Ok to see what happens',
+				'Permissions?');
+		}
+		else
+		{
+			Application.current.window.alert('Please grant the game storage permissions in app settings' + '\nPress Ok to close the app', 'Permissions?');
+			System.exit(1);
 		}
 
-		if (Permissions.getGrantedPermissions().contains(PermissionsList.WRITE_EXTERNAL_STORAGE)
-			&& Permissions.getGrantedPermissions().contains(PermissionsList.READ_EXTERNAL_STORAGE))
+		try
 		{
 			if (!FileSystem.exists(SUtil.getPath()))
 				FileSystem.createDirectory(SUtil.getPath());
@@ -106,6 +106,7 @@ class SUtil
 			for (vid in videoFiles)
 				SUtil.copyContent(Paths.video(vid), SUtil.getPath() + Paths.video(vid));
 		}
+		catch (e:Dynamic) {}
 		#end
 	}
 
@@ -166,7 +167,7 @@ class SUtil
 			}
 			#if android
 			catch (e:Dynamic)
-			Hardware.toast("Error!\nClouldn't save the crash dump because:\n" + e, ToastType.LENGTH_LONG);
+			Toast.makeText("Error!\nClouldn't save the crash dump because:\n" + e, Toast.LENGTH_LONG);
 			#end
 
 			Sys.println(errMsg);
@@ -185,11 +186,11 @@ class SUtil
 				FileSystem.createDirectory(SUtil.getPath() + 'saves');
 
 			File.saveContent(SUtil.getPath() + 'saves/' + fileName + fileExtension, fileData);
-			Hardware.toast("File Saved Successfully!", ToastType.LENGTH_LONG);
+			Toast.makeText("File Saved Successfully!", Toast.LENGTH_LONG);
 		}
 		#if android
 		catch (e:Dynamic)
-		Hardware.toast("Error!\nClouldn't save the file because:\n" + e, ToastType.LENGTH_LONG);
+		Toast.makeText("Error!\nClouldn't save the file because:\n" + e, Toast.LENGTH_LONG);
 		#end
 	}
 
@@ -202,7 +203,7 @@ class SUtil
 		}
 		#if android
 		catch (e:Dynamic)
-		Hardware.toast("Error!\nClouldn't copy the file because:\n" + e, ToastType.LENGTH_LONG);
+		Toast.makeText("Error!\nClouldn't copy the file because:\n" + e, Toast.LENGTH_LONG);
 		#end
 	}
 }
