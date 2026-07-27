@@ -185,8 +185,27 @@ jobs:
             exit 1
           fi
 
+      # Caches hxcpp's own incremental object cache for this project's C++-
+      # transpiled Haxe source, keyed on the source itself -- once warm, a
+      # run that only touches Indie-Cross-Public's own .hx files (not
+      # .hxpkg, which the earlier caches key on) only recompiles what
+      # actually changed instead of every generated .cpp from scratch.
+      - name: Cache hxcpp compile cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.hxcpp_cache
+          key: hxcpp-cache-android-port-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
+          restore-keys: |
+            hxcpp-cache-android-port-${{ runner.os }}-
+
       - name: Compile
-        run: haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}"
+        env:
+          HXCPP_COMPILE_THREADS: "4"
+          HXCPP_CACHE_MB: "4000"
+        run: |
+          export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
+          mkdir -p "$HXCPP_COMPILE_CACHE"
+          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}"
 
       - name: Publish Artifact
         uses: actions/upload-artifact@v7.0.1
