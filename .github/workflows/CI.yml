@@ -22,6 +22,9 @@ jobs:
         id: setup-ndk
         with:
           ndk-version: r21e
+          # Caches the extracted NDK (actions/cache under the hood) so it
+          # isn't re-downloaded/re-extracted on every run.
+          local-cache: true
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
