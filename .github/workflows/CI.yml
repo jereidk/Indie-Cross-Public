@@ -179,18 +179,22 @@ jobs:
       # only rebuilds when actually missing) instead of gating strictly on
       # cache-hit, matching NightmareVision-Android-Support's own workaround
       # for this exact fork.
+      # Caches the downloaded .deb's (keyed on the package list) and installs
+      # straight from that cache on a hit instead of re-fetching ~30
+      # packages from Ubuntu's mirrors every run.
       - name: Install Linux system deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential gcc-13 g++-13 vlc libvlc-dev libvlccore-dev vlc-bin \
-            libwayland-dev libwayland-bin wayland-protocols libasound2-dev \
-            libpulse-dev libjack-jackd2-dev libpipewire-0.3-dev libgl1-mesa-dev \
-            libegl1-mesa-dev libglu1-mesa-dev libdbus-1-dev libudev-dev \
-            libxkbcommon-dev libx11-dev libxext-dev libx11-xcb-dev libxfixes-dev \
-            libxss-dev libxrender-dev libxrandr-dev libxcursor-dev libxi-dev \
-            libxinerama-dev libxxf86vm-dev libgbm-dev libdrm-dev libdecor-0-dev \
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: >-
+            build-essential gcc-13 g++-13 vlc libvlc-dev libvlccore-dev vlc-bin
+            libwayland-dev libwayland-bin wayland-protocols libasound2-dev
+            libpulse-dev libjack-jackd2-dev libpipewire-0.3-dev libgl1-mesa-dev
+            libegl1-mesa-dev libglu1-mesa-dev libdbus-1-dev libudev-dev
+            libxkbcommon-dev libx11-dev libxext-dev libx11-xcb-dev libxfixes-dev
+            libxss-dev libxrender-dev libxrandr-dev libxcursor-dev libxi-dev
+            libxinerama-dev libxxf86vm-dev libgbm-dev libdrm-dev libdecor-0-dev
             libvulkan-dev pkg-config
+          version: 1.0
 
       - name: Wrap g++-13 to force C++23
         run: |
