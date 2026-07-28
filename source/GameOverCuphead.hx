@@ -10,7 +10,6 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
-import lime.media.openal.AL;
 import openfl.system.System;
 
 /**
@@ -239,7 +238,7 @@ class GameOverCuphead extends MusicBeatSubstate
 
 		@:privateAccess
 		{
-			AL.sourcef(deadMusic._channel.__source.__backend.handle, AL.PITCH, songSpeed);
+			deadMusic._channel.__audioSource.pitch = songSpeed;
 		}
 
 		if (!isEnding)

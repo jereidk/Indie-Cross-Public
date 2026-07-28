@@ -1419,15 +1419,15 @@ class Character extends FlxSprite
 
 		if (playafterfin)
 		{
-			var num = animation.animNAMES.indexOf(AnimName);
-			idletimer = new FlxTimer().start(animation.animFRAMES[num] / animation.animFPS[num] + 0.05, function(tmr:FlxTimer)
+			var curAnim = animation.curAnim;
+			var duration = (curAnim != null) ? (curAnim.numFrames / curAnim.frameRate) : 0;
+			idletimer = new FlxTimer().start(duration + 0.05, function(tmr:FlxTimer)
 			{
 				if (whatanimtoplay == '')
 					dance();
 				else
 					playAnim(whatanimtoplay, true);
 			});
-			// trace(AnimName + ' frames amt: ' + animation.animFRAMES[num] + ' fps: '+animation.animFPS[num]);
 		}
 	}
 

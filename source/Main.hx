@@ -53,7 +53,7 @@ class Main extends Sprite
 
 		SUtil.check();
 
-		addChild(new FlxGame(0, 0, Caching, 1, 60, 60, true, false));
+		addChild(new FlxGame(0, 0, Caching, 60, 60, true, false));
 		gjToastManager = new GJToastManager();
 		addChild(memoryMonitor);
 		addChild(fpsCounter);

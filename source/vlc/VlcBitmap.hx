@@ -74,7 +74,7 @@ class VlcBitmap extends Bitmap
 	var texture2:RectangleTexture;
 	var bmdBuf:BitmapData;
 	var bmdBuf2:BitmapData;
-	var oldTime:Int;
+	var oldTime:Float;
 	var flipBuffer:Bool;
 	var screenWidth:Float;
 	var screenHeight:Float;

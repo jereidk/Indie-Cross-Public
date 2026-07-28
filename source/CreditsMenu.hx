@@ -6,7 +6,7 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.graphics.FlxGraphic;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.input.mouse.FlxMouseEventManager;
+import flixel.input.mouse.FlxMouseEvent;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
@@ -358,7 +358,7 @@ class CreditsMenu extends MusicBeatState
 
 			add(smallIcon);
 			smallIcon.ID = i;
-			FlxMouseEventManager.add(smallIcon, null, null, hoverCallback, null, false, true, false);
+			FlxMouseEvent.add(smallIcon, null, null, hoverCallback, null, false, true, false);
 
 			credIcons.push(smallIcon);
 		}

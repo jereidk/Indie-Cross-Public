@@ -48,12 +48,12 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          # v5 bump: v4's fix (guessing the pointer lived in .dev.txt) didn't
-          # actually match anything, so the same broken-path failure
-          # happened again and got baked into v4's saved cache too. One more
-          # clean miss for the grep-based fix below, which doesn't guess a
-          # filename.
-          key: haxelibs-android-port-v5-${{ hashFiles('.hxpkg') }}
+          # v6 bump: v5's cache was saved (save-always) with openfl/flixel-
+          # addons sitting on stale commits from NightmareVision's export,
+          # not the commits .hxpkg actually pins -- confirmed via CI diag.
+          # One more clean miss so the new reconcile-to-pin step below
+          # actually runs instead of restoring that stale state.
+          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
           # actions/cache@v4 only saves on a job that's heading toward
           # success by default -- every run so far has failed at some LATER
           # step (Compile, hxpkg, etc.), so this cache was never once
@@ -158,6 +158,37 @@ jobs:
           haxelib git linc_luajit https://github.com/jereidk/linc_luajit --quiet
           haxelib git extension-androidtools https://github.com/jereidk/extension-androidtools --quiet
           haxelib list
+
+      # The import above brings in whatever NightmareVision had cached at ITS
+      # last export run -- not necessarily what .hxpkg pins here right now.
+      # Confirmed via CI diagnostic: openfl and flixel-addons came in on
+      # completely different commits than their .hxpkg pins (hxcpp/lime/
+      # flixel happened to match, but nothing guarantees that). Force every
+      # git-linked library to its exact pinned commit so an out-of-date
+      # NightmareVision export can never silently hand us the wrong source.
+      - name: Reconcile imported libraries to .hxpkg pins
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-import.outputs.imported == 'true'
+        run: |
+          set -e
+          jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
+            path=".haxelib/$name/git"
+            if [ ! -d "$path/.git" ]; then
+              echo "$name: no git checkout at $path, skipping (not part of the import)."
+              continue
+            fi
+            current=$(git -C "$path" rev-parse HEAD)
+            if [ "$current" = "$branch" ]; then
+              echo "$name: already at pinned commit $branch."
+              continue
+            fi
+            echo "$name: imported at $current, pinned to $branch -- reconciling."
+            if ! git -C "$path" fetch --quiet origin "$branch"; then
+              echo "$name: direct SHA fetch failed, unshallowing before retrying."
+              git -C "$path" fetch --quiet --unshallow origin || git -C "$path" fetch --quiet origin
+            fi
+            git -C "$path" checkout --quiet --force "$branch"
+            echo "$name: now at $(git -C "$path" rev-parse HEAD)."
+          done
 
       # hxpkg reads .hxpkg and installs everything in one pass -- replaces
       # the old per-library haxelib install/git calls (each with its own

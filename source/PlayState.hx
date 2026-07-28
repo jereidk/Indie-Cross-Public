@@ -25,6 +25,7 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.addons.display.FlxBackdrop;
+import flixel.util.FlxAxes;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.effects.FlxFlicker;
 import flixel.effects.particles.FlxEmitter;
@@ -714,13 +715,13 @@ class PlayState extends MusicBeatState
 		}
 
 		setChrome(defaultChromVal);
-		camGame.setFilters(filters);
+		camGame.filters = filters;
 		camGame.filtersEnabled = true;
 
 		if (!fuckinAngry && SONG.song.toLowerCase() != 'whoopee')
 		{
 			camHUD.filtersEnabled = true;
-			camHUD.setFilters(filters);
+			camHUD.filters = filters;
 		}
 		else
 		{
@@ -1962,7 +1963,8 @@ class PlayState extends MusicBeatState
 							 */
 
 							// i dont like how i implmented the stair stuff, feel free to make it better
-							stairsBG = new FlxBackdrop(Paths.image('stairs/scrollingBG', 'bendy'), 0, 1, false, true);
+							stairsBG = new FlxBackdrop(Paths.image('stairs/scrollingBG', 'bendy'), FlxAxes.fromBools(false, true));
+							stairsBG.scrollFactor.set(0, 1);
 							stairsBG.screenCenter();
 							stairsBG.alpha = 0.0001;
 							stairsBG.velocity.set(0, 180);
@@ -4141,7 +4143,7 @@ class PlayState extends MusicBeatState
 
 	public static var startTime = 0.0;
 
-	var previousFrameTime:Int = 0;
+	var previousFrameTime:Float = 0;
 	var songTime:Float = 0;
 
 	function startSong():Void
@@ -12359,16 +12361,19 @@ class PlayState extends MusicBeatState
 		// NIGHTMARE RUN STAIRS
 		if (SONG.song.toLowerCase() == 'nightmare-run' && nmStairs)
 		{
-			stairsBG = new FlxBackdrop(Paths.image('stairs/scrollingBG', 'bendy'), 0, 1, false, true);
+			stairsBG = new FlxBackdrop(Paths.image('stairs/scrollingBG', 'bendy'), FlxAxes.fromBools(false, true));
+			stairsBG.scrollFactor.set(0, 1);
 			stairsBG.screenCenter();
 			stairsBG.velocity.set(0, 240);
 
-			stairsChainL = new FlxBackdrop(Paths.image('stairs/chainleft', 'bendy'), 0, 1, false, true);
+			stairsChainL = new FlxBackdrop(Paths.image('stairs/chainleft', 'bendy'), FlxAxes.fromBools(false, true));
+			stairsChainL.scrollFactor.set(0, 1);
 			stairsChainL.screenCenter();
 			stairsChainL.x -= 500;
 			stairsChainL.velocity.set(0, 1000);
 
-			stairsChainR = new FlxBackdrop(Paths.image('stairs/chainright', 'bendy'), 0, 1, false, true);
+			stairsChainR = new FlxBackdrop(Paths.image('stairs/chainright', 'bendy'), FlxAxes.fromBools(false, true));
+			stairsChainR.scrollFactor.set(0, 1);
 			stairsChainR.screenCenter();
 			stairsChainR.x += 520;
 			stairsChainR.velocity.set(0, 1510);
