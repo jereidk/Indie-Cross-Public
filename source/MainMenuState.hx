@@ -237,6 +237,13 @@ class MainMenuState extends MusicBeatState
 	static final buttonRevealRange:Float = 50;
 	static final menuItemTweenOptions:TweenOptions = {ease: FlxEase.circOut};
 
+	// The UP_DOWN virtual D-pad sits at x=[0,132] and (with virtualPad.y = -22)
+	// occupies y=[443,690] -- exactly the band "options"/"credits" reveal into
+	// when selected. Stop the left-flush reveal a hair past the D-pad's right
+	// edge instead of going all the way to x=0, so selecting those items no
+	// longer slides them under the pad.
+	static final padClearanceX:Float = 140;
+
 	final name:String = Lib.application.meta["name"];
 	final version:String = Lib.application.meta["version"];
 
@@ -643,7 +650,10 @@ class MainMenuState extends MusicBeatState
 
 			if (str == "achievements")
 			{
-				menuItem.setPosition(1280 - menuItem.width + buttonRevealRange, 630);
+				// y=630 used to sit inside the A_B_C virtual pad's row
+				// (y=[563,690] with virtualPad.y=-22) -- 470 clears it while
+				// staying in the same bottom-right corner.
+				menuItem.setPosition(1280 - menuItem.width + buttonRevealRange, 470);
 			}
 			else
 			{
@@ -682,7 +692,7 @@ class MainMenuState extends MusicBeatState
 				if (str == "achievements")
 					menuPosTweens[i] = FlxTween.tween(menuItem, {x: 1280 - menuItem.width}, 0.2, menuItemTweenOptions);
 				else
-					menuPosTweens[i] = FlxTween.tween(menuItem, {x: 0}, 0.2, menuItemTweenOptions);
+					menuPosTweens[i] = FlxTween.tween(menuItem, {x: padClearanceX}, 0.2, menuItemTweenOptions);
 			}
 			else
 			{
@@ -725,7 +735,7 @@ class MainMenuState extends MusicBeatState
 		else
 		{
 			menuItem.x = -buttonRevealRange;
-			menuPosTweens[curSelected] = FlxTween.tween(menuItem, {x: 0}, 0.4, menuItemTweenOptions);
+			menuPosTweens[curSelected] = FlxTween.tween(menuItem, {x: padClearanceX}, 0.4, menuItemTweenOptions);
 		}
 
 		menuItem.shader.data.progress.value = [1.0];

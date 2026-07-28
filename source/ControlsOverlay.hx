@@ -17,7 +17,10 @@ class ControlsOverlay extends FlxSpriteGroup
 	{
 		super();
 
-		controlsHelp = new FlxText(10, 10, 0, HelperFunctions.getSongData(PlayState.SONG.song.toLowerCase(), 'mech'), 32);
+		// y=10 used to sit right on top of Main's FPS/MEM debug counters
+		// (also anchored near the top-left corner, toggleable via Options) --
+		// 85 clears their combined ~70px block (FPS line + MEM's 2 lines).
+		controlsHelp = new FlxText(10, 85, 0, HelperFunctions.getSongData(PlayState.SONG.song.toLowerCase(), 'mech'), 32);
 		controlsHelp.scrollFactor.set();
 		controlsHelp.setFormat(Paths.font('vcr.ttf'), 32, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		controlsHelp.alignment = LEFT;
