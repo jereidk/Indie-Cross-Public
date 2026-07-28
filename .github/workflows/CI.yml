@@ -50,14 +50,14 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          # v3 bump: the v2 run imported NightmareVision's cache successfully
-          # but then failed in "Install Haxelib (via hxpkg)" (needed --force,
-          # now fixed) before linc_luajit/extension-androidtools got added --
-          # actions/cache still saves on job failure, so v2 likely holds
-          # everything EXCEPT those two. A hit there would skip every
-          # install step (all gated on cache-miss) and leave them missing
-          # for good. Bump once more for one clean run of the fixed logic.
-          key: haxelibs-android-port-v3-${{ hashFiles('.hxpkg') }}
+          # v4 bump: v3 got further (import + linc_luajit/extension-
+          # androidtools + ndll self-heal all succeeded) but then failed at
+          # "lime setup flixel" on stale absolute dev-link paths baked into
+          # the imported .dev.txt files (now fixed below) -- v3's saved
+          # cache still has those broken pointers, so it needs one more
+          # clean miss to actually exercise the fix instead of inheriting
+          # the same broken state.
+          key: haxelibs-android-port-v4-${{ hashFiles('.hxpkg') }}
 
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
@@ -120,6 +120,16 @@ jobs:
           fi
           tar -xzf /tmp/nv-cache-import/haxelib-root.tar.gz -C "$HOME"
           tar -xzf /tmp/nv-cache-import/haxelib-project.tar.gz -C .
+          # haxelib's dev-link registry (.dev.txt inside each git-linked
+          # package's folder, e.g. .haxelib/lime/.dev.txt) stores the
+          # ABSOLUTE path to the checkout, captured on NightmareVision's own
+          # runner (/home/runner/work/NightmareVision-Android-Support/...).
+          # That path doesn't exist here, so every dev-linked package
+          # (lime/flixel/flixel-addons/openfl/hxcpp) needs its pointer
+          # rewritten to this runner's actual workspace path or haxelib
+          # can't even read its haxelib.json ("Error parsing haxelib.json").
+          find ~/haxelib .haxelib -name '.dev.txt' -type f -print0 2>/dev/null \
+            | xargs -0 -r sed -i -E "s#/home/runner/work/[^/]+/[^/]+#${GITHUB_WORKSPACE}#g"
           haxelib setup ~/haxelib
           echo "Imported NightmareVision's haxelib/Lime cache."
           echo "imported=true" >> "$GITHUB_OUTPUT"
