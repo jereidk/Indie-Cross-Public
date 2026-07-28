@@ -4912,7 +4912,7 @@ class PlayState extends MusicBeatState
 			{
 				for (i in 0...gameVideos.length)
 				{
-					gameVideos[i].bitmap.resume();
+					gameVideos[i].resume();
 				}
 			}
 
@@ -12116,7 +12116,7 @@ class PlayState extends MusicBeatState
 		{
 			for (i in 0...gameVideos.length)
 			{
-				gameVideos[i].bitmap.pause();
+				gameVideos[i].pause();
 			}
 		}
 

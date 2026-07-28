@@ -175,4 +175,26 @@ class VideoHandler
 			finishCallback();
 		#end
 	}
+
+	/**
+	 * Pauses/resumes playback -- e.g. PlayState pausing every active cutscene
+	 * video when the game itself pauses. video is a private field (bare
+	 * `bitmap.pause()`/`.resume()` on a VideoHandler instance isn't valid
+	 * from outside this class), so these two are the encapsulated equivalent.
+	 */
+	public function pause()
+	{
+		#if VIDEOS_ALLOWED
+		if (video != null)
+			video.bitmap.pause();
+		#end
+	}
+
+	public function resume()
+	{
+		#if VIDEOS_ALLOWED
+		if (video != null)
+			video.bitmap.resume();
+		#end
+	}
 }
