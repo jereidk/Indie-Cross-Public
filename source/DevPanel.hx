@@ -26,9 +26,12 @@ using StringTools;
  *
  * Trimmed down from NightmareVision's version to what this codebase
  * actually has: no ClientPrefs-based unlock/economy flags, no FNAF code, no
- * audio-synced "epic unlock" glow timed off a specific .ogg waveform --
- * just the code gate + a panel exposing this game's own debugTools flag,
- * achievement grant/reset, and the chart editor.
+ * audio-synced "epic unlock" glow timed off a specific .ogg waveform.
+ * The panel rows mostly just expose existing keyboard-only debug shortcuts
+ * from MainMenuState's own update() (CTRL+P unlock-everything, CTRL+SHIFT+A
+ * grant achievements, CTRL+I offset editor, CTRL+L showcase mode, the
+ * DELETE-key save eraser) as touch buttons, plus a chart editor shortcut and
+ * an achievements reset.
  */
 class DevPanel extends FlxSpriteGroup
 {
@@ -76,6 +79,7 @@ class DevPanel extends FlxSpriteGroup
 	var devPanelH:Float = 0;
 
 	var devLblDebug:FlxText;
+	var devLblShowcase:FlxText;
 	var devLblReset:FlxText;
 	var devResetBtnSpr:FlxSprite;
 	var devResetArmed:Bool = false;
@@ -354,11 +358,11 @@ class DevPanel extends FlxSpriteGroup
 	function buildDevPanel():Void
 	{
 		var PW:Int = 560;
-		var PH:Int = 480;
+		var PH:Int = 640;
 		var px:Int = Std.int((FlxG.width - PW) / 2);
 		var py:Int = Std.int((FlxG.height - PH) / 2);
 		var BW:Int = PW - 48;
-		var BH:Int = 48;
+		var BH:Int = 40;
 		var BX:Int = px + 24;
 
 		devPanelX = px;
@@ -382,30 +386,30 @@ class DevPanel extends FlxSpriteGroup
 		reg(bg);
 
 		var topBand = new FlxSprite(px, py);
-		topBand.loadGraphic(devRoundedRectTop(PW, 90, DEV_COL_BG, 22));
+		topBand.loadGraphic(devRoundedRectTop(PW, 80, DEV_COL_BG, 22));
 		topBand.alpha = 0.9;
 		reg(topBand);
 
-		var accent = new FlxSprite(px + 22, py + 18);
-		accent.makeGraphic(6, 46, DEV_COL_ACCENT);
+		var accent = new FlxSprite(px + 22, py + 16);
+		accent.makeGraphic(6, 40, DEV_COL_ACCENT);
 		reg(accent);
 
-		var title = new FlxText(px + 40, py + 16, PW - 80, 'DEVELOPER PANEL', 32);
-		title.setFormat(Paths.font('vcr.ttf'), 32, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
+		var title = new FlxText(px + 40, py + 14, PW - 80, 'DEVELOPER PANEL', 28);
+		title.setFormat(Paths.font('vcr.ttf'), 28, FlxColor.WHITE, LEFT, OUTLINE, FlxColor.BLACK);
 		reg(title);
 
-		var subtitle = new FlxText(px + 42, py + 50, PW - 80, 'you shouldn\'t be here', 14);
-		subtitle.setFormat(Paths.font('vcr.ttf'), 14, DEV_COL_SECTION, LEFT, OUTLINE, FlxColor.BLACK);
+		var subtitle = new FlxText(px + 42, py + 46, PW - 80, 'you shouldn\'t be here', 13);
+		subtitle.setFormat(Paths.font('vcr.ttf'), 13, DEV_COL_SECTION, LEFT, OUTLINE, FlxColor.BLACK);
 		reg(subtitle);
 
-		var rowY:Int = py + 104;
+		var rowY:Int = py + 88;
 
 		function sectionLabel(text:String):Void
 		{
-			var lbl = new FlxText(BX, rowY, BW, text, 14);
-			lbl.setFormat(Paths.font('vcr.ttf'), 14, DEV_COL_SECTION, LEFT, OUTLINE, FlxColor.BLACK);
+			var lbl = new FlxText(BX, rowY, BW, text, 13);
+			lbl.setFormat(Paths.font('vcr.ttf'), 13, DEV_COL_SECTION, LEFT, OUTLINE, FlxColor.BLACK);
 			reg(lbl);
-			rowY += 24;
+			rowY += 20;
 		}
 
 		function addRow(label:String, bgColor:Int, btnIdx:Int):FlxText
@@ -414,37 +418,48 @@ class DevPanel extends FlxSpriteGroup
 			spr.loadGraphic(devRoundedRect(BW, BH, bgColor, 10));
 			reg(spr);
 
-			var lbl = new FlxText(BX, rowY + 13, BW, label, 18);
-			lbl.setFormat(Paths.font('vcr.ttf'), 18, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
+			var lbl = new FlxText(BX, rowY + 10, BW, label, 16);
+			lbl.setFormat(Paths.font('vcr.ttf'), 16, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 			reg(lbl);
 
 			devPanelBtns.push({x: BX, y: rowY, w: BW, h: BH, idx: btnIdx});
-			rowY += BH + 10;
+			rowY += BH + 6;
 			return lbl;
 		}
 
-		sectionLabel('DEBUG');
-		devLblDebug = addRow(devDebugLabel(), MainMenuState.debugTools ? DEV_COL_TOGGLE_ON : DEV_COL_TOGGLE, 0);
-
-		rowY += 6;
-		sectionLabel('ACHIEVEMENTS');
+		sectionLabel('PROGRESSION');
+		// Mirrors the existing CTRL+P debug shortcut exactly (see update()'s
+		// old debugTools-gated keyboard block): unlocks every freeplay song,
+		// marks every week beaten (normal + hard), and flips the genocide/
+		// pacifist story flags -- all keyboard-only before this panel existed.
+		addRow('Unlock Everything', DEV_COL_LOOT, 0);
 		addRow('Grant All Achievements', DEV_COL_LOOT, 1);
 
-		rowY += 6;
+		rowY += 4;
+		sectionLabel('DEBUG');
+		devLblDebug = addRow(devDebugLabel(), MainMenuState.debugTools ? DEV_COL_TOGGLE_ON : DEV_COL_TOGGLE, 2);
+		devLblShowcase = addRow(devShowcaseLabel(), MainMenuState.showcase ? DEV_COL_TOGGLE_ON : DEV_COL_TOGGLE, 3);
+
+		rowY += 4;
 		sectionLabel('TOOLS');
-		addRow('Chart Editor', DEV_COL_TOOL, 3);
+		addRow('Chart Editor', DEV_COL_TOOL, 4);
+		addRow('Offset Editor', DEV_COL_TOOL, 5);
+
+		rowY += 4;
+		sectionLabel('DANGER ZONE');
+		devLblReset = addRow('!  Reset Achievements', DEV_COL_DANGER, 6);
+		devResetBtnSpr = devPanelAll[devPanelAll.length - 2];
+		addRow('!  Erase Save Data', DEV_COL_DANGER, 7);
 
 		rowY += 6;
-		sectionLabel('DANGER ZONE');
-		devLblReset = addRow('!  Reset Achievements', DEV_COL_DANGER, 2);
-		devResetBtnSpr = devPanelAll[devPanelAll.length - 2];
-
-		rowY += 8;
-		addRow('X  Close', DEV_COL_CLOSE, 4);
+		addRow('X  Close', DEV_COL_CLOSE, 8);
 	}
 
 	function devDebugLabel():String
 		return MainMenuState.debugTools ? 'Debug Tools  ON' : 'Debug Tools  OFF';
+
+	function devShowcaseLabel():String
+		return MainMenuState.showcase ? 'Showcase Mode  ON' : 'Showcase Mode  OFF';
 
 	function devResetLabel():String
 		return devResetArmed ? '!  TAP AGAIN TO CONFIRM' : '!  Reset Achievements';
@@ -455,7 +470,15 @@ class DevPanel extends FlxSpriteGroup
 		devPanelCooldown = 5;
 		devResetArmed = false;
 
+		// The panel's rows visually cover the same bottom corners the D-pad
+		// and A/B/C buttons sit in (see MainMenuState's own pad-collision
+		// fix) -- hide the pad so a row tap can't also register as a pad
+		// button press underneath it. Only touch-tap row navigation is
+		// implemented here, so the pad has nothing to do while this is open.
+		if (state.virtualPad != null) state.virtualPad.visible = false;
+
 		if (devLblDebug != null) devLblDebug.text = devDebugLabel();
+		if (devLblShowcase != null) devLblShowcase.text = devShowcaseLabel();
 		if (devLblReset != null) devLblReset.text = devResetLabel();
 
 		// Dedicated camera, added last so it renders on top of everything
@@ -502,23 +525,48 @@ class DevPanel extends FlxSpriteGroup
 			thing.visible = false;
 			thing.alpha = 1;
 		}
+		if (state.virtualPad != null) state.virtualPad.visible = true;
 	}
 
 	function handleDevBtnTap(idx:Int):Void
 	{
 		switch (idx)
 		{
-			case 0: // Debug tools toggle
-				MainMenuState.debugTools = !MainMenuState.debugTools;
-				if (devLblDebug != null) devLblDebug.text = devDebugLabel();
-				FlxG.sound.play(Paths.sound('confirmMenu'), 0.6);
+			case 0: // Unlock Everything -- same fields MainMenuState's own
+				// CTRL+P debug shortcut sets (freeplay songs, both week-beat
+				// difficulties, genocide/pacifist story flags).
+				FlxG.save.data.freeplaylocked = [false, false, false];
+				FlxG.save.data.weeksbeat = [true, true, true];
+				FlxG.save.data.weeksbeatonhard = [true, true, true];
+				FlxG.save.data.hasgenocided = true;
+				FlxG.save.data.haspacifisted = true;
+				FlxG.save.flush();
+				FlxG.sound.play(Paths.sound('confirmMenu'), 0.8);
 
 			case 1: // Grant every achievement
 				for (a in Achievements.achievements)
 					Achievements.unlockAchievement(a.name, false);
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.8);
 
-			case 2: // Reset achievements -- two-tap confirm to avoid fat-finger data loss
+			case 2: // Debug tools toggle
+				MainMenuState.debugTools = !MainMenuState.debugTools;
+				if (devLblDebug != null) devLblDebug.text = devDebugLabel();
+				FlxG.sound.play(Paths.sound('confirmMenu'), 0.6);
+
+			case 3: // Showcase mode toggle
+				MainMenuState.showcase = !MainMenuState.showcase;
+				if (devLblShowcase != null) devLblShowcase.text = devShowcaseLabel();
+				FlxG.sound.play(Paths.sound('confirmMenu'), 0.6);
+
+			case 4: // Chart Editor
+				closeDevPanel();
+				FlxG.switchState(new ChartingState());
+
+			case 5: // Offset Editor
+				closeDevPanel();
+				FlxG.switchState(new DiffButtonOffsets());
+
+			case 6: // Reset achievements -- two-tap confirm to avoid fat-finger data loss
 				if (!devResetArmed)
 				{
 					devResetArmed = true;
@@ -538,11 +586,27 @@ class DevPanel extends FlxSpriteGroup
 					closeDevPanel();
 				}
 
-			case 3: // Chart Editor
+			case 7: // Erase Save Data -- same confirm-prompt flow as the
+				// existing DELETE-key/virtual pad C-button handler in
+				// MainMenuState's own update().
 				closeDevPanel();
-				FlxG.switchState(new ChartingState());
+				state.persistentUpdate = false;
+				state.openSubState(new Prompt("Are you sure you want to erase your save?"));
+				Prompt.acceptThing = function()
+				{
+					FlxG.save.erase();
+					FlxG.save.flush();
+					FlxG.save.bind(Main.curSave, 'indiecross');
+					KadeEngineData.initSave();
+					FlxG.sound.play(Paths.sound('delete'), 0.7);
+					TitleState.restart();
+				}
+				Prompt.backThing = function()
+				{
+					state.persistentUpdate = true;
+				}
 
-			case 4: // Close
+			case 8: // Close
 				closeDevPanel();
 		}
 	}
