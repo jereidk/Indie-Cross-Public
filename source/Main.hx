@@ -53,6 +53,20 @@ class Main extends Sprite
 		Logger.initMainThread();
 		#end
 
+		// Some hxcpp-level critical errors (certain stack/heap corruption
+		// classes, among others) never reach UncaughtErrorEvent at all --
+		// this hook converts one into a normal Haxe throw, which DOES reach
+		// it, so it goes through the same crash-log/recovery path below
+		// instead of just silently killing the process. Cheap and strictly
+		// additive: it only ever fires for errors that would otherwise be
+		// invisible to both crash handlers entirely.
+		#if cpp
+		untyped __global__.__hxcpp_set_critical_error_handler(function(message:String):Void
+		{
+			throw Std.string(message);
+		});
+		#end
+
 		#if !android
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#else

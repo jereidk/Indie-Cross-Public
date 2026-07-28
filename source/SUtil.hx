@@ -9,6 +9,7 @@ import extension.androidtools.widget.Toast;
 #end
 import flash.system.System;
 import flixel.FlxG;
+import flixel.addons.transition.FlxTransitionableState;
 import haxe.CallStack.StackItem;
 import haxe.CallStack;
 import haxe.io.Path;
@@ -238,9 +239,34 @@ class SUtil
 			#end
 
 			Sys.println(errMsg);
-			Application.current.window.alert(errMsg, 'Error!');
 
+			#if android
+			// Recover in-game instead of killing the process: this event
+			// fires from OpenFL/Lime's own uncaught-error dispatcher, so
+			// preventing its default handling (which would otherwise still
+			// tear the app down) and switching to a crash-safe FallbackState
+			// is enough to keep the session alive. The crashed state is
+			// left as-is underneath (its own update()/draw() are frozen via
+			// persistentUpdate/persistentDraw below) rather than destroyed,
+			// since a state whose own fields caused this exception could
+			// throw again mid-destroy.
+			u.preventDefault();
+			u.stopPropagation();
+			u.stopImmediatePropagation();
+
+			FlxTransitionableState.skipNextTransIn = FlxTransitionableState.skipNextTransOut = true;
+			if (FlxG.state != null)
+				FlxG.state.persistentUpdate = FlxG.state.persistentDraw = false;
+
+			var popupMsg = errMsg;
+			if (popupMsg.length > 2000)
+				popupMsg = popupMsg.substr(0, 2000) + '\n[truncated...]';
+
+			FlxG.switchState(() -> new FallbackState(popupMsg, () -> FlxG.switchState(() -> new TitleState())));
+			#else
+			Application.current.window.alert(errMsg, 'Error!');
 			System.exit(1);
+			#end
 		});
 	}
 

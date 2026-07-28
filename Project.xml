@@ -86,6 +86,7 @@
 	<!--Makes crash messages show up in release build, essential for the crash message (lol)-->
 	<haxedef name="HXCPP_CHECK_POINTER" if="release" />
 	<haxedef name="HXCPP_STACK_LINE" if="release" />
+	<haxedef name="HXCPP_STACK_TRACE" if="release" />
 
 	<!--Android-Internet-connection-stuff-->
 	<android permission="android.permission.ACCESS_NETWORK_STATE"/>
