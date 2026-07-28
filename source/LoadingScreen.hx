@@ -81,7 +81,7 @@ class LoadingScreen extends FlxTypedGroup<FlxSprite>
 		loadTxtBg.makeGraphic(1, 1, 0xFF000000);
 		loadTxtBg.updateHitbox();
 		loadTxtBg.origin.set();
-		loadTxtBg.scale.set(1280, loadTxt.height + 5);
+		loadTxtBg.scale.set(FlxG.width, loadTxt.height + 5);
 		loadTxtBg.alpha = 0.8;
 		loadTxtBg.y = loadTxt.y;
 
@@ -99,7 +99,7 @@ class LoadingScreen extends FlxTypedGroup<FlxSprite>
 	{
 		super.update(elapsed);
 
-		var lerpTarget:Float = 1280.0 * (progress / max);
+		var lerpTarget:Float = FlxG.width * (progress / max);
 		loadTxtProgress.scale.x = FlxMath.lerp(loadTxtProgress.scale.x, lerpTarget, elapsed * 5);
 	}
 

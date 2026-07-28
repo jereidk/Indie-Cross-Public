@@ -151,23 +151,78 @@ class SUtil
 
 			errMsg += u.error;
 
+			// Extra runtime context so a saved crash log is actually useful for
+			// tracking down bugs that only reproduce mid-gameplay (e.g. which
+			// song/step a NullObjectReference happened on) instead of just the
+			// bare stack trace above.
+			errMsg += '\n\n--- Context ---\n';
+			errMsg += 'Time: ' + Date.now().toString() + '\n';
+			try
+			{
+				if (PlayState.instance != null && PlayState.SONG != null)
+				{
+					errMsg += 'Song: ' + PlayState.SONG.song + ' (curStep=' + PlayState.instance.curStep + ')\n';
+				}
+				else
+				{
+					errMsg += 'Song: none (not in PlayState)\n';
+				}
+			}
+			catch (e:Dynamic) {}
+			try
+			{
+				errMsg += 'Memory: ' + Math.round(System.totalMemory / 1024 / 1024) + ' MB\n';
+			}
+			catch (e:Dynamic) {}
+			#if android
+			try
+			{
+				errMsg += 'Android SDK: ' + VERSION.SDK_INT + ' (' + VERSION.RELEASE + ')\n';
+			}
+			catch (e:Dynamic) {}
+			#end
+
+			var logFileName:String = Application.current.meta.get('file')
+				+ '-'
+				+ Date.now().toString().replace(' ', '-').replace(':', "'")
+				+ '.log';
+			var saved:Bool = false;
+
 			try
 			{
 				if (!FileSystem.exists(SUtil.getPath() + 'logs'))
 					FileSystem.createDirectory(SUtil.getPath() + 'logs');
 
-				File.saveContent(SUtil.getPath()
-					+ 'logs/'
-					+ Application.current.meta.get('file')
-					+ '-'
-					+ Date.now().toString().replace(' ', '-').replace(':', "'")
-					+ '.log',
-					errMsg
-					+ '\n');
+				File.saveContent(SUtil.getPath() + 'logs/' + logFileName, errMsg + '\n');
+				saved = true;
 			}
+			catch (e:Dynamic) {}
+
+			// SUtil.getPath() lives under Environment.getExternalStorageDirectory(),
+			// which Android 10/11+ scoped storage blocks writes to unless the app
+			// has the special "All files access" permission -- WRITE_EXTERNAL_STORAGE
+			// alone doesn't grant that on modern Android, so the save above silently
+			// fails there. Context.getExternalFilesDir() is the app's own sandboxed
+			// external directory: always writable, no extra permission needed, on
+			// every Android version -- fall back to it so a crash log survives even
+			// when the primary path is blocked.
 			#if android
-			catch (e:Dynamic)
-			Toast.makeText("Error!\nClouldn't save the crash dump because:\n" + e, Toast.LENGTH_LONG);
+			if (!saved)
+			{
+				try
+				{
+					var fallbackDir:String = extension.androidtools.content.Context.getExternalFilesDir(null) + '/logs/';
+					if (!FileSystem.exists(fallbackDir))
+						FileSystem.createDirectory(fallbackDir);
+
+					File.saveContent(fallbackDir + logFileName, errMsg + '\n');
+					saved = true;
+				}
+				catch (e:Dynamic) {}
+			}
+
+			if (!saved)
+				Toast.makeText("Error!\nClouldn't save the crash dump because:\nboth the primary and fallback storage paths failed", Toast.LENGTH_LONG);
 			#end
 
 			Sys.println(errMsg);

@@ -38,6 +38,10 @@
             {
                 "name": "extension-androidtools",
                 "link": "https://github.com/jereidk/extension-androidtools"
+            },
+            {
+                "name": "hxvlc",
+                "version": "2.2.6"
             }
         ]
     }

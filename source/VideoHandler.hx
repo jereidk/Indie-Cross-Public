@@ -6,19 +6,38 @@ import flixel.FlxState;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import openfl.events.Event;
-import vlc.VlcBitmap;
 
-// THIS IS FOR TESTING
-// DONT STEAL MY CODE >:(
+#if VIDEOS_ALLOWED
+import hxvlc.flixel.FlxVideoSprite;
+#end
+
+/**
+ * Plays an .mp4 into an existing placeholder FlxSprite (`outputTo`), matching
+ * that sprite's position/size/cameras so callers don't need to change how
+ * they set up their cutscene sprite.
+ *
+ * Ported from the old raw-VlcBitmap implementation to the hxvlc haxelib --
+ * the previous source/vlc/ C++ extension only ever shipped linux/mac/windows
+ * builds of libvlc/libvlccore (no Android .so's were ever built for it), so
+ * video never actually played on Android. hxvlc ships its own prebuilt
+ * Android binaries, same library NightmareVision-Android-Support uses.
+ *
+ * Public API (allowSkip / finishCallback / stateCallback / fadeToBlack /
+ * fadeFromBlack / playMP4 / kill) is unchanged so every existing call site
+ * (PlayState, MainMenuState, TitleState, GameOverSubstate) needs no edits.
+ */
 class VideoHandler
 {
 	public var finishCallback:Void->Void;
 	public var stateCallback:FlxState;
-	public var bitmap:VlcBitmap;
-	public var sprite:FlxSprite;
 	public var fadeToBlack:Bool = false;
 	public var fadeFromBlack:Bool = false;
 	public var allowSkip:Bool = false;
+
+	#if VIDEOS_ALLOWED
+	var video:FlxVideoSprite;
+	var outputTo:FlxSprite;
+	#end
 
 	public function new()
 	{
@@ -28,42 +47,28 @@ class VideoHandler
 	public function playMP4(path:String, ?repeat:Bool = false, ?outputTo:FlxSprite = null, ?isWindow:Bool = false, ?isFullscreen:Bool = false,
 			?midSong:Bool = false):Void
 	{
-		#if cpp
+		#if VIDEOS_ALLOWED
 		if (!midSong && FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 
-		bitmap = new VlcBitmap();
-		bitmap.set_width(bitmap.calc(0));
-		bitmap.set_height(bitmap.calc(1));
-		bitmap.onVideoReady = onVLCVideoReady;
-		bitmap.onComplete = onVLCComplete;
-		bitmap.onError = onVLCError;
+		this.outputTo = outputTo;
 
-		FlxG.stage.addEventListener(Event.ENTER_FRAME, update);
+		video = new FlxVideoSprite();
+		video.bitmap.onFormatSetup.add(onVideoReady, true);
+		video.bitmap.onEndReached.add(onComplete, true);
 
-		#if android
 		if (repeat)
-			bitmap.repeat = 65535;
+			video.load(checkFile(path), [':input-repeat=65535']);
 		else
-			bitmap.repeat = 0;
-		#else
-		if (repeat)
-			bitmap.repeat = -1;
-		else
-			bitmap.repeat = 0;
-		#end
+			video.load(checkFile(path));
 
-		bitmap.inWindow = isWindow;
-		bitmap.fullscreen = isFullscreen;
-
-		FlxG.addChildBelowMouse(bitmap);
-		bitmap.play(checkFile(path));
+		FlxG.state.add(video);
+		video.play();
 
 		if (outputTo != null)
-		{
-			bitmap.alpha = 0.00001;
-			sprite = outputTo;
-		}
+			outputTo.visible = false;
+
+		FlxG.stage.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		#end
 	}
 
@@ -80,30 +85,39 @@ class VideoHandler
 		return 'file://' + Sys.getCwd() + fileName;
 		#elseif windows
 		return 'file:///' + Sys.getCwd() + fileName;
+		#else
+		return fileName;
 		#end
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	function onVLCVideoReady()
+	#if VIDEOS_ALLOWED
+	function onVideoReady():Void
 	{
 		trace("video loaded!");
 
-		#if cpp
-		if (sprite != null)
-			sprite.loadGraphic(bitmap.bitmapData);
-		#end
+		// Match whatever footprint the caller already sized/positioned
+		// outputTo with (e.g. a full-screen black backdrop, or a smaller HUD
+		// sprite) instead of guessing dimensions -- outputTo stays hidden
+		// (see playMP4 above), this sprite renders the actual moving video
+		// in its place.
+		if (outputTo != null)
+		{
+			video.setGraphicSize(Std.int(outputTo.width), Std.int(outputTo.height));
+			video.updateHitbox();
+			video.x = outputTo.x;
+			video.y = outputTo.y;
+			video.cameras = outputTo.cameras;
+		}
 
 		if (fadeFromBlack)
 			FlxG.camera.fade(FlxColor.BLACK, 0, false);
 	}
 
-	public function onVLCComplete()
+	function onComplete():Void
 	{
-		#if cpp
-		bitmap.stop();
-
-		// Clean player, just in case! Actually no.
+		video.pause();
 
 		if (fadeToBlack)
 			FlxG.camera.fade(FlxColor.BLACK, 0, false);
@@ -111,7 +125,7 @@ class VideoHandler
 		if (fadeFromBlack)
 			FlxG.camera.fade(FlxColor.BLACK, 1, true);
 
-		trace("Big, Big Chungus, Big Chungus!");
+		FlxG.stage.removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 
 		new FlxTimer().start(0.3, function(tmr:FlxTimer)
 		{
@@ -120,41 +134,40 @@ class VideoHandler
 			else if (stateCallback != null)
 				LoadingState.loadAndSwitchState(stateCallback);
 
-			bitmap.dispose();
-
-			if (FlxG.game.contains(bitmap))
-				FlxG.game.removeChild(bitmap);
+			if (video != null)
+			{
+				FlxG.state.remove(video);
+				video.destroy();
+				video = null;
+			}
 		});
-		#end
 	}
+
+	function onEnterFrame(e:Event):Void
+	{
+		if (video == null)
+			return;
+
+		if (FlxG.keys.justPressed.ENTER #if android || FlxG.android.justReleased.BACK #end && (allowSkip && video.bitmap.isPlaying))
+			onComplete();
+
+		video.bitmap.volume = FlxG.sound.volume <= 0.1 ? 0 : FlxG.sound.volume;
+	}
+	#end
 
 	public function kill()
 	{
-		#if cpp
-		bitmap.visible = false;
-		bitmap.stop();
+		#if VIDEOS_ALLOWED
+		if (video != null)
+		{
+			video.visible = false;
+			video.pause();
+		}
+
+		FlxG.stage.removeEventListener(Event.ENTER_FRAME, onEnterFrame);
 
 		if (finishCallback != null)
 			finishCallback();
 		#end
-	}
-
-	function onVLCError()
-	{
-		if (finishCallback != null)
-			finishCallback();
-		else if (stateCallback != null)
-			LoadingState.loadAndSwitchState(stateCallback);
-	}
-
-	function update(e:Event)
-	{
-		if (FlxG.keys.justPressed.ENTER #if android || FlxG.android.justReleased.BACK #end && (allowSkip && bitmap.isPlaying))
-			onVLCComplete();
-
-		if (FlxG.sound.volume <= 0.1)
-			bitmap.volume = 0;
-		else
-			bitmap.volume = FlxG.sound.volume;
 	}
 }
