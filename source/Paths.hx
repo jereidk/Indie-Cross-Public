@@ -340,6 +340,19 @@ class Paths
 				if (bitmap == null)
 					bitmap = OpenFlAssets.getBitmapData(path);
 
+				// Many Android GPUs cap 2D texture size at 4096px (some
+				// older/low-end ones lower); uploading anything past that
+				// can silently fail or corrupt depending on the driver, with
+				// nothing pointing back at "this specific image is too big"
+				// when it happens. astc-config.json's max_size already
+				// excludes anything this large from ASTC conversion for the
+				// same reason -- this just surfaces the same limit for the
+				// PNG path too, which has no such filter.
+				#if android
+				if (bitmap != null && (bitmap.width > 4096 || bitmap.height > 4096))
+					trace('Paths.returnGraphic: oversized texture "$path" (${bitmap.width}x${bitmap.height}) exceeds the common 4096px GPU limit');
+				#end
+
 				// An ASTC-loaded bitmap is already a GPU-resident texture with
 				// no CPU pixel buffer (BitmapData.fromTexture()) -- the
 				// gpurender branch below exists to manually upload PNG pixels
