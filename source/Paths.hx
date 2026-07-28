@@ -3,6 +3,7 @@ package;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.system.FlxAssets;
 import openfl.display.BitmapData;
 import openfl.display3D.textures.Texture;
 import openfl.media.Sound;
@@ -287,8 +288,19 @@ class Paths
 			return currentTrackedAssets.get(path);
 		}
 
-		trace('oh no its returning null NOOOO');
-		return null;
+		// Every caller of Paths.image()/getSparrowAtlas()/etc. assumes a real
+		// FlxGraphic comes back and hands it straight to loadGraphic()/
+		// FlxAtlasFrames.fromSparrow() with no null check -- a missing asset
+		// used to return null here, which crashes several calls deeper with
+		// no indication a missing image was the actual cause (e.g. Android's
+		// case-sensitive filesystem catching a typo'd path that worked fine
+		// on a case-insensitive dev machine, or a chart's noteData indexing
+		// past the end of Note.hx's typeFile array). Falling back to
+		// Flixel's own bundled logo keeps the game running with an obviously
+		// wrong sprite instead of crashing outright, and the trace here
+		// names exactly which path failed.
+		trace('Paths.returnGraphic: missing image "$path" (key="$key", library="${library}") -- returning flixel logo placeholder');
+		return FlxG.bitmap.add('flixel/images/logo/default.png');
 	}
 
 	public static function returnSound(path:String, key:String, ?library:String, ?cache:Bool = true):Sound
@@ -309,7 +321,9 @@ class Paths
 			return currentTrackedSounds.get(gottenPath);
 		}
 
-		trace('oh no its returning null NOOOO');
-		return null;
+		// Same reasoning as returnGraphic()'s fallback above -- callers never
+		// null-check a Paths.sound()/music() result.
+		trace('Paths.returnSound: missing sound "$gottenPath" (key="$key", library="${library}") -- returning beep placeholder');
+		return FlxAssets.getSoundAddExtension('flixel/sounds/beep');
 	}
 }
