@@ -78,6 +78,22 @@ jobs:
           # actually runs instead of restoring that stale state.
           key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
 
+      # Same rationale as "Prune stale hxcpp compile caches" further down,
+      # applied to the OTHER cache that grows unboundedly: every time this
+      # key's version number gets bumped (v6 -> v7, etc., after a poisoned
+      # or stale cache is found) the old version is never restored again
+      # but also never deleted -- it just sits there as permanent dead
+      # weight. Confirmed for real: the v6 cache alone was still 3GB, about
+      # 30% of the repo's entire 10GB Actions cache budget, discovered when
+      # the account approached that hard cap. "haxelibs-android-port-"
+      # matches every version's key as a prefix, so this keeps only the
+      # newest and deletes every older version automatically from now on.
+      - name: Prune stale Haxe library caches
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/prune-stale-hxcpp-cache.sh "haxelibs-android-port-" "${{ github.ref }}"
+
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
       # itself, keyed on this exact run id.
@@ -702,6 +718,22 @@ jobs:
           # actually runs instead of restoring that stale state.
           key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
 
+      # Same rationale as "Prune stale hxcpp compile caches" further down,
+      # applied to the OTHER cache that grows unboundedly: every time this
+      # key's version number gets bumped (v6 -> v7, etc., after a poisoned
+      # or stale cache is found) the old version is never restored again
+      # but also never deleted -- it just sits there as permanent dead
+      # weight. Confirmed for real: the v6 cache alone was still 3GB, about
+      # 30% of the repo's entire 10GB Actions cache budget, discovered when
+      # the account approached that hard cap. "haxelibs-android-port-"
+      # matches every version's key as a prefix, so this keeps only the
+      # newest and deletes every older version automatically from now on.
+      - name: Prune stale Haxe library caches
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/prune-stale-hxcpp-cache.sh "haxelibs-android-port-" "${{ github.ref }}"
+
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
       # itself, keyed on this exact run id.
@@ -1325,6 +1357,22 @@ jobs:
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
           key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
+
+      # Same rationale as "Prune stale hxcpp compile caches" further down,
+      # applied to the OTHER cache that grows unboundedly: every time this
+      # key's version number gets bumped (v6 -> v7, etc., after a poisoned
+      # or stale cache is found) the old version is never restored again
+      # but also never deleted -- it just sits there as permanent dead
+      # weight. Confirmed for real: the v6 cache alone was still 3GB, about
+      # 30% of the repo's entire 10GB Actions cache budget, discovered when
+      # the account approached that hard cap. "haxelibs-android-port-"
+      # matches every version's key as a prefix, so this keeps only the
+      # newest and deletes every older version automatically from now on.
+      - name: Prune stale Haxe library caches
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/prune-stale-hxcpp-cache.sh "haxelibs-android-port-" "${{ github.ref }}"
 
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
