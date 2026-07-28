@@ -417,14 +417,59 @@ jobs:
           echo "--- lime AudioBufferDataFormat.hx contents ---"
           find .haxelib/lime/git -iname "AudioBufferDataFormat.hx" -exec cat {} \;
 
+      # Adds a Gradle task (see the script's own doc comment) that extracts a
+      # Breakpad-format .sym file from the unstripped libApplicationMain.so
+      # (built with -D HXCPP_DEBUG_LINK below) straight into
+      # src/main/assets/data/, wired to run before Gradle packages assets --
+      # all in the SAME "lime build android" pass, no second compile needed.
+      # mobile.backend.SymbolResolver reads the resulting APK-bundled .sym at
+      # runtime to resolve a native crash's addresses to function/file/line.
+      # Must run AFTER every step above that can `git checkout --force` the
+      # cached .haxelib/lime checkout back to its pinned commit (that would
+      # silently discard this patch) -- placed right before Compile so
+      # nothing between here and there can undo it.
+      - name: Patch Lime Gradle for native symbol extraction
+        run: bash .github/scripts/patch-lime-gradle-symbol-extraction.sh
+
       - name: Compile
         env:
           HXCPP_COMPILE_THREADS: "4"
           HXCPP_CACHE_MB: "4000"
+          # Absolute path, per extract-dwarf-symbols.sh/the Gradle task's own
+          # doc comments -- the generated Android project lives several
+          # directories deep under export/, so a relative path wouldn't
+          # reliably resolve from build.gradle.
+          SYMBOL_EXTRACT_SCRIPT: ${{ github.workspace }}/.github/scripts/extract-dwarf-symbols.sh
         run: |
           export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
           mkdir -p "$HXCPP_COMPILE_CACHE"
-          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}"
+          # HXCPP_DEBUG_LINK adds -g and disables hxcpp's post-link strip, so
+          # the .so extractNativeSymbols reads (above) actually has DWARF
+          # debug info -- Gradle's own AGP packaging strips the .so that
+          # actually ships in the APK regardless, so this doesn't change
+          # final APK size, only what dump_syms gets to read beforehand.
+          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}" -D HXCPP_DEBUG_LINK
+
+      # Confirms the .sym files documented above actually made it into the
+      # built APK's assets, so a silent breakage (Gradle task not wired up,
+      # dump_syms download failing, wrong asset path, ...) fails this run
+      # loudly instead of only being discovered much later, the first time
+      # someone actually needs to symbolicate a real device crash.
+      - name: Verify native symbol files were bundled
+        if: success()
+        run: |
+          set -euo pipefail
+          APK=$(find export/release/android/bin/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          if [ -z "$APK" ]; then
+            echo "ERROR: no APK found under export/release/android/bin/app/build/outputs/apk/debug to verify"
+            exit 1
+          fi
+          echo "Checking $APK for bundled native symbol files..."
+          if ! unzip -l "$APK" | grep -q "assets/data/symbols-"; then
+            echo "ERROR: no assets/data/symbols-*.sym found in $APK"
+            exit 1
+          fi
+          unzip -l "$APK" | grep "assets/data/symbols-"
 
       # Only runs when Compile fails. The pre-Compile diagnostic confirmed
       # .haxelib/flixel/git genuinely has getFrameDuration/fireLoopCallback/
