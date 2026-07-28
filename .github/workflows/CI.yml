@@ -7,11 +7,29 @@ on:
   # Manual only -- run from the Actions tab when you actually want a build,
   # not automatically on every push/PR.
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Which Android build(s) to run'
+        required: false
+        type: choice
+        default: fat
+        options:
+          - fat
+          - arm64
+          - arm32
+          - all
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel.
+# Three separate Android build jobs (fat/universal, arm64-only, arm32-only), matching
+# NightmareVision-Android-Support's own devBuilds.yml structure (its Android/Android-ARM64/
+# Android-ARM32 jobs) -- see patch-lime-gradle.sh for how the ABI split is actually applied
+# (Gradle's ndk.abiFilters at packaging time; hxcpp itself compiles both .so's regardless
+# of which job runs, same as NightmareVision's own -D ANDROID_ARM64_ONLY/-D ANDROID_ARM32_ONLY
+# defines -- kept here for parity even though they don't restrict what hxcpp compiles either).
 jobs:
-  # This workflow contains a single job called "build"
-  buildAndroid:
+  buildAndroidFat:
+    name: Build Android (Fat/Universal)
+    if: inputs.target == 'fat' || inputs.target == 'all'
     runs-on: ubuntu-latest
     # No permissions: block previously -- the default GITHUB_TOKEN for
     # workflow_dispatch runs can end up read-only depending on repo
@@ -347,9 +365,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.hxcpp_cache
-          key: hxcpp-cache-android-port-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
+          key: hxcpp-cache-android-port-fat-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
           restore-keys: |
-            hxcpp-cache-android-port-${{ runner.os }}-
+            hxcpp-cache-android-port-fat-${{ runner.os }}-
 
       # Final safety net, unconditional (unlike the earlier reconcile step,
       # which only runs on the NightmareVision-import path). Proven
@@ -428,6 +446,22 @@ jobs:
       # cached .haxelib/lime checkout back to its pinned commit (that would
       # silently discard this patch) -- placed right before Compile so
       # nothing between here and there can undo it.
+      # Applies (or, for fat, resets/clears) the Gradle ndk.abiFilters split
+      # for this job's target -- see patch-lime-gradle.sh's own doc comment.
+      # MUST run before the symbol-extraction patch below: patch-lime-gradle.sh
+      # resets build.gradle to Lime's own committed version via `git checkout --`
+      # before applying its filter, which would silently discard the
+      # extractNativeSymbols task if this ran after it was added instead.
+      # Also must run even for the fat build: .haxelib/lime is a cache SHARED
+      # across all three jobs below, and running in parallel means whichever
+      # job's ABI-filter step ran last leaves that filter baked into the
+      # shared cache for the others to inherit next run -- resetting
+      # explicitly here (not just relying on "fat never sets a filter of its
+      # own") is what keeps this build genuinely universal regardless of
+      # what the cache last saved.
+      - name: Apply Gradle ABI filter (Fat/Universal)
+        run: bash .github/scripts/patch-lime-gradle.sh fat
+
       - name: Patch Lime Gradle for native symbol extraction
         run: bash .github/scripts/patch-lime-gradle-symbol-extraction.sh
 
@@ -534,10 +568,1108 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ~/.hxcpp_cache
-          key: hxcpp-cache-android-port-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
+          key: hxcpp-cache-android-port-fat-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
 
       - name: Publish Artifact
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: androidBuild
+          name: androidBuild-fat
+          path: export/release/android/bin/app/build/outputs/apk/debug
+
+  buildAndroidArm64:
+    name: Build Android (ARM64)
+    if: inputs.target == 'arm64' || inputs.target == 'all'
+    runs-on: ubuntu-latest
+    # No permissions: block previously -- the default GITHUB_TOKEN for
+    # workflow_dispatch runs can end up read-only depending on repo
+    # settings, which makes every actions/cache save silently fail (no
+    # error, just nothing shows up under Settings -> Actions -> Caches
+    # afterward). Explicit actions: write matches NightmareVision-Android-
+    # Support's own devBuilds.yml, which needs the same thing for the same
+    # reason.
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      # No pinned NDK here (dropped nttld/setup-ndk@v1's r21e pin), and no
+      # Setup Java JDK / Setup Android SDK steps either -- ubuntu-latest's
+      # own runner image already ships a full Android SDK and several JDKs
+      # preinstalled (that's what $ANDROID_HOME/$ANDROID_NDK_LATEST_HOME/
+      # $JAVA_HOME_17_X64 below resolve to). NightmareVision-Android-Support
+      # builds this identical FunkinCrew Lime fork the same way, with none
+      # of these three setup actions at all.
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@v2.1.0
+        with:
+          # Matches NightmareVision-Android-Support's proven-working pin for
+          # this exact Lime/Haxe/Flixel/Android stack.
+          haxe-version: 4.3.7
+
+      # actions/cache@v4's save-always input is deprecated ("does not work
+      # as intended") -- GitHub's own fix is to split restore/save into two
+      # separate actions instead of relying on one action's save-always
+      # flag. This restore-only step keeps the same id/outputs every later
+      # step already depends on; the matching save runs near the end of the
+      # job (see "Save Haxe libraries cache") gated on if: always() so it
+      # persists even when Compile fails.
+      - name: Cache Haxe libraries
+        id: haxelibs-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/haxelib
+            .haxelib
+          # v6 bump: v5's cache was saved (save-always) with openfl/flixel-
+          # addons sitting on stale commits from NightmareVision's export,
+          # not the commits .hxpkg actually pins -- confirmed via CI diag.
+          # One more clean miss so the new reconcile-to-pin step below
+          # actually runs instead of restoring that stale state.
+          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+
+      # Resolves which NightmareVision export run to pull from, without
+      # downloading anything yet -- lets the next step cache the download
+      # itself, keyed on this exact run id.
+      - name: Resolve NightmareVision export run
+        id: nv-run
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+        run: |
+          set -x
+          RUN_ID=$(gh run list --repo jereidk/NightmareVision-Android-Support \
+            --workflow exportHaxelibForIndieCross.yml --status success --limit 1 \
+            --json databaseId --jq '.[0].databaseId')
+          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      # Caches the raw downloaded tarballs (not just the extracted result,
+      # which the "Cache Haxe libraries" step above already covers under a
+      # DIFFERENT key scoped to .hxpkg's hash). This one's scoped to the
+      # NightmareVision run id instead -- so if .hxpkg changes again, or
+      # that other cache gets evicted, re-importing the SAME NightmareVision
+      # export skips the multi-GB cross-repo download and goes straight to
+      # local extraction. Only invalidates when NightmareVision re-exports
+      # (a new run id).
+      - name: Cache downloaded NightmareVision export
+        id: nv-download-cache
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-run.outputs.run-id != ''
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/nv-cache-import
+          key: nv-cache-export-${{ steps.nv-run.outputs.run-id }}
+
+      # Best-effort: pulls NightmareVision-Android-Support's already-warm
+      # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
+      # below) instead of compiling lime/hxcpp/flixel/openfl from source.
+      # Silently no-ops (continue-on-error) if NIGHTMAREVISION_CACHE_TOKEN
+      # isn't set or the export workflow has no successful run -- id/output
+      # lets the next two steps pick the right path instead of always
+      # running hxpkg's own batch installer (see why below).
+      - name: Import NightmareVision haxelib/Lime cache
+        id: nv-import
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+        run: |
+          set -x
+          echo "imported=false" >> "$GITHUB_OUTPUT"
+          RUN_ID="${{ steps.nv-run.outputs.run-id }}"
+          if [ -z "$RUN_ID" ]; then
+            echo "No successful export run found on NightmareVision -- falling back to a from-scratch install."
+            exit 0
+          fi
+          if [ "${{ steps.nv-download-cache.outputs.cache-hit }}" != 'true' ]; then
+            gh run download "$RUN_ID" --repo jereidk/NightmareVision-Android-Support \
+              --name haxelib-cache-export --dir /tmp/nv-cache-import
+          else
+            echo "Reusing previously-downloaded NightmareVision export (run $RUN_ID)."
+          fi
+          tar -xzf /tmp/nv-cache-import/haxelib-root.tar.gz -C "$HOME"
+          tar -xzf /tmp/nv-cache-import/haxelib-project.tar.gz -C .
+          # haxelib's dev-link registry stores the ABSOLUTE path to each
+          # git-linked package's checkout (lime/flixel/flixel-addons/openfl/
+          # hxcpp), captured on NightmareVision's own runner
+          # (/home/runner/work/NightmareVision-Android-Support/...) -- that
+          # path doesn't exist here, so haxelib can't even read lime's
+          # haxelib.json ("Error parsing haxelib.json for lime@dev").
+          # Guessing the exact marker filename (previous attempt assumed
+          # .dev.txt, which didn't fix it) is fragile -- instead grep the
+          # whole imported tree as plain text (binary-safe -I skips the
+          # compiled .ndll/.so) for the literal old prefix and rewrite it
+          # wherever it actually is.
+          NV_PREFIX="/home/runner/work/NightmareVision-Android-Support/NightmareVision-Android-Support"
+          grep -rlFI "$NV_PREFIX" ~/haxelib .haxelib 2>/dev/null | while IFS= read -r f; do
+            sed -i "s#${NV_PREFIX}#${GITHUB_WORKSPACE}#g" "$f"
+            echo "Rewrote stale path in: $f"
+          done
+          haxelib setup ~/haxelib
+          echo "Imported NightmareVision's haxelib/Lime cache."
+          echo "imported=true" >> "$GITHUB_OUTPUT"
+
+      # Only linc_luajit/extension-androidtools -- NightmareVision doesn't
+      # depend on either, so the import above can't have brought them.
+      # Deliberately NOT going through hxpkg here: its own --force flag
+      # (needed once .haxelib already exists, which it now does) re-clones
+      # git-linked packages from scratch per NightmareVision's own
+      # devBuilds.yml comment on this exact behavior -- that would discard
+      # the compiled lime.ndll/liblime .so the import just brought in,
+      # defeating the entire point of importing anything.
+      - name: Install remaining Haxelib packages (post-import)
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-import.outputs.imported == 'true'
+        run: |
+          haxelib git linc_luajit https://github.com/jereidk/linc_luajit --quiet
+          haxelib git extension-androidtools https://github.com/jereidk/extension-androidtools --quiet
+          haxelib list
+
+      # The import above brings in whatever NightmareVision had cached at ITS
+      # last export run -- not necessarily what .hxpkg pins here right now.
+      # Confirmed via CI diagnostic: openfl and flixel-addons came in on
+      # completely different commits than their .hxpkg pins (hxcpp/lime/
+      # flixel happened to match, but nothing guarantees that). Force every
+      # git-linked library to its exact pinned commit so an out-of-date
+      # NightmareVision export can never silently hand us the wrong source.
+      - name: Reconcile imported libraries to .hxpkg pins
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-import.outputs.imported == 'true'
+        run: |
+          set -e
+          jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
+            path=".haxelib/$name/git"
+            if [ ! -d "$path/.git" ]; then
+              echo "$name: no git checkout at $path, skipping (not part of the import)."
+              continue
+            fi
+            current=$(git -C "$path" rev-parse HEAD)
+            if [ "$current" = "$branch" ]; then
+              echo "$name: already at pinned commit $branch."
+              continue
+            fi
+            echo "$name: imported at $current, pinned to $branch -- reconciling."
+            if ! git -C "$path" fetch --quiet origin "$branch"; then
+              echo "$name: direct SHA fetch failed, unshallowing before retrying."
+              git -C "$path" fetch --quiet --unshallow origin || git -C "$path" fetch --quiet origin
+            fi
+            git -C "$path" checkout --quiet --force "$branch"
+            echo "$name: now at $(git -C "$path" rev-parse HEAD)."
+          done
+
+      # hxpkg reads .hxpkg and installs everything in one pass -- replaces
+      # the old per-library haxelib install/git calls (each with its own
+      # progress spam) with one compact install log. flixel/flixel-addons/
+      # openfl/lime/hxcpp are pinned in .hxpkg to FunkinCrew's forks (same
+      # commits NightmareVision-Android-Support uses) instead of stock
+      # HaxeFlixel -- unpinned "latest" stock Flixel (6.2.0) had diverged
+      # far enough from what this codebase targets (FlxAnimationController/
+      # FlxCamera/tween API) to fail the build outright. Only runs when the
+      # import above didn't happen/didn't work -- see the step above for why
+      # a successful import skips this entirely instead of also running it
+      # with --force.
+      - name: Install Haxelib (via hxpkg)
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-import.outputs.imported != 'true'
+        run: |
+          haxelib setup ~/haxelib
+          haxelib install hxpkg --quiet
+          haxelib run hxpkg install --quiet
+          haxelib list
+
+      # Lime pinned to FunkinCrew's git fork (see .hxpkg) doesn't ship the
+      # prebuilt lime.ndll that haxelib's zip releases include -- it has to
+      # be compiled locally, or "lime setup"/any lime command fails with
+      # "Could not load lime.ndll". Self-healing (checks the file first,
+      # only rebuilds when actually missing) instead of gating strictly on
+      # cache-hit, matching NightmareVision-Android-Support's own workaround
+      # for this exact fork.
+      # Caches the downloaded .deb's (keyed on the package list) and installs
+      # straight from that cache on a hit instead of re-fetching ~30
+      # packages from Ubuntu's mirrors every run.
+      - name: Install Linux system deps
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: >-
+            build-essential gcc-13 g++-13 vlc libvlc-dev libvlccore-dev vlc-bin
+            libwayland-dev libwayland-bin wayland-protocols libasound2-dev
+            libpulse-dev libjack-jackd2-dev libpipewire-0.3-dev libgl1-mesa-dev
+            libegl1-mesa-dev libglu1-mesa-dev libdbus-1-dev libudev-dev
+            libxkbcommon-dev libx11-dev libxext-dev libx11-xcb-dev libxfixes-dev
+            libxss-dev libxrender-dev libxrandr-dev libxcursor-dev libxi-dev
+            libxinerama-dev libxxf86vm-dev libgbm-dev libdrm-dev libdecor-0-dev
+            libvulkan-dev pkg-config
+          version: 1.0
+
+      - name: Wrap g++-13 to force C++23
+        run: |
+          mkdir -p /tmp/cxx-wrap
+          printf '#!/bin/bash\nexec /usr/bin/g++-13 "$@" -std=c++23\n' > /tmp/cxx-wrap/g++-13
+          chmod +x /tmp/cxx-wrap/g++-13
+          echo "/tmp/cxx-wrap" >> $GITHUB_PATH
+
+      - name: Rebuild Linux Lime ndll
+        timeout-minutes: 15
+        env:
+          CC: gcc-13
+          CXX: g++-13
+        run: |
+          set -euo pipefail
+          if [ -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
+            echo "lime.ndll already present, skipping rebuild."
+          else
+            echo "lime.ndll missing -- rebuilding from source."
+            haxelib run lime rebuild cpp -release
+            if [ ! -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
+              echo "ERROR: Missing Lime ndll after rebuild"
+              exit 1
+            fi
+          fi
+
+      # REMOVED: "Setup Lime for Flixel" (`haxelib --quiet --always run lime
+      # setup flixel`). NightmareVision-Android-Support's own devBuilds.yml
+      # never runs this for the exact same library stack -- only `lime setup
+      # android` (below). Root-caused via CI diagnostic: this step printed
+      # "openfl was updated" / "flixel-addons was updated", silently
+      # git-pulling those two git-linked libraries to their latest upstream
+      # commit and undoing the "Reconcile imported libraries to .hxpkg pins"
+      # step that ran earlier in the same job -- that's what was making
+      # openfl sit on a different (wrong) commit by the time Compile ran,
+      # even though the reconcile step itself had just confirmed it correct.
+
+      - name: Create Version Tag
+        run: echo "${{github.run_id}}" > VERSION
+
+      # This FunkinCrew Lime fork's Android build scripts don't invoke the
+      # NDK's clang/ar/ranlib/strip the way $ANDROID_NDK_LATEST_HOME's
+      # unified-sysroot layout expects, and hit an ARM32 crtbegin/libc++
+      # linking issue in ld.lld -- both ported verbatim from
+      # NightmareVision-Android-Support's own fix for this exact fork.
+      - name: Prepare NDK clang++ for Android
+        run: |
+          mkdir -p /tmp/ndk-wrap
+          NDK_PREBUILT="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64"
+          {
+            printf '#!/bin/bash\n'
+            printf 'for arg in "$@"; do\n'
+            printf '  case "$arg" in\n'
+            printf '    *.c) exec "%s/bin/clang++" "--sysroot=%s/sysroot" -D__ANDROID__ -Wno-macro-redefined "$@" ;;\n' "$NDK_PREBUILT" "$NDK_PREBUILT"
+            printf '  esac\n'
+            printf 'done\n'
+            printf 'exec "%s/bin/clang++" "--sysroot=%s/sysroot" -D__ANDROID__ -Wno-macro-redefined "$@" -std=c++23\n' "$NDK_PREBUILT" "$NDK_PREBUILT"
+          } > /tmp/ndk-wrap/clang++
+          printf '#!/bin/bash\nexec "%s/bin/clang" "--sysroot=%s/sysroot" -D__ANDROID__ -Wno-macro-redefined "$@"\n' \
+            "$NDK_PREBUILT" "$NDK_PREBUILT" > /tmp/ndk-wrap/clang
+          printf '#!/bin/bash\nexec "%s/bin/llvm-strip" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/aarch64-linux-android-strip
+          printf '#!/bin/bash\nexec "%s/bin/llvm-strip" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/arm-linux-androideabi-strip
+          printf '#!/bin/bash\nexec "%s/bin/llvm-ar" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/arm-linux-androideabi-ar
+          printf '#!/bin/bash\nexec "%s/bin/llvm-ar" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/aarch64-linux-android-ar
+          printf '#!/bin/bash\nexec "%s/bin/llvm-ranlib" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/aarch64-linux-android-ranlib
+          printf '#!/bin/bash\nexec "%s/bin/llvm-ranlib" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/arm-linux-androideabi-ranlib
+          chmod +x /tmp/ndk-wrap/clang++ /tmp/ndk-wrap/clang \
+            /tmp/ndk-wrap/aarch64-linux-android-strip /tmp/ndk-wrap/arm-linux-androideabi-strip \
+            /tmp/ndk-wrap/arm-linux-androideabi-ar /tmp/ndk-wrap/aarch64-linux-android-ar \
+            /tmp/ndk-wrap/aarch64-linux-android-ranlib /tmp/ndk-wrap/arm-linux-androideabi-ranlib
+          echo "/tmp/ndk-wrap" >> $GITHUB_PATH
+          mv "$NDK_PREBUILT/bin/ld.lld" "$NDK_PREBUILT/bin/ld.lld.real"
+          echo 'IyEvYmluL2Jhc2gKTkRLPSJATkRLQCIKSVNfQVJNMzI9ZmFsc2UKUkVTUE9OU0VfRklMRT0iIgpmb3IgYXJnIGluICIkQCI7IGRvCiAgY2FzZSAiJGFyZyIgaW4KICAgIGFybWVsZl9saW51eF9lYWJpKSBJU19BUk0zMj10cnVlIDs7CiAgICBAKikKICAgICAgUkVTUE9OU0VfRklMRT0iJHthcmcjQH0iCiAgICAgIGlmIFsgLWYgIiRSRVNQT05TRV9GSUxFIiBdICYmIGdyZXAgLXFGICdhcm1lbGZfbGludXhfZWFiaScgIiRSRVNQT05TRV9GSUxFIjsgdGhlbgogICAgICAgIElTX0FSTTMyPXRydWUKICAgICAgZmkKICAgICAgOzsKICBlc2FjCmRvbmUKaWYgJElTX0FSTTMyOyB0aGVuCiAgQVJNMzJfQkFTRT0iJE5ESy9zeXNyb290L3Vzci9saWIvYXJtLWxpbnV4LWFuZHJvaWRlYWJpIgogIEFSTTMyPSIiCiAgIyBQcmVmZXIgdGhlIEFQSSBsZXZlbCB0aGUgY29tcGlsZXIgZHJpdmVyIGFscmVhZHkgY2hvc2U6IGl0IHBhc3NlcyBhbgogICMgYWJzb2x1dGUgY3J0YmVnaW4gcGF0aCBsaWtlIC4uLi9hcm0tbGludXgtYW5kcm9pZGVhYmkvMjgvY3J0YmVnaW5fc28ubywKICAjIGFuZCB0aGUgLUwgZGlyIHdlIHByZXBlbmQgTVVTVCBtYXRjaCBpdCAtLSBvYmplY3RzIGNvbXBpbGVkIGFnYWluc3QKICAjIEFQSS0yOCBoZWFkZXJzIHJlZmVyZW5jZSBzeW1ib2xzIChpY29udiwgc3RkZXJyLCBfX3JlZ2lzdGVyX2F0Zm9yaykKICAjIHRoYXQgdGhlIEFQSS0yMSBsaWJjLnNvIHN0dWJzIGRvIG5vdCBleHBvcnQuIFRoZSBoYXJkY29kZWQgbGlzdCBiZWxvdwogICMgb25seSByZW1haW5zIGFzIGEgZmFsbGJhY2sgZm9yIGRyaXZlcnMgdGhhdCBwYXNzIGJhcmUgQ1JUIG5hbWVzLgogIERFVEVDVEVEX0FQST0iIgogIGlmIFsgLW4gIiRSRVNQT05TRV9GSUxFIiBdICYmIFsgLWYgIiRSRVNQT05TRV9GSUxFIiBdOyB0aGVuCiAgICBERVRFQ1RFRF9BUEk9JChncmVwIC1vRSAnYXJtLWxpbnV4LWFuZHJvaWRlYWJpL1swLTldKy9jcnRiZWdpbicgIiRSRVNQT05TRV9GSUxFIiB8IGhlYWQgLTEgfCBncmVwIC1vRSAnWzAtOV0rJykKICBmaQogIGlmIFsgLXogIiRERVRFQ1RFRF9BUEkiIF07IHRoZW4KICAgIGZvciBhcmcgaW4gIiRAIjsgZG8KICAgICAgY2FzZSAiJGFyZyIgaW4KICAgICAgICAqL2FybS1saW51eC1hbmRyb2lkZWFiaS8qL2NydGJlZ2luKikKICAgICAgICAgIERFVEVDVEVEX0FQST0kKHByaW50ZiAnJXMnICIkYXJnIiB8IGdyZXAgLW9FICdhbmRyb2lkZWFiaS9bMC05XSsvJyB8IGdyZXAgLW9FICdbMC05XSsnKQogICAgICAgICAgOzsKICAgICAgZXNhYwogICAgZG9uZQogIGZpCiAgaWYgWyAtbiAiJERFVEVDVEVEX0FQSSIgXSAmJiBbIC1mICIkQVJNMzJfQkFTRS8kREVURUNURURfQVBJL2NydGJlZ2luX3NvLm8iIF07IHRoZW4KICAgIEFSTTMyPSIkQVJNMzJfQkFTRS8kREVURUNURURfQVBJIgogIGVsc2UKICAgIGZvciBhcGkgaW4gMTYgMTkgMjEgMjMgMjQgMjYgMjggMzA7IGRvCiAgICAgIGlmIFsgLWYgIiRBUk0zMl9CQVNFLyRhcGkvY3J0YmVnaW5fc28ubyIgXTsgdGhlbgogICAgICAgIEFSTTMyPSIkQVJNMzJfQkFTRS8kYXBpIgogICAgICAgIGJyZWFrCiAgICAgIGZpCiAgICBkb25lCiAgZmkKICBlY2hvICJsZC5sbGQtd3JhcHBlcjogQVJNMzIgbGluayBkZXRlY3RlZCwgc3lzcm9vdD0kQVJNMzIgKGRyaXZlciBhcGk9JHtERVRFQ1RFRF9BUEk6LW5vbmV9KSIgPiYyCiAgaWYgWyAteiAiJEFSTTMyIiBdOyB0aGVuCiAgICBlY2hvICJsZC5sbGQtd3JhcHBlcjogRVJST1Igbm8gQVJNMzIgY3J0YmVnaW5fc28ubyBmb3VuZCB1bmRlciAkQVJNMzJfQkFTRSIgPiYyCiAgICBscyAiJEFSTTMyX0JBU0UiID4mMiAyPi9kZXYvbnVsbCB8fCB0cnVlCiAgICBleGl0IDEKICBmaQogIGlmIFsgLW4gIiRSRVNQT05TRV9GSUxFIiBdICYmIFsgLWYgIiRSRVNQT05TRV9GSUxFIiBdOyB0aGVuCiAgICBORVdfUkVTUD0kKG1rdGVtcCAvdG1wL2xkLWFybTMyLVhYWFhYWC50eHQpCiAgICAjIFByZXBlbmQgdmVyc2lvbmVkIHBhdGggc28gaXRzIGxpYmMuc28gKHdpdGggTElCQ19OKSBiZWF0cyB0aGUgdW52ZXJzaW9uZWQgb25lCiAgICBwcmludGYgJyVzXG4nICItTCRBUk0zMiIgPiAiJE5FV19SRVNQIgogICAgIyBSZXNwb25zZSBmaWxlIHVzZXMgc3BhY2Utc2VwYXJhdGVkIHF1b3RlZCBhcmdzIG9uIG9uZSBsaW5lOyB1c2Ugc2VkIHRvIHJlcGxhY2UgQ1JUIGZpbGVuYW1lcwogICAgc2VkIFwKICAgICAgLWUgInN8XCJjcnRiZWdpbl9zb1wub1wifFwiJEFSTTMyL2NydGJlZ2luX3NvLm9cInxnIiBcCiAgICAgIC1lICJzfFwiY3J0YmVnaW5fZHluYW1pY1wub1wifFwiJEFSTTMyL2NydGJlZ2luX2R5bmFtaWMub1wifGciIFwKICAgICAgLWUgInN8XCJjcnRiZWdpbl9zdGF0aWNcLm9cInxcIiRBUk0zMi9jcnRiZWdpbl9zdGF0aWMub1wifGciIFwKICAgICAgLWUgInN8XCJjcnRlbmRfc29cLm9cInxcIiRBUk0zMi9jcnRlbmRfc28ub1wifGciIFwKICAgICAgLWUgInN8XCJjcnRlbmRcLm9cInxcIiRBUk0zMi9jcnRlbmQub1wifGciIFwKICAgICAgIiRSRVNQT05TRV9GSUxFIiA+PiAiJE5FV19SRVNQIgogICAgZm9yIGQgaW4gIiRBUk0zMl9CQVNFIiAiJE5ESy9saWIvbGludXgvYXJtIiAiJE5ESy9saWIvY2xhbmcvMjEvbGliL2xpbnV4L2FybSIgIiROREsvbGliL2NsYW5nLzE4L2xpYi9saW51eC9hcm0iOyBkbwogICAgICBpZiBbIC1mICIkZC9saWJjKytfc3RhdGljLmEiIF07IHRoZW4KICAgICAgICBwcmludGYgJyVzXG4nICItTCRkIiA+PiAiJE5FV19SRVNQIgogICAgICAgIGVjaG8gImxkLmxsZC13cmFwcGVyOiBhZGRlZCBsaWJjKytfc3RhdGljPSRkIiA+JjIKICAgICAgICBicmVhawogICAgICBmaQogICAgZG9uZQogICAgZXhlYyAtYSBsZC5sbGQgIiROREsvYmluL2xkLmxsZC5yZWFsIiAiQCRORVdfUkVTUCIKICBlbHNlCiAgICAjIENvbW1hbmQtbGluZSBwYXRoIChMaW1lIG5hdGl2ZSByZWJ1aWxkKTogcHJlcGVuZCB2ZXJzaW9uZWQgcGF0aCBhbmQgYWJzb2x1dGl6ZSBDUlQgYXJncwogICAgTkVXQVJHUz0oIi1MJEFSTTMyIikKICAgIGZvciBhcmcgaW4gIiRAIjsgZG8KICAgICAgY2FzZSAiJGFyZyIgaW4KICAgICAgICBjcnRiZWdpbl9zby5vfGNydGJlZ2luX2R5bmFtaWMub3xjcnRiZWdpbl9zdGF0aWMub3xjcnRlbmRfc28ub3xjcnRlbmQubykKICAgICAgICAgIE5FV0FSR1MrPSgiJEFSTTMyLyRhcmciKSA7OwogICAgICAgICopIE5FV0FSR1MrPSgiJGFyZyIpIDs7CiAgICAgIGVzYWMKICAgIGRvbmUKICAgIGZvciBkIGluICIkQVJNMzJfQkFTRSIgIiROREsvbGliL2xpbnV4L2FybSIgIiROREsvbGliL2NsYW5nLzIxL2xpYi9saW51eC9hcm0iICIkTkRLL2xpYi9jbGFuZy8xOC9saWIvbGludXgvYXJtIjsgZG8KICAgICAgaWYgWyAtZiAiJGQvbGliYysrX3N0YXRpYy5hIiBdOyB0aGVuCiAgICAgICAgTkVXQVJHUys9KCItTCRkIikKICAgICAgICBlY2hvICJsZC5sbGQtd3JhcHBlcjogYWRkZWQgbGliYysrX3N0YXRpYz0kZCIgPiYyCiAgICAgICAgYnJlYWsKICAgICAgZmkKICAgIGRvbmUKICAgIGV4ZWMgLWEgbGQubGxkICIkTkRLL2Jpbi9sZC5sbGQucmVhbCIgIiR7TkVXQVJHU1tAXX0iCiAgZmkKZWxzZQogIGV4ZWMgLWEgbGQubGxkICIkTkRLL2Jpbi9sZC5sbGQucmVhbCIgIiRAIgpmaQo=' \
+            | base64 -d | sed "s|@NDK@|$NDK_PREBUILT|g" > "$NDK_PREBUILT/bin/ld.lld"
+          chmod +x "$NDK_PREBUILT/bin/ld.lld"
+
+      - name: Configure Android
+        run: |
+          haxelib run lime setup android
+          haxelib run lime config ANDROID_SDK $ANDROID_HOME
+          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_LATEST_HOME
+          haxelib run lime config JAVA_HOME $JAVA_HOME_17_X64
+          haxelib run lime config ANDROID_SETUP true
+
+      # Same story as "Rebuild Linux Lime ndll" above -- this fork ships no
+      # prebuilt Android binaries either. Self-healing: only pay for the
+      # rebuild when the .so's are actually missing.
+      - name: Rebuild Android Lime so
+        run: |
+          if [ -f .haxelib/lime/git/ndll/Android/liblime-64.so ] && [ -f .haxelib/lime/git/ndll/Android/liblime-v7.so ]; then
+            echo "Android liblime .so files already present, skipping rebuild."
+          else
+            echo "Android liblime .so missing -- rebuilding from source."
+            haxelib run lime rebuild android -release
+          fi
+          if [ ! -f .haxelib/lime/git/ndll/Android/liblime-64.so ] || [ ! -f .haxelib/lime/git/ndll/Android/liblime-v7.so ]; then
+            echo "ERROR: Missing Android liblime .so after rebuild"
+            exit 1
+          fi
+
+      # Caches hxcpp's own incremental object cache for this project's C++-
+      # transpiled Haxe source, keyed on the source itself -- once warm, a
+      # run that only touches Indie-Cross-Public's own .hx files (not
+      # .hxpkg, which the earlier caches key on) only recompiles what
+      # actually changed instead of every generated .cpp from scratch.
+      - name: Cache hxcpp compile cache
+        id: hxcpp-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.hxcpp_cache
+          key: hxcpp-cache-android-port-arm64-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
+          restore-keys: |
+            hxcpp-cache-android-port-arm64-${{ runner.os }}-
+
+      # Final safety net, unconditional (unlike the earlier reconcile step,
+      # which only runs on the NightmareVision-import path). Proven
+      # necessary: the earlier reconcile step correctly put openfl/flixel-
+      # addons on their pinned commits, but the now-removed "Setup Lime for
+      # Flixel" step silently git-pulled them to latest afterward -- nothing
+      # guarantees some OTHER step between here and Compile won't do the
+      # same in the future. Running this again right before Compile, for
+      # every install path, means a repeat of that class of bug gets fixed
+      # automatically instead of needing another round of diagnosis.
+      - name: Reconcile libraries to .hxpkg pins (final, pre-Compile)
+        run: |
+          set -e
+          jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
+            path=".haxelib/$name/git"
+            if [ ! -d "$path/.git" ]; then
+              continue
+            fi
+            current=$(git -C "$path" rev-parse HEAD)
+            if [ "$current" = "$branch" ]; then
+              echo "$name: already at pinned commit $branch."
+              continue
+            fi
+            echo "$name: at $current, pinned to $branch -- reconciling."
+            if ! git -C "$path" fetch --quiet origin "$branch"; then
+              git -C "$path" fetch --quiet --unshallow origin || git -C "$path" fetch --quiet origin
+            fi
+            git -C "$path" checkout --quiet --force "$branch"
+            echo "$name: now at $(git -C "$path" rev-parse HEAD)."
+          done
+
+      # Diagnostic only, runs regardless of which path installed flixel
+      # (NightmareVision import vs. fresh hxpkg clone). The NightmareVision
+      # import extracts whatever was cached at THAT repo's last export run --
+      # it never re-checks-out each git-linked lib to the exact commit
+      # .hxpkg pins here, so if NightmareVision's own pin moved on since the
+      # cache was captured, the import can silently hand us a stale commit
+      # for lime/openfl/hxcpp/flixel-addons/flixel even though the FILES
+      # exist and LOOK like a real checkout. Comparing actual HEAD against
+      # .hxpkg's pin catches that directly instead of guessing per-symptom.
+      - name: Diagnose imported library checkouts
+        run: |
+          echo "--- haxelib list ---"
+          haxelib list
+          echo "--- git-linked package HEAD vs .hxpkg pin (+ dirty working tree check) ---"
+          jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
+            path=".haxelib/$name/git"
+            head=$(git -C "$path" rev-parse HEAD 2>&1) || head="ERROR: $head"
+            if [ "$head" = "$branch" ]; then status=MATCH; else status=MISMATCH; fi
+            echo "$name: pinned=$branch actual=$head [$status]"
+            dirty=$(git -C "$path" status --porcelain 2>&1)
+            if [ -n "$dirty" ]; then
+              echo "$name: WORKING TREE IS DIRTY (HEAD matches the pin but files differ from that commit's real tree):"
+              echo "$dirty"
+            fi
+          done
+          echo "--- FlxAnimationController.hx: getFrameDuration/fireLoopCallback/numFrames ---"
+          grep -n "getFrameDuration\|fireLoopCallback\|numFrames" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
+          echo "--- FlxCamera.hx: setFilters ---"
+          grep -n "setFilters" .haxelib/flixel/git/flixel/FlxCamera.hx || echo "NOT FOUND"
+          echo "--- Sound.hx: AudioBufferDataFormat usage ---"
+          grep -n "AudioBufferDataFormat\|F32\|S16" .haxelib/openfl/git/src/openfl/media/Sound.hx || echo "NOT FOUND"
+          echo "--- Sound.hx diff against its own pinned commit (blank = identical) ---"
+          git -C .haxelib/openfl/git diff HEAD -- src/openfl/media/Sound.hx || echo "(diff command itself failed)"
+          echo "--- lime AudioBufferDataFormat.hx contents ---"
+          find .haxelib/lime/git -iname "AudioBufferDataFormat.hx" -exec cat {} \;
+
+      # Adds a Gradle task (see the script's own doc comment) that extracts a
+      # Breakpad-format .sym file from the unstripped libApplicationMain.so
+      # (built with -D HXCPP_DEBUG_LINK below) straight into
+      # src/main/assets/data/, wired to run before Gradle packages assets --
+      # all in the SAME "lime build android" pass, no second compile needed.
+      # mobile.backend.SymbolResolver reads the resulting APK-bundled .sym at
+      # runtime to resolve a native crash's addresses to function/file/line.
+      # Must run AFTER every step above that can `git checkout --force` the
+      # cached .haxelib/lime checkout back to its pinned commit (that would
+      # silently discard this patch) -- placed right before Compile so
+      # nothing between here and there can undo it.
+      # Applies (or, for fat, resets/clears) the Gradle ndk.abiFilters split
+      # for this job's target -- see patch-lime-gradle.sh's own doc comment.
+      # MUST run before the symbol-extraction patch below: patch-lime-gradle.sh
+      # resets build.gradle to Lime's own committed version via `git checkout --`
+      # before applying its filter, which would silently discard the
+      # extractNativeSymbols task if this ran after it was added instead.
+      # Also must run even for the fat build: .haxelib/lime is a cache SHARED
+      # across all three jobs below, and running in parallel means whichever
+      # job's ABI-filter step ran last leaves that filter baked into the
+      # shared cache for the others to inherit next run -- resetting
+      # explicitly here (not just relying on "fat never sets a filter of its
+      # own") is what keeps this build genuinely universal regardless of
+      # what the cache last saved.
+      - name: Apply Gradle ABI filter (ARM64)
+        run: bash .github/scripts/patch-lime-gradle.sh arm64
+
+      - name: Patch Lime Gradle for native symbol extraction
+        run: bash .github/scripts/patch-lime-gradle-symbol-extraction.sh
+
+      - name: Compile
+        env:
+          HXCPP_COMPILE_THREADS: "4"
+          HXCPP_CACHE_MB: "4000"
+          # Absolute path, per extract-dwarf-symbols.sh/the Gradle task's own
+          # doc comments -- the generated Android project lives several
+          # directories deep under export/, so a relative path wouldn't
+          # reliably resolve from build.gradle.
+          SYMBOL_EXTRACT_SCRIPT: ${{ github.workspace }}/.github/scripts/extract-dwarf-symbols.sh
+        run: |
+          export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
+          mkdir -p "$HXCPP_COMPILE_CACHE"
+          # HXCPP_DEBUG_LINK adds -g and disables hxcpp's post-link strip, so
+          # the .so extractNativeSymbols reads (above) actually has DWARF
+          # debug info -- Gradle's own AGP packaging strips the .so that
+          # actually ships in the APK regardless, so this doesn't change
+          # final APK size, only what dump_syms gets to read beforehand.
+          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}" -D HXCPP_DEBUG_LINK -D ANDROID_ARM64_ONLY
+
+      # Confirms the .sym files documented above actually made it into the
+      # built APK's assets, so a silent breakage (Gradle task not wired up,
+      # dump_syms download failing, wrong asset path, ...) fails this run
+      # loudly instead of only being discovered much later, the first time
+      # someone actually needs to symbolicate a real device crash.
+      - name: Verify native symbol files were bundled
+        if: success()
+        run: |
+          set -euo pipefail
+          APK=$(find export/release/android/bin/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          if [ -z "$APK" ]; then
+            echo "ERROR: no APK found under export/release/android/bin/app/build/outputs/apk/debug to verify"
+            exit 1
+          fi
+          echo "Checking $APK for bundled native symbol files..."
+          if ! unzip -l "$APK" | grep -q "assets/data/symbols-"; then
+            echo "ERROR: no assets/data/symbols-*.sym found in $APK"
+            exit 1
+          fi
+          unzip -l "$APK" | grep "assets/data/symbols-"
+
+      # Only runs when Compile fails. The pre-Compile diagnostic confirmed
+      # .haxelib/flixel/git genuinely has getFrameDuration/fireLoopCallback/
+      # numFrames on disk -- yet Compile's error for FlxAnimation.hx (also
+      # read from that same git path) says FlxAnimationController has no
+      # such fields, and suggests "fireCallback" instead of
+      # "fireLoopCallback" (a DIFFERENT, older method that also happens to
+      # exist in the same file). That mismatch between "file on disk" and
+      # "what the compiler actually resolved" points at a duplicate/shadowed
+      # flixel install on the classpath, not a bad import -- this step looks
+      # for exactly that instead of guessing further.
+      - name: Diagnose compile failure (classpath check)
+        if: failure()
+        run: |
+          echo "--- .haxelib/flixel/ contents (all installed versions) ---"
+          ls -la .haxelib/flixel/ 2>/dev/null || echo "no .haxelib/flixel"
+          echo "--- .haxelib/flixel/.current ---"
+          cat .haxelib/flixel/.current 2>/dev/null || echo "no .current file"
+          echo "--- ~/haxelib/flixel/ contents ---"
+          ls -la ~/haxelib/flixel/ 2>/dev/null || echo "no ~/haxelib/flixel"
+          echo "--- ~/haxelib/flixel/.current ---"
+          cat ~/haxelib/flixel/.current 2>/dev/null || echo "no .current file"
+          echo "--- every FlxAnimationController.hx found in workspace/haxelib/haxe std ---"
+          find "$GITHUB_WORKSPACE" "$HOME/haxelib" "$HAXE_STD_PATH" -name "FlxAnimationController.hx" 2>/dev/null
+          echo "--- every FlxAnimation.hx found in workspace/haxelib/haxe std ---"
+          find "$GITHUB_WORKSPACE" "$HOME/haxelib" "$HAXE_STD_PATH" -name "FlxAnimation.hx" 2>/dev/null
+          echo "--- fireLoopCallback/getFrameDuration/numFrames/fireCallback in each FlxAnimationController.hx found ---"
+          find "$GITHUB_WORKSPACE" "$HOME/haxelib" "$HAXE_STD_PATH" -name "FlxAnimationController.hx" 2>/dev/null | while IFS= read -r f; do
+            echo "== $f =="
+            grep -n "function fireLoopCallback\|function getFrameDuration\|function fireCallback\|public var numFrames" "$f" || echo "  (none of those found)"
+          done
+          echo "--- generated hxml build files (actual classpath used) ---"
+          find export -name "*.hxml" 2>/dev/null | while IFS= read -r f; do
+            echo "== $f =="
+            cat "$f"
+          done
+
+      # Explicit save steps to replace the deprecated/broken save-always
+      # input (see the "Cache Haxe libraries" restore step above). Each
+      # runs regardless of job outcome (if: always()) so a run that fails
+      # at Compile still keeps whatever it downloaded/built -- actions/cache/
+      # save is a no-op (with a warning, not a failure) if the exact key was
+      # already saved, so it's safe to attempt unconditionally here.
+      - name: Save Haxe libraries cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/haxelib
+            .haxelib
+          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+
+      - name: Save downloaded NightmareVision export cache
+        if: always() && steps.nv-run.outputs.run-id != ''
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/nv-cache-import
+          key: nv-cache-export-${{ steps.nv-run.outputs.run-id }}
+
+      - name: Save hxcpp compile cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.hxcpp_cache
+          key: hxcpp-cache-android-port-arm64-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
+
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: androidBuild-arm64
+          path: export/release/android/bin/app/build/outputs/apk/debug
+
+  buildAndroidArm32:
+    name: Build Android (ARM32)
+    if: inputs.target == 'arm32' || inputs.target == 'all'
+    runs-on: ubuntu-latest
+    # No permissions: block previously -- the default GITHUB_TOKEN for
+    # workflow_dispatch runs can end up read-only depending on repo
+    # settings, which makes every actions/cache save silently fail (no
+    # error, just nothing shows up under Settings -> Actions -> Caches
+    # afterward). Explicit actions: write matches NightmareVision-Android-
+    # Support's own devBuilds.yml, which needs the same thing for the same
+    # reason.
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      # No pinned NDK here (dropped nttld/setup-ndk@v1's r21e pin), and no
+      # Setup Java JDK / Setup Android SDK steps either -- ubuntu-latest's
+      # own runner image already ships a full Android SDK and several JDKs
+      # preinstalled (that's what $ANDROID_HOME/$ANDROID_NDK_LATEST_HOME/
+      # $JAVA_HOME_17_X64 below resolve to). NightmareVision-Android-Support
+      # builds this identical FunkinCrew Lime fork the same way, with none
+      # of these three setup actions at all.
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@v2.1.0
+        with:
+          # Matches NightmareVision-Android-Support's proven-working pin for
+          # this exact Lime/Haxe/Flixel/Android stack.
+          haxe-version: 4.3.7
+
+      # actions/cache@v4's save-always input is deprecated ("does not work
+      # as intended") -- GitHub's own fix is to split restore/save into two
+      # separate actions instead of relying on one action's save-always
+      # flag. This restore-only step keeps the same id/outputs every later
+      # step already depends on; the matching save runs near the end of the
+      # job (see "Save Haxe libraries cache") gated on if: always() so it
+      # persists even when Compile fails.
+      - name: Cache Haxe libraries
+        id: haxelibs-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/haxelib
+            .haxelib
+          # v6 bump: v5's cache was saved (save-always) with openfl/flixel-
+          # addons sitting on stale commits from NightmareVision's export,
+          # not the commits .hxpkg actually pins -- confirmed via CI diag.
+          # One more clean miss so the new reconcile-to-pin step below
+          # actually runs instead of restoring that stale state.
+          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+
+      # Resolves which NightmareVision export run to pull from, without
+      # downloading anything yet -- lets the next step cache the download
+      # itself, keyed on this exact run id.
+      - name: Resolve NightmareVision export run
+        id: nv-run
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+        run: |
+          set -x
+          RUN_ID=$(gh run list --repo jereidk/NightmareVision-Android-Support \
+            --workflow exportHaxelibForIndieCross.yml --status success --limit 1 \
+            --json databaseId --jq '.[0].databaseId')
+          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      # Caches the raw downloaded tarballs (not just the extracted result,
+      # which the "Cache Haxe libraries" step above already covers under a
+      # DIFFERENT key scoped to .hxpkg's hash). This one's scoped to the
+      # NightmareVision run id instead -- so if .hxpkg changes again, or
+      # that other cache gets evicted, re-importing the SAME NightmareVision
+      # export skips the multi-GB cross-repo download and goes straight to
+      # local extraction. Only invalidates when NightmareVision re-exports
+      # (a new run id).
+      - name: Cache downloaded NightmareVision export
+        id: nv-download-cache
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-run.outputs.run-id != ''
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/nv-cache-import
+          key: nv-cache-export-${{ steps.nv-run.outputs.run-id }}
+
+      # Best-effort: pulls NightmareVision-Android-Support's already-warm
+      # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
+      # below) instead of compiling lime/hxcpp/flixel/openfl from source.
+      # Silently no-ops (continue-on-error) if NIGHTMAREVISION_CACHE_TOKEN
+      # isn't set or the export workflow has no successful run -- id/output
+      # lets the next two steps pick the right path instead of always
+      # running hxpkg's own batch installer (see why below).
+      - name: Import NightmareVision haxelib/Lime cache
+        id: nv-import
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+        run: |
+          set -x
+          echo "imported=false" >> "$GITHUB_OUTPUT"
+          RUN_ID="${{ steps.nv-run.outputs.run-id }}"
+          if [ -z "$RUN_ID" ]; then
+            echo "No successful export run found on NightmareVision -- falling back to a from-scratch install."
+            exit 0
+          fi
+          if [ "${{ steps.nv-download-cache.outputs.cache-hit }}" != 'true' ]; then
+            gh run download "$RUN_ID" --repo jereidk/NightmareVision-Android-Support \
+              --name haxelib-cache-export --dir /tmp/nv-cache-import
+          else
+            echo "Reusing previously-downloaded NightmareVision export (run $RUN_ID)."
+          fi
+          tar -xzf /tmp/nv-cache-import/haxelib-root.tar.gz -C "$HOME"
+          tar -xzf /tmp/nv-cache-import/haxelib-project.tar.gz -C .
+          # haxelib's dev-link registry stores the ABSOLUTE path to each
+          # git-linked package's checkout (lime/flixel/flixel-addons/openfl/
+          # hxcpp), captured on NightmareVision's own runner
+          # (/home/runner/work/NightmareVision-Android-Support/...) -- that
+          # path doesn't exist here, so haxelib can't even read lime's
+          # haxelib.json ("Error parsing haxelib.json for lime@dev").
+          # Guessing the exact marker filename (previous attempt assumed
+          # .dev.txt, which didn't fix it) is fragile -- instead grep the
+          # whole imported tree as plain text (binary-safe -I skips the
+          # compiled .ndll/.so) for the literal old prefix and rewrite it
+          # wherever it actually is.
+          NV_PREFIX="/home/runner/work/NightmareVision-Android-Support/NightmareVision-Android-Support"
+          grep -rlFI "$NV_PREFIX" ~/haxelib .haxelib 2>/dev/null | while IFS= read -r f; do
+            sed -i "s#${NV_PREFIX}#${GITHUB_WORKSPACE}#g" "$f"
+            echo "Rewrote stale path in: $f"
+          done
+          haxelib setup ~/haxelib
+          echo "Imported NightmareVision's haxelib/Lime cache."
+          echo "imported=true" >> "$GITHUB_OUTPUT"
+
+      # Only linc_luajit/extension-androidtools -- NightmareVision doesn't
+      # depend on either, so the import above can't have brought them.
+      # Deliberately NOT going through hxpkg here: its own --force flag
+      # (needed once .haxelib already exists, which it now does) re-clones
+      # git-linked packages from scratch per NightmareVision's own
+      # devBuilds.yml comment on this exact behavior -- that would discard
+      # the compiled lime.ndll/liblime .so the import just brought in,
+      # defeating the entire point of importing anything.
+      - name: Install remaining Haxelib packages (post-import)
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-import.outputs.imported == 'true'
+        run: |
+          haxelib git linc_luajit https://github.com/jereidk/linc_luajit --quiet
+          haxelib git extension-androidtools https://github.com/jereidk/extension-androidtools --quiet
+          haxelib list
+
+      # The import above brings in whatever NightmareVision had cached at ITS
+      # last export run -- not necessarily what .hxpkg pins here right now.
+      # Confirmed via CI diagnostic: openfl and flixel-addons came in on
+      # completely different commits than their .hxpkg pins (hxcpp/lime/
+      # flixel happened to match, but nothing guarantees that). Force every
+      # git-linked library to its exact pinned commit so an out-of-date
+      # NightmareVision export can never silently hand us the wrong source.
+      - name: Reconcile imported libraries to .hxpkg pins
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-import.outputs.imported == 'true'
+        run: |
+          set -e
+          jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
+            path=".haxelib/$name/git"
+            if [ ! -d "$path/.git" ]; then
+              echo "$name: no git checkout at $path, skipping (not part of the import)."
+              continue
+            fi
+            current=$(git -C "$path" rev-parse HEAD)
+            if [ "$current" = "$branch" ]; then
+              echo "$name: already at pinned commit $branch."
+              continue
+            fi
+            echo "$name: imported at $current, pinned to $branch -- reconciling."
+            if ! git -C "$path" fetch --quiet origin "$branch"; then
+              echo "$name: direct SHA fetch failed, unshallowing before retrying."
+              git -C "$path" fetch --quiet --unshallow origin || git -C "$path" fetch --quiet origin
+            fi
+            git -C "$path" checkout --quiet --force "$branch"
+            echo "$name: now at $(git -C "$path" rev-parse HEAD)."
+          done
+
+      # hxpkg reads .hxpkg and installs everything in one pass -- replaces
+      # the old per-library haxelib install/git calls (each with its own
+      # progress spam) with one compact install log. flixel/flixel-addons/
+      # openfl/lime/hxcpp are pinned in .hxpkg to FunkinCrew's forks (same
+      # commits NightmareVision-Android-Support uses) instead of stock
+      # HaxeFlixel -- unpinned "latest" stock Flixel (6.2.0) had diverged
+      # far enough from what this codebase targets (FlxAnimationController/
+      # FlxCamera/tween API) to fail the build outright. Only runs when the
+      # import above didn't happen/didn't work -- see the step above for why
+      # a successful import skips this entirely instead of also running it
+      # with --force.
+      - name: Install Haxelib (via hxpkg)
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-import.outputs.imported != 'true'
+        run: |
+          haxelib setup ~/haxelib
+          haxelib install hxpkg --quiet
+          haxelib run hxpkg install --quiet
+          haxelib list
+
+      # Lime pinned to FunkinCrew's git fork (see .hxpkg) doesn't ship the
+      # prebuilt lime.ndll that haxelib's zip releases include -- it has to
+      # be compiled locally, or "lime setup"/any lime command fails with
+      # "Could not load lime.ndll". Self-healing (checks the file first,
+      # only rebuilds when actually missing) instead of gating strictly on
+      # cache-hit, matching NightmareVision-Android-Support's own workaround
+      # for this exact fork.
+      # Caches the downloaded .deb's (keyed on the package list) and installs
+      # straight from that cache on a hit instead of re-fetching ~30
+      # packages from Ubuntu's mirrors every run.
+      - name: Install Linux system deps
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: >-
+            build-essential gcc-13 g++-13 vlc libvlc-dev libvlccore-dev vlc-bin
+            libwayland-dev libwayland-bin wayland-protocols libasound2-dev
+            libpulse-dev libjack-jackd2-dev libpipewire-0.3-dev libgl1-mesa-dev
+            libegl1-mesa-dev libglu1-mesa-dev libdbus-1-dev libudev-dev
+            libxkbcommon-dev libx11-dev libxext-dev libx11-xcb-dev libxfixes-dev
+            libxss-dev libxrender-dev libxrandr-dev libxcursor-dev libxi-dev
+            libxinerama-dev libxxf86vm-dev libgbm-dev libdrm-dev libdecor-0-dev
+            libvulkan-dev pkg-config
+          version: 1.0
+
+      - name: Wrap g++-13 to force C++23
+        run: |
+          mkdir -p /tmp/cxx-wrap
+          printf '#!/bin/bash\nexec /usr/bin/g++-13 "$@" -std=c++23\n' > /tmp/cxx-wrap/g++-13
+          chmod +x /tmp/cxx-wrap/g++-13
+          echo "/tmp/cxx-wrap" >> $GITHUB_PATH
+
+      - name: Rebuild Linux Lime ndll
+        timeout-minutes: 15
+        env:
+          CC: gcc-13
+          CXX: g++-13
+        run: |
+          set -euo pipefail
+          if [ -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
+            echo "lime.ndll already present, skipping rebuild."
+          else
+            echo "lime.ndll missing -- rebuilding from source."
+            haxelib run lime rebuild cpp -release
+            if [ ! -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
+              echo "ERROR: Missing Lime ndll after rebuild"
+              exit 1
+            fi
+          fi
+
+      # REMOVED: "Setup Lime for Flixel" (`haxelib --quiet --always run lime
+      # setup flixel`). NightmareVision-Android-Support's own devBuilds.yml
+      # never runs this for the exact same library stack -- only `lime setup
+      # android` (below). Root-caused via CI diagnostic: this step printed
+      # "openfl was updated" / "flixel-addons was updated", silently
+      # git-pulling those two git-linked libraries to their latest upstream
+      # commit and undoing the "Reconcile imported libraries to .hxpkg pins"
+      # step that ran earlier in the same job -- that's what was making
+      # openfl sit on a different (wrong) commit by the time Compile ran,
+      # even though the reconcile step itself had just confirmed it correct.
+
+      - name: Create Version Tag
+        run: echo "${{github.run_id}}" > VERSION
+
+      # This FunkinCrew Lime fork's Android build scripts don't invoke the
+      # NDK's clang/ar/ranlib/strip the way $ANDROID_NDK_LATEST_HOME's
+      # unified-sysroot layout expects, and hit an ARM32 crtbegin/libc++
+      # linking issue in ld.lld -- both ported verbatim from
+      # NightmareVision-Android-Support's own fix for this exact fork.
+      - name: Prepare NDK clang++ for Android
+        run: |
+          mkdir -p /tmp/ndk-wrap
+          NDK_PREBUILT="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64"
+          {
+            printf '#!/bin/bash\n'
+            printf 'for arg in "$@"; do\n'
+            printf '  case "$arg" in\n'
+            printf '    *.c) exec "%s/bin/clang++" "--sysroot=%s/sysroot" -D__ANDROID__ -Wno-macro-redefined "$@" ;;\n' "$NDK_PREBUILT" "$NDK_PREBUILT"
+            printf '  esac\n'
+            printf 'done\n'
+            printf 'exec "%s/bin/clang++" "--sysroot=%s/sysroot" -D__ANDROID__ -Wno-macro-redefined "$@" -std=c++23\n' "$NDK_PREBUILT" "$NDK_PREBUILT"
+          } > /tmp/ndk-wrap/clang++
+          printf '#!/bin/bash\nexec "%s/bin/clang" "--sysroot=%s/sysroot" -D__ANDROID__ -Wno-macro-redefined "$@"\n' \
+            "$NDK_PREBUILT" "$NDK_PREBUILT" > /tmp/ndk-wrap/clang
+          printf '#!/bin/bash\nexec "%s/bin/llvm-strip" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/aarch64-linux-android-strip
+          printf '#!/bin/bash\nexec "%s/bin/llvm-strip" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/arm-linux-androideabi-strip
+          printf '#!/bin/bash\nexec "%s/bin/llvm-ar" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/arm-linux-androideabi-ar
+          printf '#!/bin/bash\nexec "%s/bin/llvm-ar" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/aarch64-linux-android-ar
+          printf '#!/bin/bash\nexec "%s/bin/llvm-ranlib" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/aarch64-linux-android-ranlib
+          printf '#!/bin/bash\nexec "%s/bin/llvm-ranlib" "$@"\n' \
+            "$NDK_PREBUILT" > /tmp/ndk-wrap/arm-linux-androideabi-ranlib
+          chmod +x /tmp/ndk-wrap/clang++ /tmp/ndk-wrap/clang \
+            /tmp/ndk-wrap/aarch64-linux-android-strip /tmp/ndk-wrap/arm-linux-androideabi-strip \
+            /tmp/ndk-wrap/arm-linux-androideabi-ar /tmp/ndk-wrap/aarch64-linux-android-ar \
+            /tmp/ndk-wrap/aarch64-linux-android-ranlib /tmp/ndk-wrap/arm-linux-androideabi-ranlib
+          echo "/tmp/ndk-wrap" >> $GITHUB_PATH
+          mv "$NDK_PREBUILT/bin/ld.lld" "$NDK_PREBUILT/bin/ld.lld.real"
+          echo 'IyEvYmluL2Jhc2gKTkRLPSJATkRLQCIKSVNfQVJNMzI9ZmFsc2UKUkVTUE9OU0VfRklMRT0iIgpmb3IgYXJnIGluICIkQCI7IGRvCiAgY2FzZSAiJGFyZyIgaW4KICAgIGFybWVsZl9saW51eF9lYWJpKSBJU19BUk0zMj10cnVlIDs7CiAgICBAKikKICAgICAgUkVTUE9OU0VfRklMRT0iJHthcmcjQH0iCiAgICAgIGlmIFsgLWYgIiRSRVNQT05TRV9GSUxFIiBdICYmIGdyZXAgLXFGICdhcm1lbGZfbGludXhfZWFiaScgIiRSRVNQT05TRV9GSUxFIjsgdGhlbgogICAgICAgIElTX0FSTTMyPXRydWUKICAgICAgZmkKICAgICAgOzsKICBlc2FjCmRvbmUKaWYgJElTX0FSTTMyOyB0aGVuCiAgQVJNMzJfQkFTRT0iJE5ESy9zeXNyb290L3Vzci9saWIvYXJtLWxpbnV4LWFuZHJvaWRlYWJpIgogIEFSTTMyPSIiCiAgIyBQcmVmZXIgdGhlIEFQSSBsZXZlbCB0aGUgY29tcGlsZXIgZHJpdmVyIGFscmVhZHkgY2hvc2U6IGl0IHBhc3NlcyBhbgogICMgYWJzb2x1dGUgY3J0YmVnaW4gcGF0aCBsaWtlIC4uLi9hcm0tbGludXgtYW5kcm9pZGVhYmkvMjgvY3J0YmVnaW5fc28ubywKICAjIGFuZCB0aGUgLUwgZGlyIHdlIHByZXBlbmQgTVVTVCBtYXRjaCBpdCAtLSBvYmplY3RzIGNvbXBpbGVkIGFnYWluc3QKICAjIEFQSS0yOCBoZWFkZXJzIHJlZmVyZW5jZSBzeW1ib2xzIChpY29udiwgc3RkZXJyLCBfX3JlZ2lzdGVyX2F0Zm9yaykKICAjIHRoYXQgdGhlIEFQSS0yMSBsaWJjLnNvIHN0dWJzIGRvIG5vdCBleHBvcnQuIFRoZSBoYXJkY29kZWQgbGlzdCBiZWxvdwogICMgb25seSByZW1haW5zIGFzIGEgZmFsbGJhY2sgZm9yIGRyaXZlcnMgdGhhdCBwYXNzIGJhcmUgQ1JUIG5hbWVzLgogIERFVEVDVEVEX0FQST0iIgogIGlmIFsgLW4gIiRSRVNQT05TRV9GSUxFIiBdICYmIFsgLWYgIiRSRVNQT05TRV9GSUxFIiBdOyB0aGVuCiAgICBERVRFQ1RFRF9BUEk9JChncmVwIC1vRSAnYXJtLWxpbnV4LWFuZHJvaWRlYWJpL1swLTldKy9jcnRiZWdpbicgIiRSRVNQT05TRV9GSUxFIiB8IGhlYWQgLTEgfCBncmVwIC1vRSAnWzAtOV0rJykKICBmaQogIGlmIFsgLXogIiRERVRFQ1RFRF9BUEkiIF07IHRoZW4KICAgIGZvciBhcmcgaW4gIiRAIjsgZG8KICAgICAgY2FzZSAiJGFyZyIgaW4KICAgICAgICAqL2FybS1saW51eC1hbmRyb2lkZWFiaS8qL2NydGJlZ2luKikKICAgICAgICAgIERFVEVDVEVEX0FQST0kKHByaW50ZiAnJXMnICIkYXJnIiB8IGdyZXAgLW9FICdhbmRyb2lkZWFiaS9bMC05XSsvJyB8IGdyZXAgLW9FICdbMC05XSsnKQogICAgICAgICAgOzsKICAgICAgZXNhYwogICAgZG9uZQogIGZpCiAgaWYgWyAtbiAiJERFVEVDVEVEX0FQSSIgXSAmJiBbIC1mICIkQVJNMzJfQkFTRS8kREVURUNURURfQVBJL2NydGJlZ2luX3NvLm8iIF07IHRoZW4KICAgIEFSTTMyPSIkQVJNMzJfQkFTRS8kREVURUNURURfQVBJIgogIGVsc2UKICAgIGZvciBhcGkgaW4gMTYgMTkgMjEgMjMgMjQgMjYgMjggMzA7IGRvCiAgICAgIGlmIFsgLWYgIiRBUk0zMl9CQVNFLyRhcGkvY3J0YmVnaW5fc28ubyIgXTsgdGhlbgogICAgICAgIEFSTTMyPSIkQVJNMzJfQkFTRS8kYXBpIgogICAgICAgIGJyZWFrCiAgICAgIGZpCiAgICBkb25lCiAgZmkKICBlY2hvICJsZC5sbGQtd3JhcHBlcjogQVJNMzIgbGluayBkZXRlY3RlZCwgc3lzcm9vdD0kQVJNMzIgKGRyaXZlciBhcGk9JHtERVRFQ1RFRF9BUEk6LW5vbmV9KSIgPiYyCiAgaWYgWyAteiAiJEFSTTMyIiBdOyB0aGVuCiAgICBlY2hvICJsZC5sbGQtd3JhcHBlcjogRVJST1Igbm8gQVJNMzIgY3J0YmVnaW5fc28ubyBmb3VuZCB1bmRlciAkQVJNMzJfQkFTRSIgPiYyCiAgICBscyAiJEFSTTMyX0JBU0UiID4mMiAyPi9kZXYvbnVsbCB8fCB0cnVlCiAgICBleGl0IDEKICBmaQogIGlmIFsgLW4gIiRSRVNQT05TRV9GSUxFIiBdICYmIFsgLWYgIiRSRVNQT05TRV9GSUxFIiBdOyB0aGVuCiAgICBORVdfUkVTUD0kKG1rdGVtcCAvdG1wL2xkLWFybTMyLVhYWFhYWC50eHQpCiAgICAjIFByZXBlbmQgdmVyc2lvbmVkIHBhdGggc28gaXRzIGxpYmMuc28gKHdpdGggTElCQ19OKSBiZWF0cyB0aGUgdW52ZXJzaW9uZWQgb25lCiAgICBwcmludGYgJyVzXG4nICItTCRBUk0zMiIgPiAiJE5FV19SRVNQIgogICAgIyBSZXNwb25zZSBmaWxlIHVzZXMgc3BhY2Utc2VwYXJhdGVkIHF1b3RlZCBhcmdzIG9uIG9uZSBsaW5lOyB1c2Ugc2VkIHRvIHJlcGxhY2UgQ1JUIGZpbGVuYW1lcwogICAgc2VkIFwKICAgICAgLWUgInN8XCJjcnRiZWdpbl9zb1wub1wifFwiJEFSTTMyL2NydGJlZ2luX3NvLm9cInxnIiBcCiAgICAgIC1lICJzfFwiY3J0YmVnaW5fZHluYW1pY1wub1wifFwiJEFSTTMyL2NydGJlZ2luX2R5bmFtaWMub1wifGciIFwKICAgICAgLWUgInN8XCJjcnRiZWdpbl9zdGF0aWNcLm9cInxcIiRBUk0zMi9jcnRiZWdpbl9zdGF0aWMub1wifGciIFwKICAgICAgLWUgInN8XCJjcnRlbmRfc29cLm9cInxcIiRBUk0zMi9jcnRlbmRfc28ub1wifGciIFwKICAgICAgLWUgInN8XCJjcnRlbmRcLm9cInxcIiRBUk0zMi9jcnRlbmQub1wifGciIFwKICAgICAgIiRSRVNQT05TRV9GSUxFIiA+PiAiJE5FV19SRVNQIgogICAgZm9yIGQgaW4gIiRBUk0zMl9CQVNFIiAiJE5ESy9saWIvbGludXgvYXJtIiAiJE5ESy9saWIvY2xhbmcvMjEvbGliL2xpbnV4L2FybSIgIiROREsvbGliL2NsYW5nLzE4L2xpYi9saW51eC9hcm0iOyBkbwogICAgICBpZiBbIC1mICIkZC9saWJjKytfc3RhdGljLmEiIF07IHRoZW4KICAgICAgICBwcmludGYgJyVzXG4nICItTCRkIiA+PiAiJE5FV19SRVNQIgogICAgICAgIGVjaG8gImxkLmxsZC13cmFwcGVyOiBhZGRlZCBsaWJjKytfc3RhdGljPSRkIiA+JjIKICAgICAgICBicmVhawogICAgICBmaQogICAgZG9uZQogICAgZXhlYyAtYSBsZC5sbGQgIiROREsvYmluL2xkLmxsZC5yZWFsIiAiQCRORVdfUkVTUCIKICBlbHNlCiAgICAjIENvbW1hbmQtbGluZSBwYXRoIChMaW1lIG5hdGl2ZSByZWJ1aWxkKTogcHJlcGVuZCB2ZXJzaW9uZWQgcGF0aCBhbmQgYWJzb2x1dGl6ZSBDUlQgYXJncwogICAgTkVXQVJHUz0oIi1MJEFSTTMyIikKICAgIGZvciBhcmcgaW4gIiRAIjsgZG8KICAgICAgY2FzZSAiJGFyZyIgaW4KICAgICAgICBjcnRiZWdpbl9zby5vfGNydGJlZ2luX2R5bmFtaWMub3xjcnRiZWdpbl9zdGF0aWMub3xjcnRlbmRfc28ub3xjcnRlbmQubykKICAgICAgICAgIE5FV0FSR1MrPSgiJEFSTTMyLyRhcmciKSA7OwogICAgICAgICopIE5FV0FSR1MrPSgiJGFyZyIpIDs7CiAgICAgIGVzYWMKICAgIGRvbmUKICAgIGZvciBkIGluICIkQVJNMzJfQkFTRSIgIiROREsvbGliL2xpbnV4L2FybSIgIiROREsvbGliL2NsYW5nLzIxL2xpYi9saW51eC9hcm0iICIkTkRLL2xpYi9jbGFuZy8xOC9saWIvbGludXgvYXJtIjsgZG8KICAgICAgaWYgWyAtZiAiJGQvbGliYysrX3N0YXRpYy5hIiBdOyB0aGVuCiAgICAgICAgTkVXQVJHUys9KCItTCRkIikKICAgICAgICBlY2hvICJsZC5sbGQtd3JhcHBlcjogYWRkZWQgbGliYysrX3N0YXRpYz0kZCIgPiYyCiAgICAgICAgYnJlYWsKICAgICAgZmkKICAgIGRvbmUKICAgIGV4ZWMgLWEgbGQubGxkICIkTkRLL2Jpbi9sZC5sbGQucmVhbCIgIiR7TkVXQVJHU1tAXX0iCiAgZmkKZWxzZQogIGV4ZWMgLWEgbGQubGxkICIkTkRLL2Jpbi9sZC5sbGQucmVhbCIgIiRAIgpmaQo=' \
+            | base64 -d | sed "s|@NDK@|$NDK_PREBUILT|g" > "$NDK_PREBUILT/bin/ld.lld"
+          chmod +x "$NDK_PREBUILT/bin/ld.lld"
+
+      - name: Configure Android
+        run: |
+          haxelib run lime setup android
+          haxelib run lime config ANDROID_SDK $ANDROID_HOME
+          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_LATEST_HOME
+          haxelib run lime config JAVA_HOME $JAVA_HOME_17_X64
+          haxelib run lime config ANDROID_SETUP true
+
+      # Same story as "Rebuild Linux Lime ndll" above -- this fork ships no
+      # prebuilt Android binaries either. Self-healing: only pay for the
+      # rebuild when the .so's are actually missing.
+      - name: Rebuild Android Lime so
+        run: |
+          if [ -f .haxelib/lime/git/ndll/Android/liblime-64.so ] && [ -f .haxelib/lime/git/ndll/Android/liblime-v7.so ]; then
+            echo "Android liblime .so files already present, skipping rebuild."
+          else
+            echo "Android liblime .so missing -- rebuilding from source."
+            haxelib run lime rebuild android -release
+          fi
+          if [ ! -f .haxelib/lime/git/ndll/Android/liblime-64.so ] || [ ! -f .haxelib/lime/git/ndll/Android/liblime-v7.so ]; then
+            echo "ERROR: Missing Android liblime .so after rebuild"
+            exit 1
+          fi
+
+      # Caches hxcpp's own incremental object cache for this project's C++-
+      # transpiled Haxe source, keyed on the source itself -- once warm, a
+      # run that only touches Indie-Cross-Public's own .hx files (not
+      # .hxpkg, which the earlier caches key on) only recompiles what
+      # actually changed instead of every generated .cpp from scratch.
+      - name: Cache hxcpp compile cache
+        id: hxcpp-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.hxcpp_cache
+          key: hxcpp-cache-android-port-arm32-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
+          restore-keys: |
+            hxcpp-cache-android-port-arm32-${{ runner.os }}-
+
+      # Final safety net, unconditional (unlike the earlier reconcile step,
+      # which only runs on the NightmareVision-import path). Proven
+      # necessary: the earlier reconcile step correctly put openfl/flixel-
+      # addons on their pinned commits, but the now-removed "Setup Lime for
+      # Flixel" step silently git-pulled them to latest afterward -- nothing
+      # guarantees some OTHER step between here and Compile won't do the
+      # same in the future. Running this again right before Compile, for
+      # every install path, means a repeat of that class of bug gets fixed
+      # automatically instead of needing another round of diagnosis.
+      - name: Reconcile libraries to .hxpkg pins (final, pre-Compile)
+        run: |
+          set -e
+          jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
+            path=".haxelib/$name/git"
+            if [ ! -d "$path/.git" ]; then
+              continue
+            fi
+            current=$(git -C "$path" rev-parse HEAD)
+            if [ "$current" = "$branch" ]; then
+              echo "$name: already at pinned commit $branch."
+              continue
+            fi
+            echo "$name: at $current, pinned to $branch -- reconciling."
+            if ! git -C "$path" fetch --quiet origin "$branch"; then
+              git -C "$path" fetch --quiet --unshallow origin || git -C "$path" fetch --quiet origin
+            fi
+            git -C "$path" checkout --quiet --force "$branch"
+            echo "$name: now at $(git -C "$path" rev-parse HEAD)."
+          done
+
+      # Diagnostic only, runs regardless of which path installed flixel
+      # (NightmareVision import vs. fresh hxpkg clone). The NightmareVision
+      # import extracts whatever was cached at THAT repo's last export run --
+      # it never re-checks-out each git-linked lib to the exact commit
+      # .hxpkg pins here, so if NightmareVision's own pin moved on since the
+      # cache was captured, the import can silently hand us a stale commit
+      # for lime/openfl/hxcpp/flixel-addons/flixel even though the FILES
+      # exist and LOOK like a real checkout. Comparing actual HEAD against
+      # .hxpkg's pin catches that directly instead of guessing per-symptom.
+      - name: Diagnose imported library checkouts
+        run: |
+          echo "--- haxelib list ---"
+          haxelib list
+          echo "--- git-linked package HEAD vs .hxpkg pin (+ dirty working tree check) ---"
+          jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
+            path=".haxelib/$name/git"
+            head=$(git -C "$path" rev-parse HEAD 2>&1) || head="ERROR: $head"
+            if [ "$head" = "$branch" ]; then status=MATCH; else status=MISMATCH; fi
+            echo "$name: pinned=$branch actual=$head [$status]"
+            dirty=$(git -C "$path" status --porcelain 2>&1)
+            if [ -n "$dirty" ]; then
+              echo "$name: WORKING TREE IS DIRTY (HEAD matches the pin but files differ from that commit's real tree):"
+              echo "$dirty"
+            fi
+          done
+          echo "--- FlxAnimationController.hx: getFrameDuration/fireLoopCallback/numFrames ---"
+          grep -n "getFrameDuration\|fireLoopCallback\|numFrames" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
+          echo "--- FlxCamera.hx: setFilters ---"
+          grep -n "setFilters" .haxelib/flixel/git/flixel/FlxCamera.hx || echo "NOT FOUND"
+          echo "--- Sound.hx: AudioBufferDataFormat usage ---"
+          grep -n "AudioBufferDataFormat\|F32\|S16" .haxelib/openfl/git/src/openfl/media/Sound.hx || echo "NOT FOUND"
+          echo "--- Sound.hx diff against its own pinned commit (blank = identical) ---"
+          git -C .haxelib/openfl/git diff HEAD -- src/openfl/media/Sound.hx || echo "(diff command itself failed)"
+          echo "--- lime AudioBufferDataFormat.hx contents ---"
+          find .haxelib/lime/git -iname "AudioBufferDataFormat.hx" -exec cat {} \;
+
+      # Adds a Gradle task (see the script's own doc comment) that extracts a
+      # Breakpad-format .sym file from the unstripped libApplicationMain.so
+      # (built with -D HXCPP_DEBUG_LINK below) straight into
+      # src/main/assets/data/, wired to run before Gradle packages assets --
+      # all in the SAME "lime build android" pass, no second compile needed.
+      # mobile.backend.SymbolResolver reads the resulting APK-bundled .sym at
+      # runtime to resolve a native crash's addresses to function/file/line.
+      # Must run AFTER every step above that can `git checkout --force` the
+      # cached .haxelib/lime checkout back to its pinned commit (that would
+      # silently discard this patch) -- placed right before Compile so
+      # nothing between here and there can undo it.
+      # Applies (or, for fat, resets/clears) the Gradle ndk.abiFilters split
+      # for this job's target -- see patch-lime-gradle.sh's own doc comment.
+      # MUST run before the symbol-extraction patch below: patch-lime-gradle.sh
+      # resets build.gradle to Lime's own committed version via `git checkout --`
+      # before applying its filter, which would silently discard the
+      # extractNativeSymbols task if this ran after it was added instead.
+      # Also must run even for the fat build: .haxelib/lime is a cache SHARED
+      # across all three jobs below, and running in parallel means whichever
+      # job's ABI-filter step ran last leaves that filter baked into the
+      # shared cache for the others to inherit next run -- resetting
+      # explicitly here (not just relying on "fat never sets a filter of its
+      # own") is what keeps this build genuinely universal regardless of
+      # what the cache last saved.
+      - name: Apply Gradle ABI filter (ARM32)
+        run: bash .github/scripts/patch-lime-gradle.sh arm32
+
+      - name: Patch Lime Gradle for native symbol extraction
+        run: bash .github/scripts/patch-lime-gradle-symbol-extraction.sh
+
+      - name: Compile
+        env:
+          HXCPP_COMPILE_THREADS: "4"
+          HXCPP_CACHE_MB: "4000"
+          # Absolute path, per extract-dwarf-symbols.sh/the Gradle task's own
+          # doc comments -- the generated Android project lives several
+          # directories deep under export/, so a relative path wouldn't
+          # reliably resolve from build.gradle.
+          SYMBOL_EXTRACT_SCRIPT: ${{ github.workspace }}/.github/scripts/extract-dwarf-symbols.sh
+        run: |
+          export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
+          mkdir -p "$HXCPP_COMPILE_CACHE"
+          # HXCPP_DEBUG_LINK adds -g and disables hxcpp's post-link strip, so
+          # the .so extractNativeSymbols reads (above) actually has DWARF
+          # debug info -- Gradle's own AGP packaging strips the .so that
+          # actually ships in the APK regardless, so this doesn't change
+          # final APK size, only what dump_syms gets to read beforehand.
+          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}" -D HXCPP_DEBUG_LINK -D ANDROID_ARM32_ONLY
+
+      # Confirms the .sym files documented above actually made it into the
+      # built APK's assets, so a silent breakage (Gradle task not wired up,
+      # dump_syms download failing, wrong asset path, ...) fails this run
+      # loudly instead of only being discovered much later, the first time
+      # someone actually needs to symbolicate a real device crash.
+      - name: Verify native symbol files were bundled
+        if: success()
+        run: |
+          set -euo pipefail
+          APK=$(find export/release/android/bin/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          if [ -z "$APK" ]; then
+            echo "ERROR: no APK found under export/release/android/bin/app/build/outputs/apk/debug to verify"
+            exit 1
+          fi
+          echo "Checking $APK for bundled native symbol files..."
+          if ! unzip -l "$APK" | grep -q "assets/data/symbols-"; then
+            echo "ERROR: no assets/data/symbols-*.sym found in $APK"
+            exit 1
+          fi
+          unzip -l "$APK" | grep "assets/data/symbols-"
+
+      # Only runs when Compile fails. The pre-Compile diagnostic confirmed
+      # .haxelib/flixel/git genuinely has getFrameDuration/fireLoopCallback/
+      # numFrames on disk -- yet Compile's error for FlxAnimation.hx (also
+      # read from that same git path) says FlxAnimationController has no
+      # such fields, and suggests "fireCallback" instead of
+      # "fireLoopCallback" (a DIFFERENT, older method that also happens to
+      # exist in the same file). That mismatch between "file on disk" and
+      # "what the compiler actually resolved" points at a duplicate/shadowed
+      # flixel install on the classpath, not a bad import -- this step looks
+      # for exactly that instead of guessing further.
+      - name: Diagnose compile failure (classpath check)
+        if: failure()
+        run: |
+          echo "--- .haxelib/flixel/ contents (all installed versions) ---"
+          ls -la .haxelib/flixel/ 2>/dev/null || echo "no .haxelib/flixel"
+          echo "--- .haxelib/flixel/.current ---"
+          cat .haxelib/flixel/.current 2>/dev/null || echo "no .current file"
+          echo "--- ~/haxelib/flixel/ contents ---"
+          ls -la ~/haxelib/flixel/ 2>/dev/null || echo "no ~/haxelib/flixel"
+          echo "--- ~/haxelib/flixel/.current ---"
+          cat ~/haxelib/flixel/.current 2>/dev/null || echo "no .current file"
+          echo "--- every FlxAnimationController.hx found in workspace/haxelib/haxe std ---"
+          find "$GITHUB_WORKSPACE" "$HOME/haxelib" "$HAXE_STD_PATH" -name "FlxAnimationController.hx" 2>/dev/null
+          echo "--- every FlxAnimation.hx found in workspace/haxelib/haxe std ---"
+          find "$GITHUB_WORKSPACE" "$HOME/haxelib" "$HAXE_STD_PATH" -name "FlxAnimation.hx" 2>/dev/null
+          echo "--- fireLoopCallback/getFrameDuration/numFrames/fireCallback in each FlxAnimationController.hx found ---"
+          find "$GITHUB_WORKSPACE" "$HOME/haxelib" "$HAXE_STD_PATH" -name "FlxAnimationController.hx" 2>/dev/null | while IFS= read -r f; do
+            echo "== $f =="
+            grep -n "function fireLoopCallback\|function getFrameDuration\|function fireCallback\|public var numFrames" "$f" || echo "  (none of those found)"
+          done
+          echo "--- generated hxml build files (actual classpath used) ---"
+          find export -name "*.hxml" 2>/dev/null | while IFS= read -r f; do
+            echo "== $f =="
+            cat "$f"
+          done
+
+      # Explicit save steps to replace the deprecated/broken save-always
+      # input (see the "Cache Haxe libraries" restore step above). Each
+      # runs regardless of job outcome (if: always()) so a run that fails
+      # at Compile still keeps whatever it downloaded/built -- actions/cache/
+      # save is a no-op (with a warning, not a failure) if the exact key was
+      # already saved, so it's safe to attempt unconditionally here.
+      - name: Save Haxe libraries cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/haxelib
+            .haxelib
+          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+
+      - name: Save downloaded NightmareVision export cache
+        if: always() && steps.nv-run.outputs.run-id != ''
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/nv-cache-import
+          key: nv-cache-export-${{ steps.nv-run.outputs.run-id }}
+
+      - name: Save hxcpp compile cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.hxcpp_cache
+          key: hxcpp-cache-android-port-arm32-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
+
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: androidBuild-arm32
           path: export/release/android/bin/app/build/outputs/apk/debug
