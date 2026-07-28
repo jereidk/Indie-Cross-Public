@@ -348,6 +348,42 @@ jobs:
           mkdir -p "$HXCPP_COMPILE_CACHE"
           haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}"
 
+      # Only runs when Compile fails. The pre-Compile diagnostic confirmed
+      # .haxelib/flixel/git genuinely has getFrameDuration/fireLoopCallback/
+      # numFrames on disk -- yet Compile's error for FlxAnimation.hx (also
+      # read from that same git path) says FlxAnimationController has no
+      # such fields, and suggests "fireCallback" instead of
+      # "fireLoopCallback" (a DIFFERENT, older method that also happens to
+      # exist in the same file). That mismatch between "file on disk" and
+      # "what the compiler actually resolved" points at a duplicate/shadowed
+      # flixel install on the classpath, not a bad import -- this step looks
+      # for exactly that instead of guessing further.
+      - name: Diagnose compile failure (classpath check)
+        if: failure()
+        run: |
+          echo "--- .haxelib/flixel/ contents (all installed versions) ---"
+          ls -la .haxelib/flixel/ 2>/dev/null || echo "no .haxelib/flixel"
+          echo "--- .haxelib/flixel/.current ---"
+          cat .haxelib/flixel/.current 2>/dev/null || echo "no .current file"
+          echo "--- ~/haxelib/flixel/ contents ---"
+          ls -la ~/haxelib/flixel/ 2>/dev/null || echo "no ~/haxelib/flixel"
+          echo "--- ~/haxelib/flixel/.current ---"
+          cat ~/haxelib/flixel/.current 2>/dev/null || echo "no .current file"
+          echo "--- every FlxAnimationController.hx found in workspace/haxelib/haxe std ---"
+          find "$GITHUB_WORKSPACE" "$HOME/haxelib" "$HAXE_STD_PATH" -name "FlxAnimationController.hx" 2>/dev/null
+          echo "--- every FlxAnimation.hx found in workspace/haxelib/haxe std ---"
+          find "$GITHUB_WORKSPACE" "$HOME/haxelib" "$HAXE_STD_PATH" -name "FlxAnimation.hx" 2>/dev/null
+          echo "--- fireLoopCallback/getFrameDuration/numFrames/fireCallback in each FlxAnimationController.hx found ---"
+          find "$GITHUB_WORKSPACE" "$HOME/haxelib" "$HAXE_STD_PATH" -name "FlxAnimationController.hx" 2>/dev/null | while IFS= read -r f; do
+            echo "== $f =="
+            grep -n "function fireLoopCallback\|function getFrameDuration\|function fireCallback\|public var numFrames" "$f" || echo "  (none of those found)"
+          done
+          echo "--- generated hxml build files (actual classpath used) ---"
+          find export -name "*.hxml" 2>/dev/null | while IFS= read -r f; do
+            echo "== $f =="
+            cat "$f"
+          done
+
       - name: Publish Artifact
         uses: actions/upload-artifact@v7.0.1
         with:
