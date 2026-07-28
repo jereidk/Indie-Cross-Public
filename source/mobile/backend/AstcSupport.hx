@@ -4,6 +4,8 @@ package mobile.backend;
 import lime.graphics.opengl.GL;
 #end
 
+using StringTools;
+
 /**
  * Detects runtime ASTC texture compression support on the current device.
  * Call check() once during initialization; then read isSupported.

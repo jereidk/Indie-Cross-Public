@@ -63,13 +63,20 @@
 	<haxelib name="discord_rpc" if="desktop"/>
 	<haxelib name="linc_luajit" if="cpp"/>
 	<haxelib name="extension-androidtools" if="android"/>
+
+	<!--Enables video playback via the hxvlc haxelib (replaces the old custom
+	    source/vlc C++ extension, which never had Android binaries built for it).
+	    Must be defined before the <haxelib name="hxvlc" .../> line below --
+	    Lime evaluates a tag's if="..." condition against whatever's been
+	    <define>d so far in file order, not the final define set, so a
+	    VIDEOS_ALLOWED define placed after this haxelib entry (as this used to
+	    be) is still undefined at the point the condition is checked and
+	    silently drops hxvlc from the classpath even though -D VIDEOS_ALLOWED
+	    shows up in the generated .hxml afterward.-->
+	<define name="VIDEOS_ALLOWED" if="cpp"/>
 	<haxelib name="hxvlc" if="VIDEOS_ALLOWED"/>
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
-
-	<!--Enables video playback via the hxvlc haxelib (replaces the old custom
-	    source/vlc C++ extension, which never had Android binaries built for it)-->
-	<define name="VIDEOS_ALLOWED" if="cpp"/>
 
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />

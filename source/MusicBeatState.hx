@@ -32,7 +32,7 @@ class MusicBeatState extends FNFState
 		return PlayerSettings.player1.controls;
 
 	#if android
-	var virtualPad:FlxVirtualPad;
+	public var virtualPad:FlxVirtualPad;
 	var androidControls:AndroidControls;
 	var trackedinputs:Array<FlxActionInput> = [];
 

@@ -68,7 +68,9 @@ class GameLogger
 		if (!_dirWritable(dir))
 		{
 			try
+			{
 				dir = extension.androidtools.content.Context.getExternalFilesDir(null) + '/';
+			}
 			catch (e:Dynamic) {}
 		}
 
