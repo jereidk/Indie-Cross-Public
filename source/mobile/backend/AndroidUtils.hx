@@ -32,6 +32,18 @@ class AndroidUtils
 		"()Z"
 	);
 
+	static var _isExternalStorageManager = JNI.createStaticMethod(
+		"mobile/backend/java/AndroidUtils",
+		"isExternalStorageManager",
+		"()Z"
+	);
+
+	static var _requestAllFilesAccess = JNI.createStaticMethod(
+		"mobile/backend/java/AndroidUtils",
+		"requestAllFilesAccess",
+		"()V"
+	);
+
 	/**
 	 * Signals Android's GameManager what state the app is in (API 33+ only,
 	 * silent no-op otherwise). true while actively playing a song, false in
@@ -76,6 +88,29 @@ class AndroidUtils
 	{
 		try return _hasPhysicalKeyboard()
 		catch (e:Dynamic) return false;
+	}
+
+	/**
+	 * Whether the app currently holds the special "All files access"
+	 * permission (API 30+; always true before that). WRITE_EXTERNAL_STORAGE/
+	 * READ_EXTERNAL_STORAGE alone do NOT grant this on Android 11+ -- without
+	 * it, writes to SUtil.getPath()'s folder silently fail every time.
+	 */
+	public static function isExternalStorageManager():Bool
+	{
+		try return _isExternalStorageManager()
+		catch (e:Dynamic) return false;
+	}
+
+	/**
+	 * Launches Android's "All files access" settings screen for this app
+	 * (API 30+ no-op otherwise). Doesn't block the caller -- boot continues
+	 * underneath it.
+	 */
+	public static function requestAllFilesAccess():Void
+	{
+		try _requestAllFilesAccess()
+		catch (e:Dynamic) {}
 	}
 }
 #end

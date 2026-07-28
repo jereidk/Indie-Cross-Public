@@ -70,12 +70,25 @@ class SUtil
 			// already granted) and let the try/catch below handle an actual denial.
 			Permissions.requestPermissions(['WRITE_EXTERNAL_STORAGE', 'READ_EXTERNAL_STORAGE']);
 
-			/**
-			 * Basically for now i can't force the app to stop while its requesting a android permission, so this makes the app to stop while its requesting the specific permission
-			 */
-			Application.current.window.alert('If you accepted the permissions you are all good!' + "\nIf you didn't then expect a crash"
-				+ 'Press Ok to see what happens',
-				'Permissions?');
+			// WRITE_EXTERNAL_STORAGE/READ_EXTERNAL_STORAGE alone do NOT make
+			// Environment.getExternalStorageDirectory() (getPath()'s folder)
+			// writable on Android 11+ -- scoped storage blocks it regardless
+			// unless the app also holds the special "All files access"
+			// permission, which nothing above requests. Without this, every
+			// write to getPath() silently fails on any Android 11+ device,
+			// every single time, no matter what the player taps on the
+			// runtime permission dialog above.
+			if (VERSION.SDK_INT >= VERSION_CODES.R && !mobile.backend.AndroidUtils.isExternalStorageManager())
+				mobile.backend.AndroidUtils.requestAllFilesAccess();
+
+			// Both permission prompts above launch as separate Activities and
+			// don't block this method -- boot continues underneath them, so
+			// the game is already running by the time the player returns
+			// from either screen (this used to show a blocking alert here
+			// instead, which had no way to resume if the player didn't
+			// immediately dismiss it -- same class of "stuck on a blank
+			// screen" bug this avoids entirely by never blocking in the
+			// first place).
 		}
 		else
 		{
@@ -110,13 +123,25 @@ class SUtil
 		#end
 	}
 
+	#if android
+	// Environment.getExternalStorageDirectory() is a JNI round-trip -- this
+	// path is called from dozens of sites across a session (every
+	// FileSystem.exists/createDirectory call in check() above alone calls
+	// it 4+ times, plus every save/crash-log/GameLogger write elsewhere) and
+	// never changes for the lifetime of the process, so there's no reason
+	// to pay that cost more than once.
+	static var _cachedPath:String = null;
+	#end
+
 	/**
 	 * This returns the external storage path that the game will use
 	 */
 	public static function getPath():String
 	{
 		#if android
-		return Environment.getExternalStorageDirectory() + '/' + '.' + Application.current.meta.get('file') + '/';
+		if (_cachedPath == null)
+			_cachedPath = Environment.getExternalStorageDirectory() + '/' + '.' + Application.current.meta.get('file') + '/';
+		return _cachedPath;
 		#else
 		return '';
 		#end

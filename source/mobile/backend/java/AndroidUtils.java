@@ -135,6 +135,55 @@ public class AndroidUtils extends Extension {
         }
     }
 
+    /**
+     * Whether the app currently holds the special "All files access"
+     * permission (API 30+; always true before that -- scoped storage,
+     * the whole reason this permission exists, doesn't apply pre-30).
+     * WRITE_EXTERNAL_STORAGE/READ_EXTERNAL_STORAGE alone do NOT grant this
+     * on Android 11+: without it, writes to
+     * Environment.getExternalStorageDirectory() (SUtil.getPath()'s folder)
+     * silently fail every time, which is what this method exists to detect.
+     */
+    public static boolean isExternalStorageManager() {
+        if (Build.VERSION.SDK_INT < 30) return true;
+        try {
+            return android.os.Environment.isExternalStorageManager();
+        } catch (Exception e) {
+            android.util.Log.e("AndroidUtils", "isExternalStorageManager failed: " + e);
+            return false;
+        }
+    }
+
+    /**
+     * Launches Android's own "All files access" settings screen for this
+     * app (API 30+ no-op otherwise). A separate Activity -- doesn't block
+     * the caller; boot continues underneath it, and the player can back out
+     * without granting anything (in which case isExternalStorageManager()
+     * keeps reporting false and SUtil.getPath()'s writes keep failing the
+     * same way they always have -- this only ever adds a way to fix that,
+     * never removes the previous silent-failure behavior).
+     */
+    public static void requestAllFilesAccess() {
+        if (Build.VERSION.SDK_INT < 30) return;
+        final Activity activity = mainActivity;
+        if (activity == null) return;
+        try {
+            android.content.Intent intent = new android.content.Intent(
+                android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                android.net.Uri.parse("package:" + activity.getPackageName()));
+            activity.startActivity(intent);
+        } catch (Exception e) {
+            android.util.Log.e("AndroidUtils", "requestAllFilesAccess failed: " + e);
+            // Some OEMs/emulators don't support the per-app deep link -- fall
+            // back to the general "All files access" management screen.
+            try {
+                activity.startActivity(new android.content.Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
+            } catch (Exception e2) {
+                android.util.Log.e("AndroidUtils", "requestAllFilesAccess fallback failed: " + e2);
+            }
+        }
+    }
+
     private static android.view.Display getDisplay(Activity activity) {
         if (Build.VERSION.SDK_INT >= 30) {
             return activity.getDisplay();
