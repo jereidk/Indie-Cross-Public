@@ -294,7 +294,7 @@ class PauseSubState extends MusicBeatSubstate
 					setBrightness(0);
 
 					OptionsMenu.fromFreeplay = true;
-					FlxG.switchState(new OptionsMenu());
+					FlxG.switchState(() -> new OptionsMenu());
 				}
 			case "Restart Song":
 				if (exitStateTimeDelay <= 0.0)
@@ -354,12 +354,12 @@ class PauseSubState extends MusicBeatSubstate
 						if (PlayState.isStoryMode)
 						{
 							StoryMenuState.fromWeek = fromWeek;
-							FlxG.switchState(new StoryMenuState());
+							FlxG.switchState(() -> new StoryMenuState());
 						}
 						else
 						{
 							FreeplayState.fromWeek = fromWeek;
-							FlxG.switchState(new FreeplayState());
+							FlxG.switchState(() -> new FreeplayState());
 						}
 					});
 				}

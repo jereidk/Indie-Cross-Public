@@ -125,7 +125,7 @@ class AchievementsMenuState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('delete', 'preload'));
 				FlxG.save.data.givenCode = false;
 				Achievements.defaultAchievements();
-				FlxG.switchState(new MainMenuState());
+				FlxG.switchState(() -> new MainMenuState());
 			}
 			Prompt.backThing = function()
 			{
@@ -177,7 +177,7 @@ class AchievementsMenuState extends MusicBeatState
 	{
 		allowTransit = false;
 		FlxG.sound.play(Paths.sound('cancelMenu'));
-		FlxG.switchState(new MainMenuState());
+		FlxG.switchState(() -> new MainMenuState());
 	}
 
 	function changeSelection(change:Int = 0)

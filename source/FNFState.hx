@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.FlxState;
 import flixel.FlxSubState;
 import flixel.addons.ui.FlxUIState;
+import flixel.util.typeLimit.NextState;
 
 class FNFState extends FlxUIState
 {
@@ -44,7 +45,7 @@ class FNFState extends FlxUIState
 		super.update(elapsed);
 	}
 
-	function switchTo(state:FlxState):Bool
+	function switchTo(state:NextState):Bool
 	{
 		if (!finishedTransOut && !transOutRequested)
 		{

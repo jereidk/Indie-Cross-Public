@@ -69,18 +69,18 @@ class HudIcon extends FlxSprite
 			case 'attack':
 				{
 					playAnim("fadeBack");
-					animation.finishCallback = function(name)
+					animation.onFinish.add(function(name)
 					{
 						playAnim("idle");
-					};
+					});
 				}
 			case 'dodge':
 				{
 					playAnim("fuck");
-					animation.finishCallback = function(name:String)
+					animation.onFinish.add(function(name:String)
 					{
 						playAnim("idle");
-					};
+					});
 				}
 		}
 	}

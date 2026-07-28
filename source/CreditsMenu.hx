@@ -491,7 +491,7 @@ class CreditsMenu extends MusicBeatState
 		{
 			allowTransit = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			FlxG.switchState(new MainMenuState());
+			FlxG.switchState(() -> new MainMenuState());
 		}
 	}
 

@@ -223,7 +223,7 @@ class TitleState extends MusicBeatState
 		#if debug
 		if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.A && videoDone)
 		{
-			FlxG.switchState(new AnimState());
+			FlxG.switchState(() -> new AnimState());
 		}
 		#end
 
@@ -264,7 +264,7 @@ class TitleState extends MusicBeatState
 
 		new FlxTimer().start(2, function(tmr:FlxTimer)
 		{
-			FlxG.switchState(new MainMenuState());
+			FlxG.switchState(() -> new MainMenuState());
 		});
 	}
 

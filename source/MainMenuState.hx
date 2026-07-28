@@ -525,7 +525,7 @@ class MainMenuState extends MusicBeatState
 			if (FlxG.keys.justPressed.I && FlxG.keys.pressed.CONTROL && debugTools)
 			{
 				// FlxG.switchState(new NotesplashOffsets());
-				FlxG.switchState(new DiffButtonOffsets());
+				FlxG.switchState(() -> new DiffButtonOffsets());
 			}
 
 			if (controls.LEFT_P #if android || virtualPad.buttonLeft.justPressed #end && FlxG.keys.pressed.CONTROL #if android
@@ -628,7 +628,7 @@ class MainMenuState extends MusicBeatState
 	{
 		disableInput = true;
 		FlxG.sound.play(Paths.sound('cancelMenu'));
-		FlxG.switchState(new TitleState());
+		FlxG.switchState(() -> new TitleState());
 	}
 
 	function generateButtons(yPos:Float, sep:Float)
@@ -781,16 +781,16 @@ class MainMenuState extends MusicBeatState
 			{
 				case "storymode":
 					StoryMenuState.fromWeek = -1;
-					FlxG.switchState(new StoryMenuState());
+					FlxG.switchState(() -> new StoryMenuState());
 				case "freeplay":
-					FlxG.switchState(new FreeplaySelect());
+					FlxG.switchState(() -> new FreeplaySelect());
 				case "options":
 					FlxG.sound.music.stop();
-					FlxG.switchState(new OptionsMenu());
+					FlxG.switchState(() -> new OptionsMenu());
 				case "credits":
-					FlxG.switchState(new CreditsMenu());
+					FlxG.switchState(() -> new CreditsMenu());
 				case "achievements":
-					FlxG.switchState(new AchievementsMenuState());
+					FlxG.switchState(() -> new AchievementsMenuState());
 			}
 		});
 	}

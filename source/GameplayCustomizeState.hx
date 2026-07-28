@@ -188,7 +188,7 @@ class GameplayCustomizeState extends MusicBeatState
 	function backOut()
 	{
 		FlxG.sound.play(Paths.sound('cancelMenu'));
-		FlxG.switchState(new OptionsMenu());
+		FlxG.switchState(() -> new OptionsMenu());
 	}
 
 	override function beatHit()

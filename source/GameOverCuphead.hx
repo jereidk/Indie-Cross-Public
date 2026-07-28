@@ -291,7 +291,7 @@ class GameOverCuphead extends MusicBeatSubstate
 						deadMusic.fadeOut(0.3);
 						FlxG.camera.fade(FlxColor.BLACK, 0.3, false, function()
 						{
-							LoadingState.loadAndSwitchState(new PlayState());
+							LoadingState.loadAndSwitchState(() -> new PlayState());
 						});
 					case 1:
 						FlxG.sound.music.stop();
@@ -308,12 +308,12 @@ class GameOverCuphead extends MusicBeatSubstate
 							{
 								StoryMenuState.fromWeek = 0;
 								StoryMenuState.leftDuringWeek = true;
-								FlxG.switchState(new StoryMenuState());
+								FlxG.switchState(() -> new StoryMenuState());
 							}
 							else
 							{
 								FreeplayState.fromWeek = 0;
-								FlxG.switchState(new FreeplayState());
+								FlxG.switchState(() -> new FreeplayState());
 							}
 						});
 				}

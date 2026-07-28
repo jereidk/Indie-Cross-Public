@@ -204,7 +204,7 @@ class FreeplayState extends MusicBeatState
 
 		music = new SoundSystem();
 		music.changeVolume(FlxG.sound.volume);
-		FlxG.sound.volumeHandler = onVChange;
+		FlxG.sound.onVolumeChange.add(onVChange);
 
 		FlxG.game.filtersEnabled = true;
 		filters.push(chromaticAberration);
@@ -336,10 +336,10 @@ class FreeplayState extends MusicBeatState
 		{
 			cupTea.alpha = 1;
 			cupTea.animation.play('start', true);
-			cupTea.animation.finishCallback = function(name)
+			cupTea.animation.onFinish.add(function(name)
 			{
 				cupTea.alpha = 0.00001;
-			}
+			});
 		}
 		else
 		{
@@ -534,7 +534,7 @@ class FreeplayState extends MusicBeatState
 
 		if (FlxG.keys.justPressed.I && FlxG.keys.pressed.CONTROL && MainMenuState.debugTools)
 		{
-			FlxG.switchState(new IconOffsets(songs[curSelected[freeplayType]].songCharacter));
+			FlxG.switchState(() -> new IconOffsets(songs[curSelected[freeplayType]].songCharacter));
 		}
 
 		if (!lockDiff)
@@ -688,10 +688,10 @@ class FreeplayState extends MusicBeatState
 			PlayState.playCutscene = false;
 			PlayState.storyIndex = 0;
 
-			LoadingState.target = new PlayState();
+			LoadingState.target = () -> new PlayState();
 			LoadingState.stopMusic = true;
 
-			FlxG.switchState(new LoadingState());
+			FlxG.switchState(() -> new LoadingState());
 		});
 	}
 
@@ -727,7 +727,7 @@ class FreeplayState extends MusicBeatState
 
 			new FlxTimer().start(0.5, function(tmr:FlxTimer)
 			{
-				FlxG.switchState(new FreeplaySelect());
+				FlxG.switchState(() -> new FreeplaySelect());
 			});
 		}
 	}
@@ -795,7 +795,7 @@ class FreeplayState extends MusicBeatState
 			PlayState.geno = false;
 
 			trace('CUR WEEK' + PlayState.storyWeek);
-			LoadingState.target = new PlayState();
+			LoadingState.target = () -> new PlayState();
 			LoadingState.stopMusic = true;
 
 			PlayState.playCutscene = false;
@@ -803,7 +803,7 @@ class FreeplayState extends MusicBeatState
 
 			new FlxTimer().start(waitDuration, function(tmr:FlxTimer)
 			{
-				FlxG.switchState(new LoadingState());
+				FlxG.switchState(() -> new LoadingState());
 			});
 		}
 	}

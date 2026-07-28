@@ -5,6 +5,7 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import flixel.util.typeLimit.NextState;
 import openfl.events.Event;
 
 #if VIDEOS_ALLOWED
@@ -29,7 +30,7 @@ import hxvlc.flixel.FlxVideoSprite;
 class VideoHandler
 {
 	public var finishCallback:Void->Void;
-	public var stateCallback:FlxState;
+	public var stateCallback:NextState;
 	public var fadeToBlack:Bool = false;
 	public var fadeFromBlack:Bool = false;
 	public var allowSkip:Bool = false;

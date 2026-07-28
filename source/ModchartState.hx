@@ -47,7 +47,7 @@ class ModchartState
 			{
 				Application.current.window.alert("LUA ERROR:\n" + p + "\nhaxe things: " + e, "Kade Engine Modcharts");
 				lua = null;
-				LoadingState.loadAndSwitchState(new MainMenuState());
+				LoadingState.loadAndSwitchState(() -> new MainMenuState());
 			}
 			// trace('err: ' + e);
 		}
@@ -444,7 +444,7 @@ class ModchartState
 		{
 			Application.current.window.alert("LUA COMPILE ERROR:\n" + Lua.tostring(lua, result), "Kade Engine Modcharts");
 			lua = null;
-			LoadingState.loadAndSwitchState(new MainMenuState());
+			LoadingState.loadAndSwitchState(() -> new MainMenuState());
 		}
 
 		// get some fukin globals up in here bois

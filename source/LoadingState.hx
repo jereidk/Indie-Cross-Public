@@ -5,13 +5,14 @@ import flixel.FlxState;
 import flixel.graphics.FlxGraphic;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import flixel.util.typeLimit.NextState;
 import sys.thread.Thread;
 
 using StringTools;
 
 class LoadingState extends MusicBeatState
 {
-	public static var target:FlxState;
+	public static var target:NextState;
 	public static var stopMusic = false;
 
 	static var imagesToCache:Array<String> = [];
@@ -120,7 +121,7 @@ class LoadingState extends MusicBeatState
 		});
 	}
 
-	public static function loadAndSwitchState(target:FlxState, stopMusic = false)
+	public static function loadAndSwitchState(target:NextState, stopMusic = false)
 	{
 		Paths.setCurrentLevel("week" + PlayState.storyWeek);
 

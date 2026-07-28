@@ -130,7 +130,7 @@ class IconOffsets extends FlxState
 		if (FlxG.keys.justPressed.BACKSPACE)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			FlxG.switchState(new FreeplayState());
+			FlxG.switchState(() -> new FreeplayState());
 		}
 
 		if (curAnim < 0)

@@ -130,7 +130,7 @@ class DiffButtonOffsets extends FlxState
 		if (FlxG.keys.justPressed.BACKSPACE #if android || FlxG.android.justReleased.BACK #end)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			FlxG.switchState(new MainMenuState());
+			FlxG.switchState(() -> new MainMenuState());
 		}
 
 		if (curAnim < 0)

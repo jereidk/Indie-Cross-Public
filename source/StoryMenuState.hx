@@ -293,10 +293,10 @@ class StoryMenuState extends MusicBeatState
 		{
 			cupTea.alpha = 1;
 			cupTea.animation.play('start', true);
-			cupTea.animation.finishCallback = function(name)
+			cupTea.animation.onFinish.add(function(name)
 			{
 				cupTea.alpha = 0.00001;
-			}
+			});
 		}
 		else
 		{
@@ -391,7 +391,7 @@ class StoryMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			lockInput = true;
 
-			FlxG.switchState(new MainMenuState());
+			FlxG.switchState(() -> new MainMenuState());
 		}
 	}
 
@@ -417,9 +417,9 @@ class StoryMenuState extends MusicBeatState
 						PlayState.playCutscene = true;
 						PlayState.isStoryMode = true;
 						leftDuringWeek = false;
-						LoadingState.target = new PlayState();
+						LoadingState.target = () -> new PlayState();
 						LoadingState.stopMusic = true;
-						FlxG.switchState(new LoadingState());
+						FlxG.switchState(() -> new LoadingState());
 					}
 					Prompt.backThing = function()
 					{
@@ -522,7 +522,7 @@ class StoryMenuState extends MusicBeatState
 		PlayState.mechanicType = curMechDifficulty;
 		PlayState.campaignScore = 0;
 
-		LoadingState.target = new PlayState();
+		LoadingState.target = () -> new PlayState();
 		LoadingState.stopMusic = true;
 
 		PlayState.storyIndex = 1;
@@ -531,7 +531,7 @@ class StoryMenuState extends MusicBeatState
 		{
 			PlayState.playCutscene = true;
 
-			FlxG.switchState(new LoadingState());
+			FlxG.switchState(() -> new LoadingState());
 		});
 
 		stopspamming = true;

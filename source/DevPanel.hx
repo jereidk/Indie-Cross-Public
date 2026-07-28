@@ -561,11 +561,11 @@ class DevPanel extends FlxSpriteGroup
 
 			case 4: // Chart Editor
 				closeDevPanel();
-				FlxG.switchState(new ChartingState());
+				FlxG.switchState(() -> new ChartingState());
 
 			case 5: // Offset Editor
 				closeDevPanel();
-				FlxG.switchState(new DiffButtonOffsets());
+				FlxG.switchState(() -> new DiffButtonOffsets());
 
 			case 6: // Reset achievements -- two-tap confirm to avoid fat-finger data loss
 				if (!devResetArmed)

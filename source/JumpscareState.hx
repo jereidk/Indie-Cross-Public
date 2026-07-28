@@ -75,7 +75,7 @@ class JumpscareState extends MusicBeatState
 
 			FlxG.camera.fade(FlxColor.BLACK, 1, false, function()
 			{
-				FlxG.switchState(new PlayState());
+				FlxG.switchState(() -> new PlayState());
 			});
 		}
 	}
@@ -86,7 +86,7 @@ class JumpscareState extends MusicBeatState
 		{
 			accepted = true;
 			GlobalVariables.reset();
-			FlxG.switchState(new FreeplayState());
+			FlxG.switchState(() -> new FreeplayState());
 		}
 	}
 }
