@@ -551,6 +551,12 @@ jobs:
           # directories deep under export/, so a relative path wouldn't
           # reliably resolve from build.gradle.
           SYMBOL_EXTRACT_SCRIPT: ${{ github.workspace }}/.github/scripts/extract-dwarf-symbols.sh
+          # Lime silently switches to assembleRelease/apk/release once
+          # Project.xml declares a <certificate> (see AndroidHelper.build() /
+          # project.keystore != null), which broke this pipeline's hardcoded
+          # apk/debug verify+upload paths below. Force debug explicitly so
+          # adding the release-signing keystore doesn't change what CI builds.
+          ANDROID_GRADLE_TASK: assembleDebug
         run: |
           export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
           mkdir -p "$HXCPP_COMPILE_CACHE"
@@ -1188,6 +1194,12 @@ jobs:
           # directories deep under export/, so a relative path wouldn't
           # reliably resolve from build.gradle.
           SYMBOL_EXTRACT_SCRIPT: ${{ github.workspace }}/.github/scripts/extract-dwarf-symbols.sh
+          # Lime silently switches to assembleRelease/apk/release once
+          # Project.xml declares a <certificate> (see AndroidHelper.build() /
+          # project.keystore != null), which broke this pipeline's hardcoded
+          # apk/debug verify+upload paths below. Force debug explicitly so
+          # adding the release-signing keystore doesn't change what CI builds.
+          ANDROID_GRADLE_TASK: assembleDebug
         run: |
           export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
           mkdir -p "$HXCPP_COMPILE_CACHE"
@@ -1825,6 +1837,12 @@ jobs:
           # directories deep under export/, so a relative path wouldn't
           # reliably resolve from build.gradle.
           SYMBOL_EXTRACT_SCRIPT: ${{ github.workspace }}/.github/scripts/extract-dwarf-symbols.sh
+          # Lime silently switches to assembleRelease/apk/release once
+          # Project.xml declares a <certificate> (see AndroidHelper.build() /
+          # project.keystore != null), which broke this pipeline's hardcoded
+          # apk/debug verify+upload paths below. Force debug explicitly so
+          # adding the release-signing keystore doesn't change what CI builds.
+          ANDROID_GRADLE_TASK: assembleDebug
         run: |
           export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
           mkdir -p "$HXCPP_COMPILE_CACHE"
