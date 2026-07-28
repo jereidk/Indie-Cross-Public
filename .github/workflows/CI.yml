@@ -257,8 +257,16 @@ jobs:
             fi
           fi
 
-      - name: Setup Lime for Flixel
-        run: haxelib --quiet --always run lime setup flixel
+      # REMOVED: "Setup Lime for Flixel" (`haxelib --quiet --always run lime
+      # setup flixel`). NightmareVision-Android-Support's own devBuilds.yml
+      # never runs this for the exact same library stack -- only `lime setup
+      # android` (below). Root-caused via CI diagnostic: this step printed
+      # "openfl was updated" / "flixel-addons was updated", silently
+      # git-pulling those two git-linked libraries to their latest upstream
+      # commit and undoing the "Reconcile imported libraries to .hxpkg pins"
+      # step that ran earlier in the same job -- that's what was making
+      # openfl sit on a different (wrong) commit by the time Compile ran,
+      # even though the reconcile step itself had just confirmed it correct.
 
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
@@ -342,6 +350,36 @@ jobs:
           key: hxcpp-cache-android-port-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
           restore-keys: |
             hxcpp-cache-android-port-${{ runner.os }}-
+
+      # Final safety net, unconditional (unlike the earlier reconcile step,
+      # which only runs on the NightmareVision-import path). Proven
+      # necessary: the earlier reconcile step correctly put openfl/flixel-
+      # addons on their pinned commits, but the now-removed "Setup Lime for
+      # Flixel" step silently git-pulled them to latest afterward -- nothing
+      # guarantees some OTHER step between here and Compile won't do the
+      # same in the future. Running this again right before Compile, for
+      # every install path, means a repeat of that class of bug gets fixed
+      # automatically instead of needing another round of diagnosis.
+      - name: Reconcile libraries to .hxpkg pins (final, pre-Compile)
+        run: |
+          set -e
+          jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
+            path=".haxelib/$name/git"
+            if [ ! -d "$path/.git" ]; then
+              continue
+            fi
+            current=$(git -C "$path" rev-parse HEAD)
+            if [ "$current" = "$branch" ]; then
+              echo "$name: already at pinned commit $branch."
+              continue
+            fi
+            echo "$name: at $current, pinned to $branch -- reconciling."
+            if ! git -C "$path" fetch --quiet origin "$branch"; then
+              git -C "$path" fetch --quiet --unshallow origin || git -C "$path" fetch --quiet origin
+            fi
+            git -C "$path" checkout --quiet --force "$branch"
+            echo "$name: now at $(git -C "$path" rev-parse HEAD)."
+          done
 
       # Diagnostic only, runs regardless of which path installed flixel
       # (NightmareVision import vs. fresh hxpkg clone). The NightmareVision
