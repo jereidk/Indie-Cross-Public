@@ -117,6 +117,20 @@
 	<android extension="mobile.backend.java.JavaCrashHandler" />
 	<android extension="mobile.backend.java.AndroidUtils" />
 
+	<!--A stable signing identity across builds -- without one, Lime signs
+	    each release with its own ad-hoc debug key, so a newer APK is never
+	    recognized as an "update" to an older install and always needs a
+	    full uninstall first. Self-signed, not a Play Store production key
+	    (NightmareVision-Android-Support does the same: a throwaway
+	    dev-signing keystore committed straight to the repo).-->
+	<certificate path="key.keystore" password="indiecross" alias="indiecross" alias-password="indiecross" if="android"/>
+
+	<!--Overrides specific files from Lime's own Android export template --
+	    only files present under templates/android/template/ need exist;
+	    everything else falls through to Lime's own default unchanged. See
+	    templates/android/template/gradle.properties's own doc comment.-->
+	<template path="templates/android" if="android"/>
+
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
