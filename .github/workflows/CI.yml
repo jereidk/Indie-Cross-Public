@@ -27,25 +27,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6.0.2
 
-      # No pinned NDK here (dropped nttld/setup-ndk@v1's r21e pin) --
-      # NightmareVision-Android-Support builds this same FunkinCrew Lime
-      # fork straight off ubuntu-latest's own preinstalled NDK via
-      # $ANDROID_NDK_LATEST_HOME, with no separate NDK-setup action at all.
-      - name: Setup Java JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          # android-actions/setup-android@v3's own sdkmanager (cmdline-tools
-          # 16.0) refuses to run at all below JDK 17 ("This tool requires JDK
-          # 17 or later") -- JDK 11 was this workflow's original 2021-era
-          # pin, no longer viable just to get past SDK setup. 17 also matches
-          # NightmareVision-Android-Support's proven-working config for this
-          # exact Lime/Haxe/Flixel/Android stack.
-          java-version: 17
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
+      # No pinned NDK here (dropped nttld/setup-ndk@v1's r21e pin), and no
+      # Setup Java JDK / Setup Android SDK steps either -- ubuntu-latest's
+      # own runner image already ships a full Android SDK and several JDKs
+      # preinstalled (that's what $ANDROID_HOME/$ANDROID_NDK_LATEST_HOME/
+      # $JAVA_HOME_17_X64 below resolve to). NightmareVision-Android-Support
+      # builds this identical FunkinCrew Lime fork the same way, with none
+      # of these three setup actions at all.
       - name: Setup Haxe
         uses: krdlab/setup-haxe@v2.1.0
         with:
@@ -284,7 +272,7 @@ jobs:
           haxelib run lime setup android
           haxelib run lime config ANDROID_SDK $ANDROID_HOME
           haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_LATEST_HOME
-          haxelib run lime config JAVA_HOME $JAVA_HOME
+          haxelib run lime config JAVA_HOME $JAVA_HOME_17_X64
           haxelib run lime config ANDROID_SETUP true
 
       # Same story as "Rebuild Linux Lime ndll" above -- this fork ships no
