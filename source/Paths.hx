@@ -406,12 +406,28 @@ class Paths
 
 	public static function returnSound(path:String, key:String, ?library:String, ?cache:Bool = true):Sound
 	{
-		var gottenPath:String;
+		var oggPath:String;
+		var wavPath:String;
 
 		if (path == 'songs' && library == null)
-			gottenPath = getPath('$key.ogg', SOUND, 'songs');
+		{
+			oggPath = getPath('$key.ogg', SOUND, 'songs');
+			wavPath = getPath('$key.wav', SOUND, 'songs');
+		}
 		else
-			gottenPath = getPath('$path/$key.ogg', SOUND, library);
+		{
+			oggPath = getPath('$path/$key.ogg', SOUND, library);
+			wavPath = getPath('$path/$key.wav', SOUND, library);
+		}
+
+		// .ogg is what every bundled asset actually ships as -- checked
+		// first so the common case still costs a single exists() lookup.
+		// .wav is only a fallback for a loose/mod file that isn't
+		// ogg-encoded (NightmareVision-Android-Support's Paths.hx does the
+		// same ogg-then-wav probe).
+		var gottenPath:String = oggPath;
+		if (!OpenFlAssets.exists(oggPath, SOUND) && OpenFlAssets.exists(wavPath, SOUND))
+			gottenPath = wavPath;
 
 		if (OpenFlAssets.exists(gottenPath, SOUND))
 		{
