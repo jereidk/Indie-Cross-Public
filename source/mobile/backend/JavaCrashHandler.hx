@@ -1,6 +1,11 @@
 package mobile.backend;
 
 #if android
+// See AndroidUtils.hx's identical comment: NightmareVision-Android-Support
+// gets this from its own project-wide source/import.hx, which Indie-Cross-
+// Public doesn't have an equivalent of.
+import lime.system.JNI;
+
 /**
  * Haxe JNI bridge to mobile.backend.java.JavaCrashHandler.
  * Ported from NightmareVision-Android-Support's mobile.backend.JavaCrashHandler.

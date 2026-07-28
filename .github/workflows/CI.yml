@@ -76,7 +76,7 @@ jobs:
           # not the commits .hxpkg actually pins -- confirmed via CI diag.
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
-          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
 
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
@@ -433,6 +433,33 @@ jobs:
             echo "$name: now at $(git -C "$path" rev-parse HEAD)."
           done
 
+      # Same idea as the git-linked reconcile above, but for .hxpkg entries
+      # pinned by plain version instead of a git commit (hxvlc, flixel-ui) --
+      # these never get touched by that step (its jq filter only matches
+      # entries with a .branch) or by "Install remaining Haxelib packages
+      # (post-import)" (which only tops up linc_luajit/extension-androidtools,
+      # packages NightmareVision's own export can never contain). A real
+      # build failure traced back to exactly this gap: hxvlc ended up
+      # missing from the cached ~/haxelib (likely a partial/failed install on
+      # whichever run first populated it, saved anyway since "Save Haxe
+      # libraries cache" runs unconditionally), and nothing after that ever
+      # re-checked or repaired it -- every subsequent cache hit just kept
+      # restoring the same incomplete state, so hxvlc.flixel.FlxVideoSprite
+      # (VideoHandler.hx) failed to resolve at Compile. Runs unconditionally,
+      # same reasoning as the git-linked reconcile.
+      - name: Ensure version-pinned Haxelib packages match .hxpkg (final, pre-Compile)
+        run: |
+          set -e
+          jq -r '.[].pkgs[] | select(.version and (.link | not)) | "\(.name) \(.version)"' .hxpkg | while read -r name version; do
+            if haxelib list "$name" 2>/dev/null | grep -qF "$version"; then
+              echo "$name: already installed at $version."
+            else
+              echo "$name: missing or wrong version (pinned to $version) -- installing."
+              haxelib install "$name" "$version" --quiet
+            fi
+            haxelib set "$name" "$version" --quiet 2>/dev/null || true
+          done
+
       # Diagnostic only, runs regardless of which path installed flixel
       # (NightmareVision import vs. fresh hxpkg clone). The NightmareVision
       # import extracts whatever was cached at THAT repo's last export run --
@@ -588,7 +615,7 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
 
       - name: Save Gradle cache
         if: always()
@@ -670,7 +697,7 @@ jobs:
           # not the commits .hxpkg actually pins -- confirmed via CI diag.
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
-          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
 
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
@@ -1027,6 +1054,33 @@ jobs:
             echo "$name: now at $(git -C "$path" rev-parse HEAD)."
           done
 
+      # Same idea as the git-linked reconcile above, but for .hxpkg entries
+      # pinned by plain version instead of a git commit (hxvlc, flixel-ui) --
+      # these never get touched by that step (its jq filter only matches
+      # entries with a .branch) or by "Install remaining Haxelib packages
+      # (post-import)" (which only tops up linc_luajit/extension-androidtools,
+      # packages NightmareVision's own export can never contain). A real
+      # build failure traced back to exactly this gap: hxvlc ended up
+      # missing from the cached ~/haxelib (likely a partial/failed install on
+      # whichever run first populated it, saved anyway since "Save Haxe
+      # libraries cache" runs unconditionally), and nothing after that ever
+      # re-checked or repaired it -- every subsequent cache hit just kept
+      # restoring the same incomplete state, so hxvlc.flixel.FlxVideoSprite
+      # (VideoHandler.hx) failed to resolve at Compile. Runs unconditionally,
+      # same reasoning as the git-linked reconcile.
+      - name: Ensure version-pinned Haxelib packages match .hxpkg (final, pre-Compile)
+        run: |
+          set -e
+          jq -r '.[].pkgs[] | select(.version and (.link | not)) | "\(.name) \(.version)"' .hxpkg | while read -r name version; do
+            if haxelib list "$name" 2>/dev/null | grep -qF "$version"; then
+              echo "$name: already installed at $version."
+            else
+              echo "$name: missing or wrong version (pinned to $version) -- installing."
+              haxelib install "$name" "$version" --quiet
+            fi
+            haxelib set "$name" "$version" --quiet 2>/dev/null || true
+          done
+
       # Diagnostic only, runs regardless of which path installed flixel
       # (NightmareVision import vs. fresh hxpkg clone). The NightmareVision
       # import extracts whatever was cached at THAT repo's last export run --
@@ -1182,7 +1236,7 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
 
       - name: Save Gradle cache
         if: always()
@@ -1264,7 +1318,7 @@ jobs:
           # not the commits .hxpkg actually pins -- confirmed via CI diag.
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
-          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
 
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
@@ -1621,6 +1675,33 @@ jobs:
             echo "$name: now at $(git -C "$path" rev-parse HEAD)."
           done
 
+      # Same idea as the git-linked reconcile above, but for .hxpkg entries
+      # pinned by plain version instead of a git commit (hxvlc, flixel-ui) --
+      # these never get touched by that step (its jq filter only matches
+      # entries with a .branch) or by "Install remaining Haxelib packages
+      # (post-import)" (which only tops up linc_luajit/extension-androidtools,
+      # packages NightmareVision's own export can never contain). A real
+      # build failure traced back to exactly this gap: hxvlc ended up
+      # missing from the cached ~/haxelib (likely a partial/failed install on
+      # whichever run first populated it, saved anyway since "Save Haxe
+      # libraries cache" runs unconditionally), and nothing after that ever
+      # re-checked or repaired it -- every subsequent cache hit just kept
+      # restoring the same incomplete state, so hxvlc.flixel.FlxVideoSprite
+      # (VideoHandler.hx) failed to resolve at Compile. Runs unconditionally,
+      # same reasoning as the git-linked reconcile.
+      - name: Ensure version-pinned Haxelib packages match .hxpkg (final, pre-Compile)
+        run: |
+          set -e
+          jq -r '.[].pkgs[] | select(.version and (.link | not)) | "\(.name) \(.version)"' .hxpkg | while read -r name version; do
+            if haxelib list "$name" 2>/dev/null | grep -qF "$version"; then
+              echo "$name: already installed at $version."
+            else
+              echo "$name: missing or wrong version (pinned to $version) -- installing."
+              haxelib install "$name" "$version" --quiet
+            fi
+            haxelib set "$name" "$version" --quiet 2>/dev/null || true
+          done
+
       # Diagnostic only, runs regardless of which path installed flixel
       # (NightmareVision import vs. fresh hxpkg clone). The NightmareVision
       # import extracts whatever was cached at THAT repo's last export run --
@@ -1776,7 +1857,7 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
 
       - name: Save Gradle cache
         if: always()

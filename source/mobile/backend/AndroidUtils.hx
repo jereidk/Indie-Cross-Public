@@ -1,6 +1,13 @@
 package mobile.backend;
 
 #if android
+// NightmareVision-Android-Support brings this into scope project-wide via its
+// own source/import.hx (#if mobile ... import lime.system.JNI; #end) --
+// Indie-Cross-Public has no equivalent project-wide import.hx, so this and
+// JavaCrashHandler.hx (the only two files that call JNI.createStaticMethod)
+// each need their own explicit import instead.
+import lime.system.JNI;
+
 /**
  * Haxe JNI bridge to mobile.backend.java.AndroidUtils.
  * Ported (minimal subset) from NightmareVision-Android-Support's
