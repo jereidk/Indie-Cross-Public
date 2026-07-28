@@ -58,14 +58,16 @@ class Prompt extends MusicBeatSubstate
 
 		#if android
 		addVirtualPadNoControls(NONE, A_B);
-		virtualPad.alpha = 0.00001;
+		virtualPadAlt.alpha = 0.00001;
 		#end
 
 		FlxTween.tween(bg, {alpha: 0.6}, entertime, {ease: FlxEase.quartInOut});
 		FlxTween.tween(text, {alpha: 1}, entertime, {ease: FlxEase.quartInOut});
 		FlxTween.tween(text2, {alpha: 1}, entertime, {ease: FlxEase.quartInOut});
 		FlxTween.tween(icon, {alpha: 1}, entertime, {ease: FlxEase.quartInOut});
-		FlxTween.tween(virtualPad, {alpha: 1}, entertime, {ease: FlxEase.quartInOut});
+		#if android
+		FlxTween.tween(virtualPadAlt, {alpha: 1}, entertime, {ease: FlxEase.quartInOut});
+		#end
 
 		new FlxTimer().start(entertime, function(tmr:FlxTimer)
 		{

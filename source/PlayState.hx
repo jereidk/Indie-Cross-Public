@@ -11471,6 +11471,7 @@ class PlayState extends MusicBeatState
 				JumpscareState.allowRetry = true;
 				FNFState.disableNextTransIn = true;
 				FNFState.disableNextTransOut = true;
+				Application.current.window.onFocusOut.remove(onWindowFocusOut);
 				FlxG.switchState(new JumpscareState());
 			}
 			else
