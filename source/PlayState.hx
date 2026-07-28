@@ -11553,7 +11553,7 @@ class PlayState extends MusicBeatState
 						FlxG.camera.alpha = 1;
 						camHUD.alpha = 1;
 
-						openSubState(new GameOverSubstate(boyfriend.getViewPosition().x, boyfriend.getViewPosition().y));
+						openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 					}
 				}
 			}
