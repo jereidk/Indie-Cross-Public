@@ -11,9 +11,14 @@ import openfl.system.System;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
 import openfl.Lib;
+#if (android && cpp)
+import openfl.display3D.Context3D;
+import openfl.events.Event;
+#end
 
 using StringTools;
 
+@:access(openfl.display3D.textures.TextureBase)
 class Paths
 {
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
@@ -21,6 +26,91 @@ class Paths
 	public static var currentTrackedSounds:Map<String, Sound> = [];
 
 	public static var localTrackedAssets:Array<String> = [];
+
+	// ── GPU Render (Options -> Render Type 1/2) context-loss recovery ──────
+	// The gpurender path in returnGraphic() below uploads a bitmap to a raw
+	// Texture and immediately disposeImage()s the CPU pixel buffer to save
+	// RAM -- same technique NightmareVision-Android-Support's gpuCaching
+	// option uses, but that one tracks every such bitmap and re-decodes it
+	// on Android's CONTEXT3D_CREATE (fired whenever the app backgrounds and
+	// comes back, which destroys the whole GL context). This codebase never
+	// had that tracking: any sprite atlas loaded while a GPU render mode is
+	// active (getSparrowAtlas() always passes gpurender=true, so this is
+	// most of the game's art) went permanently black after the very first
+	// time the app was backgrounded, with no way to recover short of
+	// restarting. Mirrors mobile.backend.AstcLoader's own recovery pattern
+	// (re-read the source, upload into a fresh Texture, steal its GL handle
+	// into the ORIGINAL tracked Texture object so nothing holding a
+	// reference to it needs to change).
+	#if (android && cpp)
+	static var _gpuRenderRecovery:Map<String, {texture:Texture, width:Int, height:Int}> = [];
+	static var _gpuRenderListenerInstalled:Bool = false;
+
+	static function installGpuRenderContextHandler():Void
+	{
+		if (_gpuRenderListenerInstalled) return;
+		_gpuRenderListenerInstalled = true;
+		FlxG.stage.stage3Ds[0].addEventListener(Event.CONTEXT3D_CREATE, _onGpuRenderContextRestored);
+	}
+
+	static function _onGpuRenderContextRestored(_:Dynamic):Void
+	{
+		var context3D:Null<Context3D> = Lib.current.stage.context3D;
+		if (context3D == null) return;
+
+		var restored = 0;
+		var failed = 0;
+		var toRemove:Array<String> = [];
+
+		for (path => entry in _gpuRenderRecovery)
+		{
+			if (!FlxG.bitmap.checkCache(path))
+			{
+				toRemove.push(path);
+				continue;
+			}
+
+			// useCache=false: force a fresh decode -- the cached copy is this
+			// exact bitmap, whose CPU image was already disposed on upload.
+			var fresh:Null<BitmapData> = null;
+			try
+			{
+				fresh = OpenFlAssets.getBitmapData(path, false);
+			}
+			catch (e:Dynamic) {}
+
+			if (fresh == null)
+			{
+				trace('Paths: GPU render context restore -- "$path" missing, cannot restore');
+				toRemove.push(path);
+				failed++;
+				continue;
+			}
+
+			try
+			{
+				var freshTex = context3D.createTexture(entry.width, entry.height, BGRA, true);
+				freshTex.uploadFromBitmapData(fresh);
+				entry.texture.__textureID = freshTex.__textureID;
+				freshTex.__textureID = 0; // orphan wrapper -- ownership moved to entry.texture
+				fresh.dispose();
+				fresh.disposeImage();
+				restored++;
+			}
+			catch (e:Dynamic)
+			{
+				trace('Paths: GPU render context restore upload failed for "$path" -- $e');
+				failed++;
+			}
+		}
+
+		for (key in toRemove)
+			_gpuRenderRecovery.remove(key);
+
+		if (restored > 0 || failed > 0)
+			trace('Paths: GPU render context restored -- $restored texture(s) re-uploaded, $failed failed');
+	}
+	#end
 
 	/// haya I love you for the base cache dump I took to the max
 	public static function clearUnusedMemory()
@@ -44,6 +134,9 @@ class Paths
 						texture.dispose();
 						texture = null;
 						currentTrackedTextures.remove(key);
+						#if (android && cpp)
+						_gpuRenderRecovery.remove(key);
+						#end
 					}
 					OpenFlAssets.cache.removeBitmapData(key);
 					OpenFlAssets.cache.clearBitmapData(key);
@@ -261,6 +354,10 @@ class Paths
 							var texture = FlxG.stage.context3D.createTexture(bitmap.width, bitmap.height, BGRA, true);
 							texture.uploadFromBitmapData(bitmap);
 							currentTrackedTextures.set(path, texture);
+							#if (android && cpp)
+							_gpuRenderRecovery.set(path, {texture: texture, width: bitmap.width, height: bitmap.height});
+							installGpuRenderContextHandler();
+							#end
 							bitmap.dispose();
 							bitmap.disposeImage();
 							bitmap = null;
@@ -269,6 +366,10 @@ class Paths
 							var texture = Lib.current.stage.context3D.createTexture(bitmap.width, bitmap.height, BGRA, true);
 							texture.uploadFromBitmapData(bitmap);
 							currentTrackedTextures.set(path, texture);
+							#if (android && cpp)
+							_gpuRenderRecovery.set(path, {texture: texture, width: bitmap.width, height: bitmap.height});
+							installGpuRenderContextHandler();
+							#end
 							bitmap.dispose();
 							bitmap.disposeImage();
 							bitmap = null;
