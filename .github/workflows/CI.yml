@@ -313,6 +313,32 @@ jobs:
             hxcpp-cache-android-port-${{ runner.os }}-
           save-always: true
 
+      # Diagnostic only, runs regardless of which path installed flixel
+      # (NightmareVision import vs. fresh hxpkg clone) -- prints exactly
+      # what commit is actually on disk and whether the methods Compile
+      # later fails to find (getFrameDuration/fireLoopCallback/numFrames on
+      # FlxAnimationController) are really missing from the checked-out
+      # source, or whether they're present and something else is going on.
+      # A clean clone of the pinned commit (622bb65e) was independently
+      # verified to have all three -- this compares that against what's
+      # ACTUALLY on the runner's disk instead of assuming they match.
+      - name: Diagnose imported flixel checkout
+        run: |
+          echo "--- haxelib list ---"
+          haxelib list
+          echo "--- flixel git HEAD ---"
+          git -C .haxelib/flixel/git rev-parse HEAD || echo "no git repo at .haxelib/flixel/git"
+          echo "--- flixel git status (dirty?) ---"
+          git -C .haxelib/flixel/git status --porcelain || true
+          echo "--- FlxAnimationController.hx: getFrameDuration ---"
+          grep -n "getFrameDuration" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
+          echo "--- FlxAnimationController.hx: fireLoopCallback ---"
+          grep -n "fireLoopCallback" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
+          echo "--- FlxAnimationController.hx: numFrames ---"
+          grep -n "numFrames" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
+          echo "--- FlxCamera.hx: setFilters ---"
+          grep -n "setFilters" .haxelib/flixel/git/flixel/FlxCamera.hx || echo "NOT FOUND"
+
       - name: Compile
         env:
           HXCPP_COMPILE_THREADS: "4"
