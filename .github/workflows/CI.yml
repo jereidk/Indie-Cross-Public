@@ -50,14 +50,12 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          # v4 bump: v3 got further (import + linc_luajit/extension-
-          # androidtools + ndll self-heal all succeeded) but then failed at
-          # "lime setup flixel" on stale absolute dev-link paths baked into
-          # the imported .dev.txt files (now fixed below) -- v3's saved
-          # cache still has those broken pointers, so it needs one more
-          # clean miss to actually exercise the fix instead of inheriting
-          # the same broken state.
-          key: haxelibs-android-port-v4-${{ hashFiles('.hxpkg') }}
+          # v5 bump: v4's fix (guessing the pointer lived in .dev.txt) didn't
+          # actually match anything, so the same broken-path failure
+          # happened again and got baked into v4's saved cache too. One more
+          # clean miss for the grep-based fix below, which doesn't guess a
+          # filename.
+          key: haxelibs-android-port-v5-${{ hashFiles('.hxpkg') }}
 
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
@@ -120,16 +118,22 @@ jobs:
           fi
           tar -xzf /tmp/nv-cache-import/haxelib-root.tar.gz -C "$HOME"
           tar -xzf /tmp/nv-cache-import/haxelib-project.tar.gz -C .
-          # haxelib's dev-link registry (.dev.txt inside each git-linked
-          # package's folder, e.g. .haxelib/lime/.dev.txt) stores the
-          # ABSOLUTE path to the checkout, captured on NightmareVision's own
-          # runner (/home/runner/work/NightmareVision-Android-Support/...).
-          # That path doesn't exist here, so every dev-linked package
-          # (lime/flixel/flixel-addons/openfl/hxcpp) needs its pointer
-          # rewritten to this runner's actual workspace path or haxelib
-          # can't even read its haxelib.json ("Error parsing haxelib.json").
-          find ~/haxelib .haxelib -name '.dev.txt' -type f -print0 2>/dev/null \
-            | xargs -0 -r sed -i -E "s#/home/runner/work/[^/]+/[^/]+#${GITHUB_WORKSPACE}#g"
+          # haxelib's dev-link registry stores the ABSOLUTE path to each
+          # git-linked package's checkout (lime/flixel/flixel-addons/openfl/
+          # hxcpp), captured on NightmareVision's own runner
+          # (/home/runner/work/NightmareVision-Android-Support/...) -- that
+          # path doesn't exist here, so haxelib can't even read lime's
+          # haxelib.json ("Error parsing haxelib.json for lime@dev").
+          # Guessing the exact marker filename (previous attempt assumed
+          # .dev.txt, which didn't fix it) is fragile -- instead grep the
+          # whole imported tree as plain text (binary-safe -I skips the
+          # compiled .ndll/.so) for the literal old prefix and rewrite it
+          # wherever it actually is.
+          NV_PREFIX="/home/runner/work/NightmareVision-Android-Support/NightmareVision-Android-Support"
+          grep -rlFI "$NV_PREFIX" ~/haxelib .haxelib 2>/dev/null | while IFS= read -r f; do
+            sed -i "s#${NV_PREFIX}#${GITHUB_WORKSPACE}#g" "$f"
+            echo "Rewrote stale path in: $f"
+          done
           haxelib setup ~/haxelib
           echo "Imported NightmareVision's haxelib/Lime cache."
           echo "imported=true" >> "$GITHUB_OUTPUT"
