@@ -1096,7 +1096,7 @@ class ChartingState extends MusicBeatState
 			}
 		}
 
-		if (FlxG.keys.justPressed.BACKSPACE && !noEscape)
+		if ((FlxG.keys.justPressed.BACKSPACE #if android || FlxG.android.justReleased.BACK #end) && !noEscape)
 		{
 			lastSection = curSection;
 			FlxG.sound.music.stop();

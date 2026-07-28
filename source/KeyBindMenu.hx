@@ -90,9 +90,7 @@ class KeyBindMenu extends FlxSubState
 		blackBox.scrollFactor.set(0, 0);
 		add(blackBox);
 
-		infoText = new FlxText(-10, 580, 1280,
-			'Current Selected Mode: ${gamepad ? 'GAMEPAD' : 'KEYBOARD'}. Press TAB to switch\n(${gamepad ? 'RIGHT Trigger' : 'Escape'} to save, ${gamepad ? 'LEFT Trigger' : 'Backspace'} to leave without saving. ${gamepad ? 'START To change a keybind' : ''})',
-			72);
+		infoText = new FlxText(-10, 580, 1280, infoTextFor(), 72);
 		infoText.scrollFactor.set(0, 0);
 		infoText.setFormat("VCR OSD Mono", 24, FlxColor.WHITE, FlxTextAlign.CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		infoText.borderSize = 3;
@@ -151,7 +149,7 @@ class KeyBindMenu extends FlxSubState
 				if (FlxG.keys.justPressed.TAB)
 				{
 					gamepad = !gamepad;
-					infoText.text = 'Current Mode: ${gamepad ? 'GAMEPAD' : 'KEYBOARD'}. Press TAB to switch\n(${gamepad ? 'RIGHT Trigger' : 'Escape'} to save, ${gamepad ? 'LEFT Trigger' : 'Backspace'} to leave without saving. ${gamepad ? 'START To change a keybind' : ''})';
+					infoText.text = infoTextFor();
 					textUpdate();
 				}
 
@@ -163,7 +161,7 @@ class KeyBindMenu extends FlxSubState
 						state = "input";
 					}
 				}
-				else if (FlxG.keys.justPressed.ESCAPE)
+				else if (FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end)
 				{
 					quit();
 				}
@@ -212,7 +210,7 @@ class KeyBindMenu extends FlxSubState
 			case "waiting":
 				if (realGamepad != null && gamepad) // GP Logic
 				{
-					if (FlxG.keys.justPressed.ESCAPE)
+					if (FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end)
 					{ // just in case you get stuck
 						gpKeys[curSelected] = tempKey;
 						state = "select";
@@ -237,7 +235,7 @@ class KeyBindMenu extends FlxSubState
 				}
 				else
 				{
-					if (FlxG.keys.justPressed.ESCAPE)
+					if (FlxG.keys.justPressed.ESCAPE #if android || FlxG.android.justReleased.BACK #end)
 					{
 						keys[curSelected] = tempKey;
 						state = "select";
@@ -267,6 +265,19 @@ class KeyBindMenu extends FlxSubState
 			textUpdate();
 
 		super.update(elapsed);
+	}
+
+	// Only the "select" state's ESCAPE handler is reachable without a keyboard
+	// (entering "input"/"waiting" needs ENTER or a gamepad, neither available
+	// via touch) -- but a touch-only player had no way to trigger even that,
+	// since ESCAPE has no on-screen equivalent. The Android BACK gesture/button
+	// now does the same thing (see the ESCAPE handlers above), so this just
+	// needs to actually tell the player that on Android.
+	function infoTextFor():String
+	{
+		final saveKey = gamepad ? 'RIGHT Trigger' : #if android 'Back button/gesture' #else 'Escape' #end;
+		final leaveKey = gamepad ? 'LEFT Trigger' : 'Backspace';
+		return 'Current Selected Mode: ${gamepad ? 'GAMEPAD' : 'KEYBOARD'}. Press TAB to switch\n($saveKey to save, $leaveKey to leave without saving. ${gamepad ? 'START To change a keybind' : ''})';
 	}
 
 	function textUpdate()
