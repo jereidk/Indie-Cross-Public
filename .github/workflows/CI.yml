@@ -13,6 +13,16 @@ jobs:
   # This workflow contains a single job called "build"
   buildAndroid:
     runs-on: ubuntu-latest
+    # No permissions: block previously -- the default GITHUB_TOKEN for
+    # workflow_dispatch runs can end up read-only depending on repo
+    # settings, which makes every actions/cache save silently fail (no
+    # error, just nothing shows up under Settings -> Actions -> Caches
+    # afterward). Explicit actions: write matches NightmareVision-Android-
+    # Support's own devBuilds.yml, which needs the same thing for the same
+    # reason.
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6.0.2
