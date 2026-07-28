@@ -1775,11 +1775,24 @@ class ChartingState extends MusicBeatState
 
 		if ((data != null) && (data.length > 0))
 		{
+			#if android
+			// openfl.net.FileReference.save() below is a desktop/browser
+			// "Save As" dialog API -- there's no real Android implementation
+			// of it, so a chart saved this way here silently went nowhere.
+			// SUtil.saveContent() is what every other Android save path in
+			// this codebase already uses: writes to external storage and
+			// shows a Toast confirming success/failure, which also doubles
+			// as feedback a touch-only player can actually see (the desktop
+			// path below only ever logs to FlxG.log, invisible in a release
+			// build).
+			SUtil.saveContent(_song.song.toLowerCase(), '.json', data.trim());
+			#else
 			_file = new FileReference();
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
 			_file.addEventListener(Event.CANCEL, onSaveCancel);
 			_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
 			_file.save(data.trim(), _song.song.toLowerCase() + ".json");
+			#end
 		}
 	}
 
