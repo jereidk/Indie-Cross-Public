@@ -7,6 +7,8 @@ using StringTools;
 
 #if desktop
 import discord_rpc.DiscordRpc;
+#elseif android
+import mobile.backend.AndroidRPC;
 #end
 
 class DiscordClient
@@ -38,6 +40,8 @@ class DiscordClient
 		#if desktop
 		trace('shuttin');
 		DiscordRpc.shutdown();
+		#elseif android
+		AndroidRPC.shutdown();
 		#end
 	}
 
@@ -71,6 +75,12 @@ class DiscordClient
 			new DiscordClient();
 		});
 		trace("Discord Client initialized");
+		#elseif android
+		// No Discord IPC socket exists on Android -- this drives a local
+		// MediaSession-backed notification instead, which a separate app the
+		// player installs themselves (Kizzy, github.com/dead8309/Kizzy) can
+		// relay to their Discord account. See AndroidRPC.hx/KizzyHelper.java.
+		AndroidRPC.initialize();
 		#end
 	}
 
@@ -117,6 +127,14 @@ class DiscordClient
 			startTimestamp: Std.int(startTimestamp / 1000),
 			endTimestamp: Std.int(endTimestamp / 1000)
 		});
+		#elseif android
+		// smallImageKey (a Discord asset-key string on desktop, e.g. "bf") has
+		// no Android equivalent here -- ignored, see AndroidRPC.hx's own doc
+		// comment. hasStartTimestamp maps onto isPlaying; without a real song
+		// duration available at every call site, position/duration are left
+		// at 0 (no progress bar) rather than guessing one from endTimestamp
+		// alone.
+		AndroidRPC.update(details, state, hasStartTimestamp == true);
 		#end
 	}
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Declares which Android 13+ Game Modes (system Game Dashboard) this app
+    supports. Referenced by the sibling AndroidManifest.xml's
+    android.game_mode_config meta-data. Identical to NightmareVision-
+    Android-Support's own copy.-->
+<game-mode-config
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:supportsBatteryGameMode="true"
+	android:supportsPerformanceGameMode="true"
+	android:allowGameAngleDriver="true"
+	android:allowGameDownscaling="true"
+	android:allowGameFpsOverride="true" />

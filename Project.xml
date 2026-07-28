@@ -15,6 +15,13 @@
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" />
 	<window if="mobile" orientation="landscape" fullscreen="true" resizable="false" />
 
+	<!--Requests SDL's real native framebuffer (SDL_WINDOW_ALLOW_HIGHDPI)
+	    instead of a scaled-down logical one -- sharper rendering on the
+	    high-density displays most Android phones have. Not gated on any
+	    platform in Lime's own native window code, but excluded on mac to
+	    match NightmareVision-Android-Support's own setting exactly.-->
+	<window unless="mac" allow-high-dpi="true"/>
+
 	<!-- _____________________________ Path Settings ____________________________ -->
 
 	<set name="BUILD_DIR" value="export/debug" if="debug" />
@@ -46,7 +53,15 @@
 	<assets path="assets/fonts" embed='true' unless="linux"/>
 	<assets path="assets/fonts" embed='false' if="linux"/>
 
-	<ndll name="c++_shared" if="android" />
+	<!--No project-level <ndll name="c++_shared"/> here on purpose -- hxvlc's
+	    own include.xml (haxelib) already declares <ndll name="c++_shared"
+	    dir="project/vlc/lib"/> for android unconditionally (VIDEOS_ALLOWED
+	    is always on for android/cpp), and Lime's own project.ndlls list has
+	    no name-based dedup: a second same-named entry here would ALSO copy
+	    to the exact same jniLibs/<abi>/libc++_shared.so destination via
+	    copyIfNewer, a silent, non-deterministic mtime race between the two
+	    sources -- confirmed straight from Lime's own AndroidPlatform.hx.
+	    Removed the redundant one instead of leaving that race in place.-->
 
 	<!-- epic wacky shit -->
 	<assets path="assets/compileData/plugins/plugins/" rename='plugins/' if="windows"/>
@@ -90,10 +105,19 @@
 	<!--Make's-the-game-use-less-ram-->
 	<haxedef name="HXCPP_GC_BIG_BLOCKS" unless="debug" />
 
-	<!--Makes crash messages show up in release build, essential for the crash message (lol)-->
-	<haxedef name="HXCPP_CHECK_POINTER" if="release" />
-	<haxedef name="HXCPP_STACK_LINE" if="release" />
-	<haxedef name="HXCPP_STACK_TRACE" if="release" />
+	<!--Makes crash messages show up (essential for SUtil's crash handler and
+	    JavaCrashHandler to produce anything useful). Unconditional, not just
+	    if="release" -- HXCPP_CHECK_POINTER's extra bounds/null checks turn a
+	    raw native crash into a catchable Haxe exception with a real stack
+	    trace, which matters just as much for a debug APK a tester runs
+	    without a debugger attached as it does for release. Debug builds are
+	    already far less optimized than release, so the relative performance
+	    cost of adding this is much smaller there than it would be in
+	    release. Matches NightmareVision-Android-Support's own CRASH_HANDLER,
+	    which is unconditionally on for the same reason.-->
+	<haxedef name="HXCPP_CHECK_POINTER" />
+	<haxedef name="HXCPP_STACK_LINE" />
+	<haxedef name="HXCPP_STACK_TRACE" />
 
 	<!--Android-Internet-connection-stuff-->
 	<android permission="android.permission.ACCESS_NETWORK_STATE"/>
@@ -111,11 +135,53 @@
 	<android permission="android.permission.READ_EXTERNAL_STORAGE"/>
 	<android permission="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 
+	<!--Rest of NightmareVision-Android-Support's own permission set, adopted
+	    in full for parity. MANAGE_MEDIA/READ_MEDIA_*: broader media access
+	    on API 33+ than READ/WRITE_EXTERNAL_STORAGE alone cover.
+	    ACCESS_WIFI_STATE: paired with ACCESS_NETWORK_STATE below.
+	    CAPTURE_AUDIO_OUTPUT: system audio capture.-->
+	<android permission="android.permission.MANAGE_MEDIA"/>
+	<android permission="android.permission.READ_MEDIA_IMAGES"/>
+	<android permission="android.permission.READ_MEDIA_AUDIO"/>
+	<android permission="android.permission.READ_MEDIA_VIDEO"/>
+	<android permission="android.permission.READ_MEDIA_DOCUMENTS"/>
+	<android permission="android.permission.ACCESS_WIFI_STATE"/>
+	<android permission="android.permission.CAPTURE_AUDIO_OUTPUT"/>
+
+	<!-- Required for KizzyHelper's MediaSession notification (API 33+) --
+	     without this, requestPermissions() for it is auto-denied since
+	     Android refuses to grant any runtime permission that isn't also
+	     declared here, and the notification silently never posts. -->
+	<android permission="android.permission.POST_NOTIFICATIONS"/>
+
 	<!--Java-side native crash capture/symbolication (Logger/GameLogger's
 	    counterpart on the Java side) -- see mobile.backend.java.JavaCrashHandler-->
 	<java path="source" if="android"/>
 	<android extension="mobile.backend.java.JavaCrashHandler" />
 	<android extension="mobile.backend.java.AndroidUtils" />
+	<android extension="mobile.backend.java.ScreenUtil" />
+
+	<!--Android Discord presence via Kizzy (see source/Discord.hx's #elseif
+	    android branch / mobile.backend.AndroidRPC.hx / KizzyHelper.java's own
+	    doc comment) -- ported from NightmareVision-Android-Support.-->
+	<android extension="mobile.backend.java.KizzyHelper" />
+
+	<!--ABI targeting: pass -D ANDROID_ARM64_ONLY or -D ANDROID_ARM32_ONLY
+	    (both already passed by CI.yml's per-job Compile step) for a
+	    single-ABI APK -- without either, both are built (fat APK). Verified
+	    straight from Lime's own AndroidPlatform.hx: unlike the
+	    ANDROID_ARM64_ONLY/ARM32_ONLY haxedefs (which only affect what
+	    hxcpp itself compiles, not what ships), an architecture missing
+	    from this list makes Lime delete that ABI's whole jniLibs/<abi>/
+	    directory outright before Gradle ever runs -- a real, independent
+	    restriction mechanism, not cosmetic. Matches NightmareVision-
+	    Android-Support's own tags exactly. Left CI.yml's own
+	    ndk.abiFilters Gradle patch in place alongside this rather than
+	    removing it -- redundant now, but a wrong APK ABI is a silent
+	    failure (not a compile error), so keeping both until a real build
+	    confirms this alone is enough.-->
+	<architecture name="arm64" unless="ANDROID_ARM32_ONLY" />
+	<architecture name="armv7" unless="ANDROID_ARM64_ONLY" />
 
 	<!--A stable signing identity across builds -- without one, Lime signs
 	    each release with its own ad-hoc debug key, so a newer APK is never
