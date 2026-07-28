@@ -314,30 +314,33 @@ jobs:
           save-always: true
 
       # Diagnostic only, runs regardless of which path installed flixel
-      # (NightmareVision import vs. fresh hxpkg clone) -- prints exactly
-      # what commit is actually on disk and whether the methods Compile
-      # later fails to find (getFrameDuration/fireLoopCallback/numFrames on
-      # FlxAnimationController) are really missing from the checked-out
-      # source, or whether they're present and something else is going on.
-      # A clean clone of the pinned commit (622bb65e) was independently
-      # verified to have all three -- this compares that against what's
-      # ACTUALLY on the runner's disk instead of assuming they match.
-      - name: Diagnose imported flixel checkout
+      # (NightmareVision import vs. fresh hxpkg clone). The NightmareVision
+      # import extracts whatever was cached at THAT repo's last export run --
+      # it never re-checks-out each git-linked lib to the exact commit
+      # .hxpkg pins here, so if NightmareVision's own pin moved on since the
+      # cache was captured, the import can silently hand us a stale commit
+      # for lime/openfl/hxcpp/flixel-addons/flixel even though the FILES
+      # exist and LOOK like a real checkout. Comparing actual HEAD against
+      # .hxpkg's pin catches that directly instead of guessing per-symptom.
+      - name: Diagnose imported library checkouts
         run: |
           echo "--- haxelib list ---"
           haxelib list
-          echo "--- flixel git HEAD ---"
-          git -C .haxelib/flixel/git rev-parse HEAD || echo "no git repo at .haxelib/flixel/git"
-          echo "--- flixel git status (dirty?) ---"
-          git -C .haxelib/flixel/git status --porcelain || true
-          echo "--- FlxAnimationController.hx: getFrameDuration ---"
-          grep -n "getFrameDuration" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
-          echo "--- FlxAnimationController.hx: fireLoopCallback ---"
-          grep -n "fireLoopCallback" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
-          echo "--- FlxAnimationController.hx: numFrames ---"
-          grep -n "numFrames" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
+          echo "--- git-linked package HEAD vs .hxpkg pin ---"
+          jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
+            path=".haxelib/$name/git"
+            head=$(git -C "$path" rev-parse HEAD 2>&1) || head="ERROR: $head"
+            if [ "$head" = "$branch" ]; then status=MATCH; else status=MISMATCH; fi
+            echo "$name: pinned=$branch actual=$head [$status]"
+          done
+          echo "--- FlxAnimationController.hx: getFrameDuration/fireLoopCallback/numFrames ---"
+          grep -n "getFrameDuration\|fireLoopCallback\|numFrames" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
           echo "--- FlxCamera.hx: setFilters ---"
           grep -n "setFilters" .haxelib/flixel/git/flixel/FlxCamera.hx || echo "NOT FOUND"
+          echo "--- Sound.hx: AudioBufferDataFormat usage ---"
+          grep -n "AudioBufferDataFormat\|F32\|S16" .haxelib/openfl/git/src/openfl/media/Sound.hx || echo "NOT FOUND"
+          echo "--- lime AudioBufferDataFormat.hx contents ---"
+          find .haxelib/lime/git -iname "AudioBufferDataFormat.hx" -exec cat {} \;
 
       - name: Compile
         env:
