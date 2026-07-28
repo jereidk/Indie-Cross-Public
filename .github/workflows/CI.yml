@@ -339,6 +339,23 @@ jobs:
           haxelib run lime config JAVA_HOME $JAVA_HOME_17_X64
           haxelib run lime config ANDROID_SETUP true
 
+      # Gradle's own global dependency/wrapper cache -- identical regardless
+      # of which ABI job restores it (the abiFilters split happens later, at
+      # packaging, via patch-lime-gradle.sh), so all three jobs share one
+      # key. Ported from NightmareVision-Android-Support's devBuilds.yml,
+      # adapted to this repo's split restore/save cache pattern (see the
+      # "Cache Haxe libraries" step's own doc comment for why) instead of
+      # NightmareVision's combined actions/cache@v4.
+      - name: Cache Gradle
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-port-v1-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-android-port-v1-
+
       # Same story as "Rebuild Linux Lime ndll" above -- this fork ships no
       # prebuilt Android binaries either. Self-healing: only pay for the
       # rebuild when the .so's are actually missing.
@@ -368,6 +385,25 @@ jobs:
           key: hxcpp-cache-android-port-fat-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
           restore-keys: |
             hxcpp-cache-android-port-fat-${{ runner.os }}-
+
+      # Ported from NightmareVision-Android-Support's devBuilds.yml: the
+      # hxcpp compile cache above is keyed on a hash of this project's own
+      # source tree, so *any* commit touching source produces a brand-new
+      # key that never matches an old one exactly -- actions/cache always
+      # saves a fresh full copy at the end of this job regardless, so old
+      # generations are never replaced, only ever added to. Left unchecked
+      # this silently grows the repo's total Actions cache usage until
+      # GitHub starts evicting *other*, unrelated caches. Runs right after
+      # the restore above (before Compile), so it only ever deletes caches
+      # that are already generations old -- the one just restored this run
+      # is always the newest and is deliberately kept, as a same-run
+      # fallback in case this run's own compile fails before a new cache
+      # gets saved.
+      - name: Prune stale hxcpp compile caches
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/prune-stale-hxcpp-cache.sh "hxcpp-cache-android-port-fat-${{ runner.os }}-" "${{ github.ref }}"
 
       # Final safety net, unconditional (unlike the earlier reconcile step,
       # which only runs on the NightmareVision-import path). Proven
@@ -555,6 +591,15 @@ jobs:
             ~/haxelib
             .haxelib
           key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+
+      - name: Save Gradle cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-port-v1-${{ hashFiles('**/gradle-wrapper.properties') }}
 
       - name: Save downloaded NightmareVision export cache
         if: always() && steps.nv-run.outputs.run-id != ''
@@ -888,6 +933,23 @@ jobs:
           haxelib run lime config JAVA_HOME $JAVA_HOME_17_X64
           haxelib run lime config ANDROID_SETUP true
 
+      # Gradle's own global dependency/wrapper cache -- identical regardless
+      # of which ABI job restores it (the abiFilters split happens later, at
+      # packaging, via patch-lime-gradle.sh), so all three jobs share one
+      # key. Ported from NightmareVision-Android-Support's devBuilds.yml,
+      # adapted to this repo's split restore/save cache pattern (see the
+      # "Cache Haxe libraries" step's own doc comment for why) instead of
+      # NightmareVision's combined actions/cache@v4.
+      - name: Cache Gradle
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-port-v1-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-android-port-v1-
+
       # Same story as "Rebuild Linux Lime ndll" above -- this fork ships no
       # prebuilt Android binaries either. Self-healing: only pay for the
       # rebuild when the .so's are actually missing.
@@ -917,6 +979,25 @@ jobs:
           key: hxcpp-cache-android-port-arm64-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
           restore-keys: |
             hxcpp-cache-android-port-arm64-${{ runner.os }}-
+
+      # Ported from NightmareVision-Android-Support's devBuilds.yml: the
+      # hxcpp compile cache above is keyed on a hash of this project's own
+      # source tree, so *any* commit touching source produces a brand-new
+      # key that never matches an old one exactly -- actions/cache always
+      # saves a fresh full copy at the end of this job regardless, so old
+      # generations are never replaced, only ever added to. Left unchecked
+      # this silently grows the repo's total Actions cache usage until
+      # GitHub starts evicting *other*, unrelated caches. Runs right after
+      # the restore above (before Compile), so it only ever deletes caches
+      # that are already generations old -- the one just restored this run
+      # is always the newest and is deliberately kept, as a same-run
+      # fallback in case this run's own compile fails before a new cache
+      # gets saved.
+      - name: Prune stale hxcpp compile caches
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/prune-stale-hxcpp-cache.sh "hxcpp-cache-android-port-arm64-${{ runner.os }}-" "${{ github.ref }}"
 
       # Final safety net, unconditional (unlike the earlier reconcile step,
       # which only runs on the NightmareVision-import path). Proven
@@ -1104,6 +1185,15 @@ jobs:
             ~/haxelib
             .haxelib
           key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+
+      - name: Save Gradle cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-port-v1-${{ hashFiles('**/gradle-wrapper.properties') }}
 
       - name: Save downloaded NightmareVision export cache
         if: always() && steps.nv-run.outputs.run-id != ''
@@ -1437,6 +1527,23 @@ jobs:
           haxelib run lime config JAVA_HOME $JAVA_HOME_17_X64
           haxelib run lime config ANDROID_SETUP true
 
+      # Gradle's own global dependency/wrapper cache -- identical regardless
+      # of which ABI job restores it (the abiFilters split happens later, at
+      # packaging, via patch-lime-gradle.sh), so all three jobs share one
+      # key. Ported from NightmareVision-Android-Support's devBuilds.yml,
+      # adapted to this repo's split restore/save cache pattern (see the
+      # "Cache Haxe libraries" step's own doc comment for why) instead of
+      # NightmareVision's combined actions/cache@v4.
+      - name: Cache Gradle
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-port-v1-${{ hashFiles('**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-android-port-v1-
+
       # Same story as "Rebuild Linux Lime ndll" above -- this fork ships no
       # prebuilt Android binaries either. Self-healing: only pay for the
       # rebuild when the .so's are actually missing.
@@ -1466,6 +1573,25 @@ jobs:
           key: hxcpp-cache-android-port-arm32-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
           restore-keys: |
             hxcpp-cache-android-port-arm32-${{ runner.os }}-
+
+      # Ported from NightmareVision-Android-Support's devBuilds.yml: the
+      # hxcpp compile cache above is keyed on a hash of this project's own
+      # source tree, so *any* commit touching source produces a brand-new
+      # key that never matches an old one exactly -- actions/cache always
+      # saves a fresh full copy at the end of this job regardless, so old
+      # generations are never replaced, only ever added to. Left unchecked
+      # this silently grows the repo's total Actions cache usage until
+      # GitHub starts evicting *other*, unrelated caches. Runs right after
+      # the restore above (before Compile), so it only ever deletes caches
+      # that are already generations old -- the one just restored this run
+      # is always the newest and is deliberately kept, as a same-run
+      # fallback in case this run's own compile fails before a new cache
+      # gets saved.
+      - name: Prune stale hxcpp compile caches
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/prune-stale-hxcpp-cache.sh "hxcpp-cache-android-port-arm32-${{ runner.os }}-" "${{ github.ref }}"
 
       # Final safety net, unconditional (unlike the earlier reconcile step,
       # which only runs on the NightmareVision-import path). Proven
@@ -1653,6 +1779,15 @@ jobs:
             ~/haxelib
             .haxelib
           key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+
+      - name: Save Gradle cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-port-v1-${{ hashFiles('**/gradle-wrapper.properties') }}
 
       - name: Save downloaded NightmareVision export cache
         if: always() && steps.nv-run.outputs.run-id != ''
