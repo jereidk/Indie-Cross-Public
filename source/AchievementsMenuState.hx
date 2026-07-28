@@ -49,6 +49,7 @@ class AchievementsMenuState extends MusicBeatState
 		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menu/BG', 'preload'));
 		menuBG.updateHitbox();
 		menuBG.screenCenter();
+		ScreenAnchor.coverExpand(menuBG);
 		menuBG.antialiasing = FlxG.save.data.highquality;
 		add(menuBG);
 

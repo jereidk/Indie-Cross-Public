@@ -144,6 +144,7 @@ class StoryMenuState extends MusicBeatState
 		actualBG.setGraphicSize(Std.int(actualBG.width * daScaling));
 		actualBG.updateHitbox();
 		actualBG.screenCenter();
+		ScreenAnchor.coverExpand(actualBG);
 		actualBG.antialiasing = FlxG.save.data.highquality;
 		add(actualBG);
 
@@ -615,7 +616,15 @@ class StoryMenuState extends MusicBeatState
 			default:
 				actualBG.alpha = 1;
 				bendoBG.alpha = 0.00001;
+				// loadGraphic() resets scale back to the raw texture size,
+				// undoing both the daScaling sizing and coverExpand() from
+				// create() -- reapply both so switching back to this week
+				// doesn't shrink the background back to native size.
 				actualBG.loadGraphic(Paths.image('story mode/BG', 'preload'));
+				actualBG.setGraphicSize(Std.int(actualBG.width * daScaling));
+				actualBG.updateHitbox();
+				actualBG.screenCenter();
+				ScreenAnchor.coverExpand(actualBG);
 				gamingCup.alpha = 1;
 				gamingSands.alpha = 0.00001;
 			case 1:

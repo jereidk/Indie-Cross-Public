@@ -231,6 +231,7 @@ class FreeplayState extends MusicBeatState
 		// bg.setGraphicSize(Std.int(bg.width * 0.675));
 		bg.updateHitbox();
 		bg.screenCenter();
+		ScreenAnchor.coverExpand(bg);
 		bg.antialiasing = FlxG.save.data.highquality;
 		add(bg);
 

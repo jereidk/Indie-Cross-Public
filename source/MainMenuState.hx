@@ -292,6 +292,7 @@ class MainMenuState extends MusicBeatState
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menu/BG', 'preload'));
 		bg.updateHitbox();
 		bg.screenCenter();
+		ScreenAnchor.coverExpand(bg);
 		bg.antialiasing = FlxG.save.data.highquality;
 		add(bg);
 
@@ -308,7 +309,10 @@ class MainMenuState extends MusicBeatState
 		sketch.origin.set();
 		sketch.scale.set(daScaling, daScaling);
 		sketch.updateHitbox();
-		sketch.setPosition(1280 - sketch.width, 720 - sketch.height);
+		// FlxG.width/height (not the 1280x720 literal) so this stays pinned
+		// to the true bottom-right corner under Screen Mode's Wide option,
+		// which grows the live canvas beyond the base design resolution.
+		sketch.setPosition(FlxG.width - sketch.width, FlxG.height - sketch.height);
 		sketch.antialiasing = FlxG.save.data.highquality;
 		add(sketch);
 
@@ -659,8 +663,10 @@ class MainMenuState extends MusicBeatState
 			{
 				// y=630 used to sit inside the A_B_C virtual pad's row
 				// (y=[563,690] with virtualPad.y=-22) -- 470 clears it while
-				// staying in the same bottom-right corner.
-				menuItem.setPosition(1280 - menuItem.width + buttonRevealRange, 470);
+				// staying in the same bottom-right corner. FlxG.width (not
+				// the 1280 literal) so it tracks the true right edge under
+				// Screen Mode's Wide option.
+				menuItem.setPosition(FlxG.width - menuItem.width + buttonRevealRange, 470);
 			}
 			else
 			{
@@ -697,7 +703,7 @@ class MainMenuState extends MusicBeatState
 					menuPosTweens[i] = null;
 				}
 				if (str == "achievements")
-					menuPosTweens[i] = FlxTween.tween(menuItem, {x: 1280 - menuItem.width}, 0.2, menuItemTweenOptions);
+					menuPosTweens[i] = FlxTween.tween(menuItem, {x: FlxG.width - menuItem.width}, 0.2, menuItemTweenOptions);
 				else
 					menuPosTweens[i] = FlxTween.tween(menuItem, {x: padClearanceX}, 0.2, menuItemTweenOptions);
 			}
@@ -714,7 +720,7 @@ class MainMenuState extends MusicBeatState
 				}
 
 				if (str == "achievements")
-					menuPosTweens[i] = FlxTween.tween(menuItem, {x: 1280 - menuItem.width + buttonRevealRange}, 0.35, menuItemTweenOptions);
+					menuPosTweens[i] = FlxTween.tween(menuItem, {x: FlxG.width - menuItem.width + buttonRevealRange}, 0.35, menuItemTweenOptions);
 				else
 					menuPosTweens[i] = FlxTween.tween(menuItem, {x: -buttonRevealRange}, 0.35, menuItemTweenOptions);
 
@@ -736,8 +742,8 @@ class MainMenuState extends MusicBeatState
 			menuPosTweens[curSelected].cancel();
 		if (str == "achievements")
 		{
-			menuItem.x = 1280 - menuItem.width + buttonRevealRange;
-			menuPosTweens[curSelected] = FlxTween.tween(menuItem, {x: 1280 - menuItem.width}, 0.4, menuItemTweenOptions);
+			menuItem.x = FlxG.width - menuItem.width + buttonRevealRange;
+			menuPosTweens[curSelected] = FlxTween.tween(menuItem, {x: FlxG.width - menuItem.width}, 0.4, menuItemTweenOptions);
 		}
 		else
 		{

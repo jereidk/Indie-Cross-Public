@@ -326,6 +326,7 @@ class CreditsMenu extends MusicBeatState
 		bg = new FlxSprite().loadGraphic(Paths.image('credits/bg/Leader_BG', 'preload'));
 		bg.updateHitbox();
 		bg.screenCenter();
+		ScreenAnchor.coverExpand(bg);
 		bg.antialiasing = FlxG.save.data.highquality;
 		add(bg);
 
