@@ -526,6 +526,9 @@ jobs:
       - name: Patch Lime Gradle for native symbol extraction
         run: bash .github/scripts/patch-lime-gradle-symbol-extraction.sh
 
+      - name: Patch Lime Gradle performance settings
+        run: bash .github/scripts/patch-lime-gradle-properties.sh
+
       - name: Compile
         env:
           HXCPP_COMPILE_THREADS: "4"
@@ -1147,6 +1150,9 @@ jobs:
       - name: Patch Lime Gradle for native symbol extraction
         run: bash .github/scripts/patch-lime-gradle-symbol-extraction.sh
 
+      - name: Patch Lime Gradle performance settings
+        run: bash .github/scripts/patch-lime-gradle-properties.sh
+
       - name: Compile
         env:
           HXCPP_COMPILE_THREADS: "4"
@@ -1767,6 +1773,9 @@ jobs:
 
       - name: Patch Lime Gradle for native symbol extraction
         run: bash .github/scripts/patch-lime-gradle-symbol-extraction.sh
+
+      - name: Patch Lime Gradle performance settings
+        run: bash .github/scripts/patch-lime-gradle-properties.sh
 
       - name: Compile
         env:
