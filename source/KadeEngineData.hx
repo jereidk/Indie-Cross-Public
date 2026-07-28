@@ -132,6 +132,25 @@ class KadeEngineData
 		if (FlxG.save.data.boneshit == null)
 			FlxG.save.data.boneshit = 0;
 
+		// screenMode: 0 = Normal (fit, 16:9 with black bars), 1 = Wide
+		// (expand, reveals more background on a wider-than-16:9 screen,
+		// no distortion), 2 = Stretch (fills the screen exactly, may
+		// distort). Defaults to whatever the device's own real aspect
+		// ratio actually supports instead of always starting at Normal --
+		// most Android phones are already wider than 16:9, so Normal-by-
+		// default would show black bars on a first launch for no reason
+		// on the common case. Desktop/other targets just default to
+		// Normal (their window is already user-resizable).
+		if (FlxG.save.data.screenMode == null)
+		{
+			#if android
+			var deviceRatio:Float = FlxG.stage.stageWidth / FlxG.stage.stageHeight;
+			FlxG.save.data.screenMode = (deviceRatio > (16 / 9) + 0.01) ? 1 : 0;
+			#else
+			FlxG.save.data.screenMode = 0;
+			#end
+		}
+
 		if (FlxG.save.data.inkshit == null)
 			FlxG.save.data.inkshit = 0;
 

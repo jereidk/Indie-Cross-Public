@@ -274,6 +274,43 @@ class RenderTypes extends Option
 	}
 }
 
+class ScreenModeOption extends Option
+{
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+	}
+
+	public override function press():Bool
+	{
+		if (FlxG.save.data.screenMode != 2)
+			FlxG.save.data.screenMode += 1;
+		else
+			FlxG.save.data.screenMode = 0;
+
+		FunkinRatioScaleMode.resetScaleMode();
+
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		switch (FlxG.save.data.screenMode)
+		{
+			case 0:
+				return 'Screen Mode: Normal';
+			case 1:
+				return 'Screen Mode: Wide';
+			case 2:
+				return 'Screen Mode: Stretch';
+		}
+
+		return 'broken';
+	}
+}
+
 class MechsInputVariants extends Option
 {
 	public function new(desc:String)

@@ -11,7 +11,7 @@ import lime.app.Application;
 
 using StringTools;
 
-#if desktop
+#if (desktop || android)
 import Discord.DiscordClient;
 #end
 
@@ -263,7 +263,11 @@ class Caching extends MusicBeatState
 		debug = true;
 		#end
 
-		#if desktop
+		// DiscordClient.hx itself branches internally (#if desktop / #elseif
+		// android / #else) -- was gated #if desktop here only, which meant
+		// the Android Kizzy-based branch (added this session) was never
+		// actually reached from anywhere reachable on a real device.
+		#if (desktop || android)
 		DiscordClient.initialize();
 		#end
 
@@ -284,10 +288,18 @@ class Caching extends MusicBeatState
 		mobile.backend.AndroidUtils.setGameplayState(false);
 		#end
 
+		// Backs the "Screen Mode" option (Options -> Window) -- Normal/Wide/
+		// Stretch. resetSize() on preStateSwitch clears the notch-position
+		// cache and any forced width/height override on every full state
+		// switch, matching how every other per-state layout value gets
+		// recomputed fresh instead of carrying stale geometry across states.
+		FlxG.scaleMode = new FunkinRatioScaleMode();
+		FlxG.signals.preStateSwitch.add((cast FlxG.scaleMode : FunkinRatioScaleMode).resetSize);
+
 		Application.current.onExit.add(function(exitCode)
 		{
 			FlxG.save.flush();
-			#if desktop
+			#if (desktop || android)
 			DiscordClient.shutdown();
 			#end
 			Sys.exit(0);

@@ -64,5 +64,45 @@ class ScreenUtil
 		try return _getSafeInsetRight()
 		catch (e:Dynamic) return 0;
 	}
+
+	static var _cachedSafeArea:Null<{top:Float, bottom:Float, left:Float, right:Float}> = null;
+
+	/**
+	 * Same 4 insets as getSafeInsetTop/Bottom/Left/Right, combined into one
+	 * struct and rescaled from device pixels into HaxeFlixel's own logical
+	 * game-coordinate space (FlxG.width/height, e.g. 1280x720) instead of the
+	 * real screen's raw pixel dimensions -- what FunkinRatioScaleMode needs
+	 * to keep UI clear of a notch/punch-hole. Cached after the first call;
+	 * call invalidate() on orientation changes.
+	 */
+	public static function safeArea():{top:Float, bottom:Float, left:Float, right:Float}
+	{
+		if (_cachedSafeArea != null) return _cachedSafeArea;
+
+		var top = 0.0, bottom = 0.0, left = 0.0, right = 0.0;
+
+		try
+		{
+			var stageH:Float = flixel.FlxG.stage.stageHeight;
+			var stageW:Float = flixel.FlxG.stage.stageWidth;
+			if (stageH > 0 && stageW > 0)
+			{
+				var scaleH = flixel.FlxG.height / stageH;
+				var scaleW = flixel.FlxG.width / stageW;
+				top = getSafeInsetTop() * scaleH;
+				bottom = getSafeInsetBottom() * scaleH;
+				left = getSafeInsetLeft() * scaleW;
+				right = getSafeInsetRight() * scaleW;
+			}
+		}
+		catch (e:Dynamic) {}
+
+		_cachedSafeArea = {top: top, bottom: bottom, left: left, right: right};
+		return _cachedSafeArea;
+	}
+
+	/** Discard the cached safeArea() result (e.g. on orientation change). */
+	public static inline function invalidate():Void
+		_cachedSafeArea = null;
 }
 #end

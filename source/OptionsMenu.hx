@@ -57,6 +57,13 @@ class OptionsMenu extends MusicBeatState
 			#if !android
 			new Resolution("Change the game's resolution, press ENTER to apply"),
 			#end
+			#if android
+			// FunkinRatioScaleMode's Wide/Stretch logic is #if mobile-gated
+			// internally (matches NightmareVision-Android-Support's own
+			// option, similarly restricted) -- exposing this on desktop
+			// would just be a silent no-op there.
+			new ScreenModeOption("How the game fills the screen. Normal keeps 16:9 with black bars, Wide shows more background on wide screens with no distortion, Stretch fills the screen exactly (may distort)."),
+			#end
 			new Gamma("Change the gamma value of the app."),
 			new Brightness("Change the brightness value of the app."),
 			new FocusFreeze("Freeze the game when clicking off of the application."),
