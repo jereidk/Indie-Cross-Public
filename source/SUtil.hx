@@ -38,7 +38,6 @@ class SUtil
 		"bendy/4",
 		"bendy/4ez",
 		"bendy/5",
-		"bendy/5",
 		"bendy/bgscene",
 		"bendy/bgscenephotosensitive",
 		"cuphead/1",

@@ -28,7 +28,6 @@
 	<library name="bendy"   preload="true" />
 	<library name="sans"   preload="true" />
 	<library name="cup"   preload="true" />
-	<library name="customSkins"   preload="true" />
 	<library name="achievements"   preload="true" />
 
 	<assets path="assets/android" if="android"/> <!-- to not have the android assets in another builds -saw -->
