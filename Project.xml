@@ -99,6 +99,18 @@
 	<android permission="android.permission.ACCESS_NETWORK_STATE"/>
 	<android permission="android.permission.INTERNET"/>
 
+	<!--SUtil.check()/AndroidUtils.requestAllFilesAccess() request these at
+	    runtime, but Android silently refuses to grant (or even show an
+	    enabled toggle for) any permission the app hasn't also declared here.
+	    Without this, the "All files access" settings screen shows up but
+	    its toggle stays permanently disabled, and every write to
+	    SUtil.getPath()'s folder keeps silently failing regardless of what
+	    the player taps. NightmareVision-Android-Support declares the same
+	    three for the same reason.-->
+	<android permission="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<android permission="android.permission.READ_EXTERNAL_STORAGE"/>
+	<android permission="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+
 	<!--Java-side native crash capture/symbolication (Logger/GameLogger's
 	    counterpart on the Java side) -- see mobile.backend.java.JavaCrashHandler-->
 	<java path="source" if="android"/>
