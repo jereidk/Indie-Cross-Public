@@ -28,33 +28,6 @@ using StringTools;
  */
 class SUtil
 {
-	static final videoFiles:Array<String> = [
-		"credits",
-		"gose",
-		"intro",
-		"bendy/1.5",
-		"bendy/1",
-		"bendy/2",
-		"bendy/3",
-		"bendy/4",
-		"bendy/4ez",
-		"bendy/5",
-		"bendy/bgscene",
-		"bendy/bgscenephotosensitive",
-		"cuphead/1",
-		"cuphead/2",
-		"cuphead/3",
-		"cuphead/4",
-		"cuphead/cup",
-		"cuphead/the devil",
-		"sans/1",
-		"sans/2",
-		"sans/3",
-		"sans/3b",
-		"sans/4",
-		"sans/4b"
-	];
-
 	/**
 	 * A simple function that checks for storage permissions and game files/folders
 	 */
@@ -100,24 +73,6 @@ class SUtil
 		{
 			if (!FileSystem.exists(SUtil.getPath()))
 				FileSystem.createDirectory(SUtil.getPath());
-
-			if (!FileSystem.exists(SUtil.getPath() + "assets"))
-				FileSystem.createDirectory(SUtil.getPath() + "assets");
-
-			if (!FileSystem.exists(SUtil.getPath() + 'assets/videos'))
-				FileSystem.createDirectory(SUtil.getPath() + 'assets/videos');
-
-			if (!FileSystem.exists(SUtil.getPath() + 'assets/videos/bendy'))
-				FileSystem.createDirectory(SUtil.getPath() + 'assets/videos/bendy');
-
-			if (!FileSystem.exists(SUtil.getPath() + 'assets/videos/cuphead'))
-				FileSystem.createDirectory(SUtil.getPath() + 'assets/videos/cuphead');
-
-			if (!FileSystem.exists(SUtil.getPath() + 'assets/videos/sans'))
-				FileSystem.createDirectory(SUtil.getPath() + 'assets/videos/sans');
-
-			for (vid in videoFiles)
-				SUtil.copyContent(Paths.video(vid), SUtil.getPath() + Paths.video(vid));
 		}
 		catch (e:Dynamic) {}
 		#end

@@ -1152,7 +1152,7 @@ class PlayState extends MusicBeatState
 								{
 									videoName = 'bgscene';
 								}
-								freakyMachineVideo.playMP4(SUtil.getPath() + Paths.video('bendy/' + videoName), true, freakyMachineVideoSpr, false, false,
+								freakyMachineVideo.playMP4(Paths.video('bendy/' + videoName), true, freakyMachineVideoSpr, false, false,
 									true);
 								gameVideos.push(freakyMachineVideo);
 
@@ -3436,7 +3436,7 @@ class PlayState extends MusicBeatState
 			add(cutsceneSpr);
 			cutsceneSpr.cameras = [camSUBTITLES];
 			camSUBTITLES.visible = true;
-			video.playMP4(SUtil.getPath() + Paths.video(vid), false, cutsceneSpr, false, false, false);
+			video.playMP4(Paths.video(vid), false, cutsceneSpr, false, false, false);
 			videoPlaying = true;
 
 			var accessibilitySubtitles:FlxText;
@@ -7433,15 +7433,15 @@ class PlayState extends MusicBeatState
 		switch (SONG.song.toLowerCase())
 		{
 			case 'knockout':
-				video.playMP4(SUtil.getPath() + Paths.video('cuphead/4'), false, cutsceneSpr, false, true);
+				video.playMP4(Paths.video('cuphead/4'), false, cutsceneSpr, false, true);
 			case 'final-stretch':
-				video.playMP4(SUtil.getPath() + Paths.video('sans/4'), false, cutsceneSpr, false, true);
+				video.playMP4(Paths.video('sans/4'), false, cutsceneSpr, false, true);
 			case 'burning-in-hell':
-				video.playMP4(SUtil.getPath() + Paths.video('sans/4b'), false, cutsceneSpr, false, true);
+				video.playMP4(Paths.video('sans/4b'), false, cutsceneSpr, false, true);
 			case 'last-reel':
-				video.playMP4(SUtil.getPath() + Paths.video('bendy/4ez'), false, cutsceneSpr, false, true);
+				video.playMP4(Paths.video('bendy/4ez'), false, cutsceneSpr, false, true);
 			case 'nightmare-run':
-				video.playMP4(SUtil.getPath() + Paths.video('bendy/5'), false, cutsceneSpr, false, true);
+				video.playMP4(Paths.video('bendy/5'), false, cutsceneSpr, false, true);
 				pushSubtitle('Those who mess with the Ink Demon...', 7.833, 11.542, false);
 				pushSubtitle('shall pay.', 11.542, 13.833, false);
 		}
@@ -9277,7 +9277,7 @@ class PlayState extends MusicBeatState
 						var video:VideoHandler = new VideoHandler();
 						video.fadeFromBlack = true;
 						video.allowSkip = false;
-						video.playMP4(SUtil.getPath() + Paths.video('bendy/1.5'), false, null, false, false, true);
+						video.playMP4(Paths.video('bendy/1.5'), false, null, false, false, true);
 
 						remove(light);
 					});

@@ -75,12 +75,17 @@ class VideoHandler
 	function checkFile(fileName:String):String
 	{
 		#if android
-		// extension-androidtools dropped Uri.fromFile() (and the native org.haxe.extension.Hardware
-		// method it called) entirely -- fileName here is always already an absolute path
-		// (SUtil.getPath() + Paths.video(...)), so build the file:// URI ourselves, same as the
-		// linux/windows branches below. Unlike the old Uri.fromFile(), this doesn't URL-encode the
-		// path -- only matters for 'cuphead/the devil' (the one video filename with a space).
-		return 'file://' + fileName;
+		// fileName here is a plain asset path (Paths.video(...), e.g.
+		// 'assets/videos/intro.mp4') -- no external-storage extraction, no
+		// file:// wrapping. hxvlc.openfl.Video.load() already handles a bare
+		// asset path itself: it checks Assets.exists()/Assets.getPath(), and
+		// falls back to loading straight from Assets.getBytes() in memory
+		// when Android's own AssetManager-backed assets don't resolve to a
+		// real java.io.File path (which they never do -- APK-packaged
+		// assets aren't real files on disk). Matches NightmareVision's own
+		// FunkinVideoSprite, which passes Paths.video(...) to load()
+		// completely unmodified for the exact same reason.
+		return fileName;
 		#elseif linux
 		return 'file://' + Sys.getCwd() + fileName;
 		#elseif windows

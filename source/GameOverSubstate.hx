@@ -181,7 +181,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				{
 					throw new ValueException('Honk');
 				};
-				video.playMP4(SUtil.getPath() + Paths.video('gose'), false, vidSpr, false, true, false);
+				video.playMP4(Paths.video('gose'), false, vidSpr, false, true, false);
 		}
 
 		FlxG.camera.scroll.set();

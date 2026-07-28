@@ -407,7 +407,7 @@ class MainMenuState extends MusicBeatState
 				showCredits = false;
 				remove(skipText);
 			};
-			video.playMP4(SUtil.getPath() + Paths.video('credits'), false, vidSpr, false, true, false);
+			video.playMP4(Paths.video('credits'), false, vidSpr, false, true, false);
 
 			if (video.allowSkip)
 			{

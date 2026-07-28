@@ -170,7 +170,7 @@ class TitleState extends MusicBeatState
 				FlxTween.tween(blackOverlay, {alpha: 0}, 1);
 			};
 			FlxG.save.data.watchedTitleVid = true;
-			video.playMP4(SUtil.getPath() + Paths.video('intro'), false, vidSpr, false, true, false);
+			video.playMP4(Paths.video('intro'), false, vidSpr, false, true, false);
 
 			if (video.allowSkip)
 			{
