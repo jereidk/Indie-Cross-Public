@@ -54,6 +54,13 @@ jobs:
           # clean miss for the grep-based fix below, which doesn't guess a
           # filename.
           key: haxelibs-android-port-v5-${{ hashFiles('.hxpkg') }}
+          # actions/cache@v4 only saves on a job that's heading toward
+          # success by default -- every run so far has failed at some LATER
+          # step (Compile, hxpkg, etc.), so this cache was never once
+          # actually saved despite genuinely populating ~/haxelib/.haxelib
+          # each time. save-always makes it persist regardless, so iterative
+          # debugging keeps its progress instead of restarting from zero.
+          save-always: true
 
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
@@ -86,6 +93,7 @@ jobs:
         with:
           path: /tmp/nv-cache-import
           key: nv-cache-export-${{ steps.nv-run.outputs.run-id }}
+          save-always: true
 
       # Best-effort: pulls NightmareVision-Android-Support's already-warm
       # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
@@ -303,6 +311,7 @@ jobs:
           key: hxcpp-cache-android-port-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
           restore-keys: |
             hxcpp-cache-android-port-${{ runner.os }}-
+          save-always: true
 
       - name: Compile
         env:
