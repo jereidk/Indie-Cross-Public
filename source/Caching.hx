@@ -273,6 +273,17 @@ class Caching extends MusicBeatState
 
 		FXHandler.UpdateColors();
 
+		// Android defaults every window to 60Hz regardless of the panel's
+		// real capability until the app explicitly opts into a faster
+		// supported mode -- for a rhythm game that caps visual smoothness
+		// (and the perceived precision of hitting notes) on every 90/120Hz-
+		// capable device for no reason. Doesn't persist itself, so it needs
+		// requesting again on every launch, not just the first one.
+		#if android
+		mobile.backend.AndroidUtils.requestHighRefreshRate();
+		mobile.backend.AndroidUtils.setGameplayState(false);
+		#end
+
 		Application.current.onExit.add(function(exitCode)
 		{
 			FlxG.save.flush();

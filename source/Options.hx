@@ -332,6 +332,23 @@ class DFJKOption extends Option
 
 	public override function press():Bool
 	{
+		// A gamepad works fine here (its buttons complete a rebind on their
+		// own), but with no gamepad this falls back to the keyboard -- and a
+		// touch-only Android device with no physical keyboard attached can
+		// never generate the real FlxG.keys press a rebind needs, so every
+		// single bind would just sit there doing nothing (escapable via the
+		// Android back button, but there's no reason to let a player walk
+		// into that in the first place). Block entry outright instead.
+		#if android
+		if (FlxG.gamepads.getFirstActiveGamepad() == null && !mobile.backend.AndroidUtils.hasPhysicalKeyboard())
+		{
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+			extension.androidtools.widget.Toast.makeText('Connect a keyboard or gamepad to use Key Bindings',
+				extension.androidtools.widget.Toast.LENGTH_LONG);
+			return false;
+		}
+		#end
+
 		OptionsMenu.instance.openSubState(new KeyBindMenu());
 		return false;
 	}

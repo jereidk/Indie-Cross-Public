@@ -50,6 +50,10 @@ class PauseSubState extends MusicBeatSubstate
 	{
 		super();
 
+		#if android
+		mobile.backend.AndroidUtils.setGameplayState(false);
+		#end
+
 		FlxTween.globalManager.active = false;
 
 		var fileName:String = '';
@@ -376,6 +380,10 @@ class PauseSubState extends MusicBeatSubstate
 	{
 		pauseMusic.destroy();
 		playingPause = false;
+
+		#if android
+		mobile.backend.AndroidUtils.setGameplayState(true);
+		#end
 
 		super.destroy();
 	}

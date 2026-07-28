@@ -96,6 +96,7 @@
 	    counterpart on the Java side) -- see mobile.backend.java.JavaCrashHandler-->
 	<java path="source" if="android"/>
 	<android extension="mobile.backend.java.JavaCrashHandler" />
+	<android extension="mobile.backend.java.AndroidUtils" />
 
 	<!-- _________________________________ Custom _______________________________ -->
 

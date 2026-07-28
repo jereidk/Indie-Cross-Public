@@ -490,6 +490,10 @@ class PlayState extends MusicBeatState
 
 		instance = this;
 
+		#if android
+		mobile.backend.AndroidUtils.setGameplayState(true);
+		#end
+
 		generatedMusic = false;
 
 		Application.current.window.onFocusOut.add(onWindowFocusOut);
@@ -12747,5 +12751,14 @@ class PlayState extends MusicBeatState
 			else
 				trace('is null');
 		}
+	}
+
+	override public function destroy()
+	{
+		#if android
+		mobile.backend.AndroidUtils.setGameplayState(false);
+		#end
+
+		super.destroy();
 	}
 }
