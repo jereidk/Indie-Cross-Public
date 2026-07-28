@@ -263,6 +263,15 @@ class Paths
 	inline static public function video(key:String)
 		return 'assets/videos/$key.mp4';
 
+	// voices()/inst() below used to just replace(" ", "-") -- fine for this
+	// game's own fixed song list, but any other stray character (an accent,
+	// a quote, anything a modder's song folder name might contain) would
+	// pass straight through into an asset path untouched. Strips anything
+	// that isn't a letter, digit, space, or dash first, matching
+	// NightmareVision-Android-Support's own Paths.sanitize().
+	static public function sanitize(str:String):String
+		return ~/[^a-zA-Z0-9 -]/g.replace(str, '').replace(' ', '-').trim().toLowerCase();
+
 	static public function sound(key:String, ?library:String, ?cache:Bool = true):Sound
 		return returnSound('sounds', key, library, cache);
 
@@ -274,7 +283,7 @@ class Paths
 
 	inline static public function voices(song:String, ?cache:Bool = true, ?type:String = 'none'):Sound
 	{
-		final songFormat:String = StringTools.replace(song, " ", "-").toLowerCase();
+		final songFormat:String = sanitize(song);
 		return switch (type)
 		{
 			case 'hidden':
@@ -288,7 +297,7 @@ class Paths
 
 	inline static public function inst(song:String, ?cache:Bool = true, ?type:String = 'none'):Sound
 	{
-		final songFormat:String = StringTools.replace(song, " ", "-").toLowerCase();
+		final songFormat:String = sanitize(song);
 		return switch (type)
 		{
 			case 'hidden':

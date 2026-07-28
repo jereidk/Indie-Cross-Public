@@ -386,37 +386,20 @@ class HelperFunctions
 		#end
 	}
 
+	// Reuses Paths.getPath()'s own 'songs' library path-building instead of
+	// hardcoding 'assets/songs/' here -- keeps the actual song-file
+	// convention defined in exactly one place (Paths.hx) rather than two.
 	public static function instExists(song:String):Bool
-	{
-		if (Assets.exists('assets/songs/' + song.toLowerCase() + '/Inst.ogg'))
-			return true;
-		else
-			return false;
-	}
+		return Assets.exists(Paths.getPath(song.toLowerCase() + '/Inst.ogg', SOUND, 'songs'));
 
 	public static function vocalExists(song:String):Bool
-	{
-		if (Assets.exists('assets/songs/' + song.toLowerCase() + '/Voices.ogg'))
-			return true;
-		else
-			return false;
-	}
+		return Assets.exists(Paths.getPath(song.toLowerCase() + '/Voices.ogg', SOUND, 'songs'));
 
 	public static function instEasyExists(song:String):Bool
-	{
-		if (Assets.exists('assets/songs/' + song.toLowerCase() + '/Inst-easy.ogg'))
-			return true;
-		else
-			return false;
-	}
+		return Assets.exists(Paths.getPath(song.toLowerCase() + '/Inst-easy.ogg', SOUND, 'songs'));
 
 	public static function vocalEasyExists(song:String):Bool
-	{
-		if (Assets.exists('assets/songs/' + song.toLowerCase() + '/Voices-easy.ogg'))
-			return true;
-		else
-			return false;
-	}
+		return Assets.exists(Paths.getPath(song.toLowerCase() + '/Voices-easy.ogg', SOUND, 'songs'));
 
 	public static function createFakeSong(name:String):Void
 	{
