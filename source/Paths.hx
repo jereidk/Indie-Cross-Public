@@ -50,6 +50,9 @@ class Paths
 					FlxG.bitmap._cache.remove(key);
 					obj.destroy();
 					currentTrackedAssets.remove(key);
+					#if (android && cpp)
+					mobile.backend.AstcLoader.removeTracking(key);
+					#end
 					counter++;
 				}
 			}
@@ -223,9 +226,33 @@ class Paths
 			if (!currentTrackedAssets.exists(path))
 			{
 				var newGraphic:FlxGraphic = null;
-				var bitmap:BitmapData = OpenFlAssets.getBitmapData(path);
+				var bitmap:BitmapData = null;
+				var loadedFromAstc = false;
 
-				if (gpurender)
+				// On Android, try loading a GPU-compressed ASTC override first
+				// (assets/images/foo.png -> assets/images/foo.astc, same dir).
+				// Falls through to the normal PNG path below if ASTC is
+				// unsupported on this device, no .astc sibling exists, or
+				// loading fails for any reason -- the PNG always stays the
+				// source of truth. See mobile.backend.AstcLoader.
+				#if (android && cpp)
+				if (mobile.backend.AstcSupport.isSupported)
+				{
+					bitmap = mobile.backend.AstcLoader.tryLoad(path);
+					loadedFromAstc = bitmap != null;
+				}
+				#end
+
+				if (bitmap == null)
+					bitmap = OpenFlAssets.getBitmapData(path);
+
+				// An ASTC-loaded bitmap is already a GPU-resident texture with
+				// no CPU pixel buffer (BitmapData.fromTexture()) -- the
+				// gpurender branch below exists to manually upload PNG pixels
+				// into a Texture, which would fail/corrupt on a bitmap that
+				// has no pixels to read. Skip straight to the plain wrap path;
+				// the ASTC texture already achieves what gpurender is for.
+				if (gpurender && !loadedFromAstc)
 				{
 					switch (FlxG.save.data.render)
 					{

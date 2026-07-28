@@ -1,0 +1,31 @@
+{
+  "_comment": "Configuration for tools/convert_astc.py - Indie-Cross-Public",
+  "_doc": {
+    "blocksize": "Default block size when no override/adaptive match applies",
+    "quality": "Compression quality (exhaustive = best, slowest)",
+    "colorprofile": "cs for sRGB, cl for linear",
+    "min_size": "Minimum width/height in pixels. Sprites smaller than this are excluded (default: 500)",
+    "max_size": "Maximum width/height in pixels. Sprites larger than this in EITHER dimension are excluded (0 = no limit)",
+    "overrides": "Map of filename substrings to ASTC block size overrides",
+    "exclusions": "List of filename substrings. Matching files are NEVER converted"
+  },
+
+  "blocksize": "12x12",
+  "quality": "exhaustive",
+  "colorprofile": "cs",
+  "min_size": 500,
+  "max_size": 4096,
+
+  "overrides": {
+  },
+
+  "exclusions": [
+    "fonts/",
+    "icon.png",
+    "icon-hd.png",
+    "logo.png",
+    "preloader",
+    "Preloader",
+    "loading"
+  ]
+}

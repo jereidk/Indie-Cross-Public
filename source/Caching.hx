@@ -40,6 +40,15 @@ class Caching extends MusicBeatState
 
 		super.create();
 
+		// Probe GL for ASTC texture compression support as early as possible
+		// (the GL context is guaranteed live by the time a state's create()
+		// runs) and install the context-loss recovery handler before any
+		// asset gets a chance to load through Paths.returnGraphic().
+		#if (android && cpp)
+		mobile.backend.AstcSupport.check();
+		mobile.backend.AstcLoader.installContextHandler();
+		#end
+
                 FlxG.save.bind(Main.curSave, 'indiecross');
                 PlayerSettings.init();
 		KadeEngineData.initSave();
