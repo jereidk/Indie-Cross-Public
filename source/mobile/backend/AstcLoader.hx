@@ -5,7 +5,10 @@ import flixel.FlxG;
 #if (android && cpp)
 import openfl.display.BitmapData;
 import openfl.display3D.Context3D;
+import openfl.display3D.Context3DTextureFormat;
 import openfl.display3D.textures.ASTCTexture;
+import openfl.display3D.textures.RectangleTexture;
+import openfl.display3D.textures.TextureBase;
 import openfl.utils.Assets as OflAssets;
 import openfl.events.Event;
 #end
@@ -20,28 +23,27 @@ using StringTools;
  *
  * ASTC files live next to their PNG counterpart with a .astc extension:
  *   assets/images/characters/bf.png  →  assets/images/characters/bf.astc
- * The PNGs stay in the repo/APK (non-Android targets, and any image outside
- * the 500-4096px conversion range, still load the PNG directly -- see
- * Paths.hx's returnGraphic()) but on Android, once a .astc exists and the
- * device supports it, that image is ASTC-only end to end: initial load,
- * AND context-loss recovery below, never fall back to decoding the PNG.
- * The .astc file is a permanent bundled asset (not removable DLC), so
- * there is no realistic scenario where it goes missing but the PNG doesn't.
+ * The original PNGs are never touched and always serve as fallback.
+ * On devices that do not expose GL_KHR_texture_compression_astc_ldr
+ * the loader returns null and the caller falls through to the PNG.
  *
  * Context-loss recovery: Android destroys the GPU context when the app is
  * backgrounded. BitmapData.fromTexture() has no CPU pixels and cannot be
  * restored automatically by OpenFL. This class registers a CONTEXT3D_CREATE
- * listener that re-reads the same .astc file and re-uploads it, patching the
- * existing ASTCTexture's GL handle in-place so all live BitmapData instances
+ * listener that re-uploads every tracked ASTC texture, patching the existing
+ * ASTCTexture's GL handle in-place so all live BitmapData instances
  * automatically see fresh GPU data.
+ *
+ * PNG fallback: if the .astc file is missing when the context is restored
+ * (e.g. DLC uninstalled, SD-card corruption), the loader falls back to the
+ * original PNG and switches that entry permanently to PNG-restore mode so
+ * future restore cycles also use the PNG.
  *
  * Ported from NightmareVision-Android-Support's mobile/backend/AstcLoader.hx.
  * Not ported: the gpuCaching integration (trackGpuCached/_gpuCachedBitmaps/
  * _restoreGpuCachedBitmap) -- that existed only to work with NightmareVision's
  * own FunkinCache.cacheBitmap() memory-pressure feature, which Indie-Cross-
- * Public's Paths.hx has no equivalent of. Also not ported: NightmareVision's
- * PNG-fallback recovery path (_restoreFromPng) -- Android is meant to depend
- * on ASTC alone once it's loaded one, never falling back to the PNG.
+ * Public's Paths.hx has no equivalent of.
  */
 @:access(openfl.display3D.textures.TextureBase)
 @:access(openfl.display3D.Context3D)
@@ -51,10 +53,11 @@ class AstcLoader
 	#if (android && cpp)
 	// Keyed by PNG path (= Paths.hx cache key).
 	static var _recovery:Map<String, {
-		astcPath: String,
-		astcTex:  ASTCTexture,
-		width:    Int,
-		height:   Int,
+		astcPath:      String,
+		astcTex:       ASTCTexture,
+		width:         Int,
+		height:        Int,
+		isPngFallback: Bool,
 	}> = [];
 	static var _listenerInstalled:Bool = false;
 	#end
@@ -144,10 +147,11 @@ class AstcLoader
 			if (result == null) return null;
 
 			_recovery.set(pngPath, {
-				astcPath: astcPath,
-				astcTex:  result.astcTex,
-				width:    result.width,
-				height:   result.height,
+				astcPath:      astcPath,
+				astcTex:       result.astcTex,
+				width:         result.width,
+				height:        result.height,
+				isPngFallback: false,
 			});
 
 			return result.bitmap;
@@ -186,16 +190,14 @@ class AstcLoader
 	}
 
 	/**
-	 * Called when the Stage3D context is created or recreated after context
-	 * loss. For every tracked texture, re-reads the SAME .astc file (disk
-	 * first, then bundled APK asset) and re-uploads it -- never the PNG.
-	 * The .astc is a permanent bundled asset, not removable DLC, so a
-	 * missing-file failure here just means something else is badly wrong
-	 * (corrupted install); logging and evicting the entry is the correct
-	 * response, not silently swapping the whole texture stack over to PNG.
+	 * Called when the Stage3D context is created or recreated after context loss.
+	 * For each tracked texture:
+	 *   • isPngFallback == false (ASTC mode): re-reads from disk/APK. On missing
+	 *     file, falls through to PNG fallback.
+	 *   • isPngFallback == true: re-uploads from the original PNG.
 	 *
-	 * On the initial CONTEXT3D_CREATE (before any ASTC textures are loaded)
-	 * the recovery map is empty and this function returns immediately.
+	 * On the initial CONTEXT3D_CREATE (before any ASTC textures are loaded) the
+	 * recovery map is empty and this function returns immediately.
 	 */
 	static function _onContextRestored(_:Dynamic):Void
 	{
@@ -217,6 +219,21 @@ class AstcLoader
 				continue;
 			}
 
+			// PNG fallback mode — the .astc was missing on a previous restore;
+			// this entry now permanently uses the PNG source.
+			if (entry.isPngFallback)
+			{
+				if (_restoreFromPng(context3D, pngPath))
+					restored++;
+				else
+				{
+					toRemove.push(pngPath);
+					failed++;
+				}
+				continue;
+			}
+
+			// ASTC mode: re-read from disk/APK on every restore.
 			var bytes:Null<haxe.io.Bytes> = null;
 			try
 			{
@@ -229,9 +246,16 @@ class AstcLoader
 
 			if (bytes == null)
 			{
-				trace('AstcLoader: context restore — ${entry.astcPath} missing, cannot restore');
-				toRemove.push(pngPath);
-				failed++;
+				// .astc file disappeared (DLC removed, SD-card corruption, etc.).
+				// Attempt PNG fallback so live sprites are not permanently black.
+				trace('AstcLoader: context restore — ${entry.astcPath} missing, trying PNG fallback');
+				if (_restoreFromPng(context3D, pngPath))
+					restored++;
+				else
+				{
+					toRemove.push(pngPath);
+					failed++;
+				}
 				continue;
 			}
 
@@ -251,7 +275,8 @@ class AstcLoader
 			}
 			catch (e:Dynamic)
 			{
-				// GL upload error (driver-side failure). Skip and log.
+				// GL upload error (driver-side failure). PNG fallback won't help
+				// since the context itself may be in a bad state. Skip and log.
 				trace('AstcLoader: context restore upload failed for ${entry.astcPath} — $e');
 				failed++;
 			}
@@ -262,6 +287,74 @@ class AstcLoader
 
 		if (restored > 0 || failed > 0)
 			trace('AstcLoader: context restored — $restored textures re-uploaded, $failed failed');
+	}
+
+	/**
+	 * Restores a tracked texture from its PNG counterpart.
+	 *
+	 * Creates a temporary RectangleTexture, uploads the PNG BitmapData to it
+	 * via OpenFL's standard path (handles BGRA/RGBA format internally), then
+	 * transfers the GL handle to entry.astcTex (still a valid TextureBase to
+	 * patch in place -- the live BitmapData's __texture already permanently
+	 * references that same object). Sets the temporary wrapper's __textureID
+	 * to 0 so any future cleanup call on it is a harmless no-op
+	 * (gl.deleteTexture(0) is defined as a no-op by the GL spec).
+	 *
+	 * Permanently marks the entry as PNG mode (isPngFallback = true) so all
+	 * subsequent context-restore cycles also re-upload from PNG without
+	 * retrying the ASTC.
+	 */
+	static function _restoreFromPng(context3D:Context3D, pngPath:String):Bool
+	{
+		var entry = _recovery.get(pngPath);
+		if (entry == null) return false;
+
+		var pngBitmap:Null<BitmapData> = null;
+		try
+		{
+			if (sys.FileSystem.exists(pngPath))
+				pngBitmap = BitmapData.fromFile(pngPath);
+			else if (OflAssets.exists(pngPath))
+				// useCache=false: always decode fresh — the cached copy may have had disposeImage() called on it
+				pngBitmap = OflAssets.getBitmapData(pngPath, false);
+		}
+		catch (e:Dynamic) {}
+
+		if (pngBitmap == null)
+		{
+			trace('AstcLoader: PNG fallback failed for $pngPath — file not found');
+			return false;
+		}
+
+		if (pngBitmap.width != entry.width || pngBitmap.height != entry.height)
+			trace('AstcLoader: PNG fallback size mismatch for $pngPath — PNG ${pngBitmap.width}x${pngBitmap.height}, ASTC was ${entry.width}x${entry.height}');
+
+		// Upload PNG pixels via OpenFL's standard path (format conversion handled
+		// internally) into a temporary RectangleTexture, then steal its GL handle.
+		var gl = context3D.gl;
+		var tempTex:RectangleTexture = context3D.createRectangleTexture(
+			pngBitmap.width, pngBitmap.height, Context3DTextureFormat.BGRA, false);
+		tempTex.uploadFromBitmapData(pngBitmap);
+
+		var uploadErr:Int = gl.getError();
+		if (uploadErr != 0)
+		{
+			trace('AstcLoader: PNG fallback upload error 0x${StringTools.hex(uploadErr, 4)} for $pngPath');
+			tempTex.dispose();
+			pngBitmap.dispose();
+			return false;
+		}
+
+		var handle = tempTex.__textureID;
+		tempTex.__textureID = 0; // orphan wrapper — handle ownership moves to entry.astcTex
+		entry.astcTex.__textureID = handle;
+		pngBitmap.dispose();
+
+		// Mark entry as PNG mode for all future context-restore cycles.
+		entry.isPngFallback = true;
+
+		trace('AstcLoader: PNG fallback succeeded for $pngPath');
+		return true;
 	}
 
 	#end // android && cpp
