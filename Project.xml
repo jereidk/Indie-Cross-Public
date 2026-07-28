@@ -91,6 +91,11 @@
 	<android permission="android.permission.ACCESS_NETWORK_STATE"/>
 	<android permission="android.permission.INTERNET"/>
 
+	<!--Java-side native crash capture/symbolication (Logger/GameLogger's
+	    counterpart on the Java side) -- see mobile.backend.java.JavaCrashHandler-->
+	<java path="source" if="android"/>
+	<android extension="mobile.backend.java.JavaCrashHandler" />
+
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->

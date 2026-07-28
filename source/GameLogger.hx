@@ -31,7 +31,25 @@ class GameLogger
 	#if android
 	static var logPath:String = '';
 	static var oldPath:String = '';
+	static var _dir:String = '';
 	#end
+
+	/**
+	 * The writable directory init() resolved (primary external storage, or
+	 * the app-sandboxed fallback -- see init()'s own doc comment). Empty
+	 * string if init() hasn't run yet, or on a non-Android target. Lets
+	 * other Android-only pieces that need to write next to game.log/crash.log
+	 * (JavaCrashHandler's install() path, the crash-notice check) reuse the
+	 * same writability resolution instead of re-probing it themselves.
+	 */
+	public static function getDir():String
+	{
+		#if android
+		return _dir;
+		#else
+		return '';
+		#end
+	}
 
 	/**
 	 * Must be called once, as early as possible in Caching.create().
@@ -54,6 +72,7 @@ class GameLogger
 			catch (e:Dynamic) {}
 		}
 
+		_dir = dir;
 		logPath = dir + 'game.log';
 		oldPath = dir + 'game.log.old';
 

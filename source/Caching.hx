@@ -41,6 +41,7 @@ class Caching extends MusicBeatState
 		super.create();
 
 		GameLogger.init();
+		installJavaCrashHandler();
 		checkPreviousCrash();
 
 		// Probe GL for ASTC texture compression support as early as possible
@@ -66,19 +67,45 @@ class Caching extends MusicBeatState
 	}
 
 	/**
-	 * Checks for a crash.log left by SUtil.uncaughtErrorHandler() the last
-	 * time the game closed unexpectedly, and shows a one-time alert if one
-	 * is found. Checks both storage locations that handler can save to
-	 * (primary external storage, then the app-sandboxed fallback -- see its
-	 * own doc comment on why there are two), since which one succeeded last
-	 * session isn't known ahead of time. The file is deleted either way it's
-	 * found, so this only ever fires once per crash.
+	 * Installs the Java-level uncaught exception handler (catches JVM/JNI
+	 * crashes that escape Haxe's own exception pipeline entirely -- see
+	 * mobile.backend.java.JavaCrashHandler's doc comment). Writes to the
+	 * same crash.log path GameLogger.init() (called right before this)
+	 * already resolved as writable, so both Haxe- and Java-side crashes and
+	 * the native-crash trace files JavaCrashHandler saves all land in one
+	 * place that checkPreviousCrash() below already knows to check.
+	 */
+	function installJavaCrashHandler():Void
+	{
+		#if android
+		try
+		{
+			var dir = GameLogger.getDir();
+			if (dir.length > 0)
+				mobile.backend.JavaCrashHandler.install(dir + 'crash.log');
+		}
+		catch (e:Dynamic) {}
+		#end
+	}
+
+	/**
+	 * Checks for a crash.log left by SUtil.uncaughtErrorHandler() (Haxe
+	 * exception) or mobile.backend.java.JavaCrashHandler (JVM/JNI exception)
+	 * the last time the game closed unexpectedly, ALSO checks Android's own
+	 * ApplicationExitInfo record (API 30+) for a native SIGSEGV/OOM/ANR that
+	 * killed the process before either handler got a chance to write
+	 * anything, and shows a one-time alert with whatever was found. Checks
+	 * both storage locations crash.log can be saved to (primary external
+	 * storage, then the app-sandboxed fallback), since which one succeeded
+	 * last session isn't known ahead of time. crash.log is deleted either
+	 * way it's found, so this only ever fires once per crash.
 	 */
 	function checkPreviousCrash():Void
 	{
 		#if (android && sys)
 		try
 		{
+			var crashLogMessage:Null<String> = null;
 			var candidates = [
 				SUtil.getPath() + 'crash.log',
 				extension.androidtools.content.Context.getExternalFilesDir(null) + '/crash.log'
@@ -88,20 +115,147 @@ class Caching extends MusicBeatState
 			{
 				if (sys.FileSystem.exists(path))
 				{
-					var msg = sys.io.File.getContent(path);
+					crashLogMessage = sys.io.File.getContent(path);
 					sys.FileSystem.deleteFile(path);
-
-					if (msg.length > 2000)
-						msg = msg.substr(0, 2000) + '\n[truncated...]';
-
-					Application.current.window.alert(msg, 'The game closed unexpectedly last time');
 					break;
 				}
 			}
+
+			// Always ALSO check Android's own exit record, regardless of
+			// whether crash.log existed above -- this is the only way to
+			// learn about a native crash that killed the process before
+			// JavaCrashHandler.install() (Caching.create(), a few lines
+			// above checkPreviousCrash()) ever got a chance to run.
+			var nativeInfo = mobile.backend.JavaCrashHandler.readPreviousNativeCrash();
+			if (nativeInfo != null)
+				nativeInfo = resolveNativeCrashTraces(nativeInfo);
+
+			var fullMsg:Null<String> = null;
+			if (crashLogMessage != null && nativeInfo != null && nativeInfo.length > 0)
+				fullMsg = crashLogMessage + '\n\n=== Native crash (same or different session) ===\n\n' + nativeInfo;
+			else if (nativeInfo != null && nativeInfo.length > 0)
+				fullMsg = nativeInfo;
+			else
+				fullMsg = crashLogMessage;
+
+			if (fullMsg == null) return;
+
+			// Full, untruncated copy next to game.log for pulling off-device --
+			// the in-game popup below is capped for readability, but a resolved
+			// native backtrace (demangled C++ signatures) can easily run past
+			// that cap.
+			try
+			{
+				var dir = GameLogger.getDir();
+				if (dir.length > 0)
+					sys.io.File.saveContent(dir + 'last_crash_summary.log', '[' + Date.now().toString() + ']\n' + fullMsg);
+			}
+			catch (e:Dynamic) {}
+
+			if (fullMsg.length > 2000)
+				fullMsg = fullMsg.substr(0, 2000) + '\n[truncated...]';
+
+			Application.current.window.alert(fullMsg, 'The game closed unexpectedly last time');
 		}
 		catch (e:Dynamic) {}
 		#end
 	}
+
+	#if (android && sys)
+	/**
+	 * Extracts every "Trace saved to: <path>" entry from
+	 * JavaCrashHandler.readPreviousNativeCrash()'s summary text, resolves
+	 * each trace's crashing thread's unresolved frames against the bundled
+	 * per-ABI symbol table (see TombstoneParser/SymbolResolver's own doc
+	 * comments), and appends a human-readable resolved backtrace right
+	 * after each matching line -- the popup and last_crash_summary.log then
+	 * show function name (and file:line, when available) directly.
+	 *
+	 * Best-effort throughout: any failure for a given trace (missing symbol
+	 * table for this build -- see SymbolResolver's doc comment on Phase 3
+	 * not being wired up yet, corrupt/foreign trace, nothing to resolve)
+	 * just skips that one trace -- the original summary text is never
+	 * altered or removed, only ever appended to.
+	 */
+	static function resolveNativeCrashTraces(info:String):String
+	{
+		final marker = 'Trace saved to: ';
+		final lines = info.split('\n');
+		final out:Array<String> = [];
+
+		for (line in lines)
+		{
+			out.push(line);
+
+			final idx = line.indexOf(marker);
+			if (idx < 0) continue;
+
+			final tracePath = line.substr(idx + marker.length);
+			if (tracePath.length == 0) continue;
+
+			try
+			{
+				final resolved = resolveOneTrace(tracePath);
+				if (resolved != null) out.push(resolved);
+			}
+			catch (e:Dynamic) {}
+		}
+
+		return out.join('\n');
+	}
+
+	static function resolveOneTrace(tracePath:String):Null<String>
+	{
+		final threadInfo = mobile.backend.TombstoneParser.parse(tracePath);
+		if (threadInfo == null) return null;
+
+		// The bundled symbol table only ever matches the CURRENTLY installed
+		// build's own .so -- if the app was updated between the crash and
+		// this launch, the trace's addresses belong to a DIFFERENT binary
+		// than what's now bundled, and resolving against it would silently
+		// produce a confidently WRONG function name instead of no answer at
+		// all. The trace's own header always stamps the versionCode it came
+		// from (see JavaCrashHandler.java's buildCurrentBuildInfo()), so
+		// bail out on any mismatch.
+		final traceVersionCode = mobile.backend.TombstoneParser.readHeaderField(tracePath, 'versionCode');
+		final currentVersionCode = lime.app.Application.current.meta.get('build');
+		if (traceVersionCode != null && currentVersionCode != null && traceVersionCode != currentVersionCode)
+			return null;
+
+		final abi = mobile.backend.TombstoneParser.readHeaderField(tracePath, 'abi');
+
+		// Gather every unresolved frame's address first so the whole trace
+		// only costs ONE pass over the (tens-of-MB) symbol file.
+		final targets:Array<Int> = [];
+		for (frame in threadInfo.frames)
+		{
+			if (frame.funcName != '') continue; // already resolved by the OS's own unwinder
+			if (frame.fileName.indexOf('base.apk') < 0) continue; // not our own code
+			targets.push(frame.relPc);
+		}
+		if (targets.length == 0) return null;
+
+		final resolved = mobile.backend.SymbolResolver.resolveBatch(targets, abi);
+
+		final resolvedLines:Array<String> = [];
+		for (frame in threadInfo.frames)
+		{
+			if (frame.funcName != '') continue;
+			if (frame.fileName.indexOf('base.apk') < 0) continue;
+
+			final r = resolved.get(frame.relPc);
+			if (r == null) continue;
+
+			var line = '    0x' + StringTools.hex(frame.relPc) + ': ' + r.funcName;
+			if (r.file != null && r.line != null) line += ' (' + r.file + ':' + r.line + ')';
+			resolvedLines.push(line);
+		}
+
+		if (resolvedLines.length == 0) return null;
+
+		return '  Crashed thread: ${threadInfo.name} (tid=${threadInfo.tid})\n  Resolved backtrace:\n' + resolvedLines.join('\n');
+	}
+	#end
 
 	function initSettings()
 	{
