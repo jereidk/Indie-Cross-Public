@@ -59,6 +59,38 @@ jobs:
           # for good. Bump once more for one clean run of the fixed logic.
           key: haxelibs-android-port-v3-${{ hashFiles('.hxpkg') }}
 
+      # Resolves which NightmareVision export run to pull from, without
+      # downloading anything yet -- lets the next step cache the download
+      # itself, keyed on this exact run id.
+      - name: Resolve NightmareVision export run
+        id: nv-run
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+        run: |
+          set -x
+          RUN_ID=$(gh run list --repo jereidk/NightmareVision-Android-Support \
+            --workflow exportHaxelibForIndieCross.yml --status success --limit 1 \
+            --json databaseId --jq '.[0].databaseId')
+          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      # Caches the raw downloaded tarballs (not just the extracted result,
+      # which the "Cache Haxe libraries" step above already covers under a
+      # DIFFERENT key scoped to .hxpkg's hash). This one's scoped to the
+      # NightmareVision run id instead -- so if .hxpkg changes again, or
+      # that other cache gets evicted, re-importing the SAME NightmareVision
+      # export skips the multi-GB cross-repo download and goes straight to
+      # local extraction. Only invalidates when NightmareVision re-exports
+      # (a new run id).
+      - name: Cache downloaded NightmareVision export
+        id: nv-download-cache
+        if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-run.outputs.run-id != ''
+        uses: actions/cache@v4
+        with:
+          path: /tmp/nv-cache-import
+          key: nv-cache-export-${{ steps.nv-run.outputs.run-id }}
+
       # Best-effort: pulls NightmareVision-Android-Support's already-warm
       # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
       # below) instead of compiling lime/hxcpp/flixel/openfl from source.
@@ -75,15 +107,17 @@ jobs:
         run: |
           set -x
           echo "imported=false" >> "$GITHUB_OUTPUT"
-          RUN_ID=$(gh run list --repo jereidk/NightmareVision-Android-Support \
-            --workflow exportHaxelibForIndieCross.yml --status success --limit 1 \
-            --json databaseId --jq '.[0].databaseId')
+          RUN_ID="${{ steps.nv-run.outputs.run-id }}"
           if [ -z "$RUN_ID" ]; then
             echo "No successful export run found on NightmareVision -- falling back to a from-scratch install."
             exit 0
           fi
-          gh run download "$RUN_ID" --repo jereidk/NightmareVision-Android-Support \
-            --name haxelib-cache-export --dir /tmp/nv-cache-import
+          if [ "${{ steps.nv-download-cache.outputs.cache-hit }}" != 'true' ]; then
+            gh run download "$RUN_ID" --repo jereidk/NightmareVision-Android-Support \
+              --name haxelib-cache-export --dir /tmp/nv-cache-import
+          else
+            echo "Reusing previously-downloaded NightmareVision export (run $RUN_ID)."
+          fi
           tar -xzf /tmp/nv-cache-import/haxelib-root.tar.gz -C "$HOME"
           tar -xzf /tmp/nv-cache-import/haxelib-project.tar.gz -C .
           haxelib setup ~/haxelib
