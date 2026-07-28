@@ -40,6 +40,9 @@ class Caching extends MusicBeatState
 
 		super.create();
 
+		GameLogger.init();
+		checkPreviousCrash();
+
 		// Probe GL for ASTC texture compression support as early as possible
 		// (the GL context is guaranteed live by the time a state's create()
 		// runs) and install the context-loss recovery handler before any
@@ -60,6 +63,44 @@ class Caching extends MusicBeatState
 		trace("Starting caching...");
 
 		initSettings();
+	}
+
+	/**
+	 * Checks for a crash.log left by SUtil.uncaughtErrorHandler() the last
+	 * time the game closed unexpectedly, and shows a one-time alert if one
+	 * is found. Checks both storage locations that handler can save to
+	 * (primary external storage, then the app-sandboxed fallback -- see its
+	 * own doc comment on why there are two), since which one succeeded last
+	 * session isn't known ahead of time. The file is deleted either way it's
+	 * found, so this only ever fires once per crash.
+	 */
+	function checkPreviousCrash():Void
+	{
+		#if (android && sys)
+		try
+		{
+			var candidates = [
+				SUtil.getPath() + 'crash.log',
+				extension.androidtools.content.Context.getExternalFilesDir(null) + '/crash.log'
+			];
+
+			for (path in candidates)
+			{
+				if (sys.FileSystem.exists(path))
+				{
+					var msg = sys.io.File.getContent(path);
+					sys.FileSystem.deleteFile(path);
+
+					if (msg.length > 2000)
+						msg = msg.substr(0, 2000) + '\n[truncated...]';
+
+					Application.current.window.alert(msg, 'The game closed unexpectedly last time');
+					break;
+				}
+			}
+		}
+		catch (e:Dynamic) {}
+		#end
 	}
 
 	function initSettings()

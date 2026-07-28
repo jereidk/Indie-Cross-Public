@@ -45,6 +45,14 @@ class Main extends Sprite
 	{
 		super();
 
+		// As early as possible, before FlxGame or any background thread
+		// (LoadingState's preload work, etc.) exists -- Logger.log() compares
+		// against this to decide whether touching FlxG.state/FlxG.log from a
+		// given call is safe.
+		#if sys
+		Logger.initMainThread();
+		#end
+
 		#if !android
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#else

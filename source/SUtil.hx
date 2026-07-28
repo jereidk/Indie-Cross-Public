@@ -186,6 +186,7 @@ class SUtil
 				+ Date.now().toString().replace(' ', '-').replace(':', "'")
 				+ '.log';
 			var saved:Bool = false;
+			var savedBaseDir:String = null;
 
 			try
 			{
@@ -194,6 +195,7 @@ class SUtil
 
 				File.saveContent(SUtil.getPath() + 'logs/' + logFileName, errMsg + '\n');
 				saved = true;
+				savedBaseDir = SUtil.getPath();
 			}
 			catch (e:Dynamic) {}
 
@@ -210,18 +212,29 @@ class SUtil
 			{
 				try
 				{
-					var fallbackDir:String = extension.androidtools.content.Context.getExternalFilesDir(null) + '/logs/';
-					if (!FileSystem.exists(fallbackDir))
-						FileSystem.createDirectory(fallbackDir);
+					var fallbackDir:String = extension.androidtools.content.Context.getExternalFilesDir(null) + '/';
+					if (!FileSystem.exists(fallbackDir + 'logs'))
+						FileSystem.createDirectory(fallbackDir + 'logs');
 
-					File.saveContent(fallbackDir + logFileName, errMsg + '\n');
+					File.saveContent(fallbackDir + 'logs/' + logFileName, errMsg + '\n');
 					saved = true;
+					savedBaseDir = fallbackDir;
 				}
 				catch (e:Dynamic) {}
 			}
 
 			if (!saved)
 				Toast.makeText("Error!\nClouldn't save the crash dump because:\nboth the primary and fallback storage paths failed", Toast.LENGTH_LONG);
+			else
+			{
+				// Fixed, predictable path (not timestamped like the "logs/"
+				// dump above) -- Caching.hx checks for this on the NEXT
+				// launch to show "the game closed unexpectedly last time"
+				// and consumes (deletes) it so it's only ever reported once.
+				try
+					File.saveContent(savedBaseDir + 'crash.log', errMsg)
+				catch (e:Dynamic) {}
+			}
 			#end
 
 			Sys.println(errMsg);
