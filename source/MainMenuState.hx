@@ -244,6 +244,10 @@ class MainMenuState extends MusicBeatState
 	// longer slides them under the pad.
 	static final padClearanceX:Float = 140;
 
+	#if android
+	var devPanel:DevPanel;
+	#end
+
 	final name:String = Lib.application.meta["name"];
 	final version:String = Lib.application.meta["version"];
 
@@ -367,6 +371,9 @@ class MainMenuState extends MusicBeatState
 		#if android
 		addVirtualPad(UP_DOWN, A_B_C);
 		virtualPad.y = -22;
+
+		devPanel = new DevPanel(this);
+		add(devPanel);
 		#end
 
 		if (showCredits)
