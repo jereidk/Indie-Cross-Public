@@ -41,9 +41,16 @@ jobs:
           # this exact Lime/Haxe/Flixel/Android stack.
           haxe-version: 4.3.7
 
+      # actions/cache@v4's save-always input is deprecated ("does not work
+      # as intended") -- GitHub's own fix is to split restore/save into two
+      # separate actions instead of relying on one action's save-always
+      # flag. This restore-only step keeps the same id/outputs every later
+      # step already depends on; the matching save runs near the end of the
+      # job (see "Save Haxe libraries cache") gated on if: always() so it
+      # persists even when Compile fails.
       - name: Cache Haxe libraries
         id: haxelibs-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/haxelib
@@ -54,13 +61,6 @@ jobs:
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
           key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
-          # actions/cache@v4 only saves on a job that's heading toward
-          # success by default -- every run so far has failed at some LATER
-          # step (Compile, hxpkg, etc.), so this cache was never once
-          # actually saved despite genuinely populating ~/haxelib/.haxelib
-          # each time. save-always makes it persist regardless, so iterative
-          # debugging keeps its progress instead of restarting from zero.
-          save-always: true
 
       # Resolves which NightmareVision export run to pull from, without
       # downloading anything yet -- lets the next step cache the download
@@ -89,11 +89,10 @@ jobs:
       - name: Cache downloaded NightmareVision export
         id: nv-download-cache
         if: steps.haxelibs-cache.outputs.cache-hit != 'true' && steps.nv-run.outputs.run-id != ''
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: /tmp/nv-cache-import
           key: nv-cache-export-${{ steps.nv-run.outputs.run-id }}
-          save-always: true
 
       # Best-effort: pulls NightmareVision-Android-Support's already-warm
       # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
@@ -336,13 +335,13 @@ jobs:
       # .hxpkg, which the earlier caches key on) only recompiles what
       # actually changed instead of every generated .cpp from scratch.
       - name: Cache hxcpp compile cache
-        uses: actions/cache@v4
+        id: hxcpp-cache
+        uses: actions/cache/restore@v4
         with:
           path: ~/.hxcpp_cache
           key: hxcpp-cache-android-port-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
           restore-keys: |
             hxcpp-cache-android-port-${{ runner.os }}-
-          save-always: true
 
       # Diagnostic only, runs regardless of which path installed flixel
       # (NightmareVision import vs. fresh hxpkg clone). The NightmareVision
@@ -357,12 +356,17 @@ jobs:
         run: |
           echo "--- haxelib list ---"
           haxelib list
-          echo "--- git-linked package HEAD vs .hxpkg pin ---"
+          echo "--- git-linked package HEAD vs .hxpkg pin (+ dirty working tree check) ---"
           jq -r '.[].pkgs[] | select(.branch) | "\(.name) \(.branch)"' .hxpkg | while read -r name branch; do
             path=".haxelib/$name/git"
             head=$(git -C "$path" rev-parse HEAD 2>&1) || head="ERROR: $head"
             if [ "$head" = "$branch" ]; then status=MATCH; else status=MISMATCH; fi
             echo "$name: pinned=$branch actual=$head [$status]"
+            dirty=$(git -C "$path" status --porcelain 2>&1)
+            if [ -n "$dirty" ]; then
+              echo "$name: WORKING TREE IS DIRTY (HEAD matches the pin but files differ from that commit's real tree):"
+              echo "$dirty"
+            fi
           done
           echo "--- FlxAnimationController.hx: getFrameDuration/fireLoopCallback/numFrames ---"
           grep -n "getFrameDuration\|fireLoopCallback\|numFrames" .haxelib/flixel/git/flixel/animation/FlxAnimationController.hx || echo "NOT FOUND"
@@ -370,6 +374,8 @@ jobs:
           grep -n "setFilters" .haxelib/flixel/git/flixel/FlxCamera.hx || echo "NOT FOUND"
           echo "--- Sound.hx: AudioBufferDataFormat usage ---"
           grep -n "AudioBufferDataFormat\|F32\|S16" .haxelib/openfl/git/src/openfl/media/Sound.hx || echo "NOT FOUND"
+          echo "--- Sound.hx diff against its own pinned commit (blank = identical) ---"
+          git -C .haxelib/openfl/git diff HEAD -- src/openfl/media/Sound.hx || echo "(diff command itself failed)"
           echo "--- lime AudioBufferDataFormat.hx contents ---"
           find .haxelib/lime/git -iname "AudioBufferDataFormat.hx" -exec cat {} \;
 
@@ -417,6 +423,35 @@ jobs:
             echo "== $f =="
             cat "$f"
           done
+
+      # Explicit save steps to replace the deprecated/broken save-always
+      # input (see the "Cache Haxe libraries" restore step above). Each
+      # runs regardless of job outcome (if: always()) so a run that fails
+      # at Compile still keeps whatever it downloaded/built -- actions/cache/
+      # save is a no-op (with a warning, not a failure) if the exact key was
+      # already saved, so it's safe to attempt unconditionally here.
+      - name: Save Haxe libraries cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/haxelib
+            .haxelib
+          key: haxelibs-android-port-v6-${{ hashFiles('.hxpkg') }}
+
+      - name: Save downloaded NightmareVision export cache
+        if: always() && steps.nv-run.outputs.run-id != ''
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/nv-cache-import
+          key: nv-cache-export-${{ steps.nv-run.outputs.run-id }}
+
+      - name: Save hxcpp compile cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.hxcpp_cache
+          key: hxcpp-cache-android-port-${{ runner.os }}-${{ hashFiles('source/**/*.hx', 'Project.xml', '.hxpkg', 'include.xml') }}
 
       - name: Publish Artifact
         uses: actions/upload-artifact@v7.0.1
