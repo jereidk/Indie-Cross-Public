@@ -354,6 +354,23 @@ class PlayState extends MusicBeatState
 	var p2:FlxColor;
 
 	var bgs:Array<FlxSprite>;
+	// Nightmare-Run hallway scroll: replaces what used to be a 255-frame Sparrow
+	// "animation" (Fuck_the_hallway.xml) whose every frame samples the exact same
+	// pixel rect and only differs by its frameX trim value (-5505 down to 0,
+	// linear) -- i.e. a fake horizontal pan baked as 255 duplicate-pixel frames.
+	// Since that frameX shift is applied to the render matrix *before* the
+	// sprite's own scale is applied (FlxFrame.prepareMatrix, then
+	// matrix.scale(scale.x, scale.y) in FlxSprite.prepareComplexMatrix), moving
+	// the sprite's own `.x` by the same range * scale.x reproduces the identical
+	// on-screen motion with a single static frame instead of 255 of them.
+	// bgsRestX/darkHallwayRestX cache each sprite's screenCenter()'d resting `.x`
+	// (== frameX 0, where the original animation ends up and holds), so repeated
+	// scroll restarts (cycleScroll picking a new bg, or the blackout handoff)
+	// always tween back toward the same anchor.
+	var bgsScrollDone:Array<Bool> = [];
+	var bgsRestX:Array<Float> = [];
+	var darkHallwayScrollDone:Bool = false;
+	var darkHallwayRestX:Float = 0;
 	var transition:FlxSprite;
 	// var lights:FlxSprite;
 	var darkHallway:FlxSprite;
@@ -948,6 +965,8 @@ class PlayState extends MusicBeatState
 						defaultCamZoom = 0.45;
 
 						bgs = [];
+						bgsScrollDone = [];
+						bgsRestX = [];
 						// Might take a bit longer to load but hey, no black boxes yay
 						// also initializing them as characters right away to prevent a weird small freezing when the frame change happens
 						// flixel sucks ass
@@ -977,7 +996,7 @@ class PlayState extends MusicBeatState
 							}
 
 							bg.frames = Paths.getSparrowAtlas('run/' + imgName, 'bendy');
-							bg.animation.addByPrefix('bruh', animName, 75, false);
+							bg.frame = bg.frames.getByName(animName + '0000');
 							bg.setGraphicSize(Std.int(bg.width * 3));
 							bg.updateHitbox();
 							bg.screenCenter();
@@ -991,6 +1010,8 @@ class PlayState extends MusicBeatState
 							add(bg);
 
 							bgs.push(bg);
+							bgsScrollDone.push(true);
+							bgsRestX.push(bg.x);
 						}
 
 						randomPick = FlxG.random.int(0, bgs.length - 1);
@@ -998,7 +1019,7 @@ class PlayState extends MusicBeatState
 
 						darkHallway = new FlxSprite();
 						darkHallway.frames = Paths.getSparrowAtlas('run/Fuck_the_hallway', 'bendy');
-						darkHallway.animation.addByPrefix('bruh', 'Tunnel instance 1', 75, false);
+						darkHallway.frame = darkHallway.frames.getByName('Tunnel instance 10000');
 						darkHallway.setGraphicSize(Std.int(darkHallway.width * infiniteResize));
 						darkHallway.updateHitbox();
 						darkHallway.screenCenter();
@@ -1007,11 +1028,13 @@ class PlayState extends MusicBeatState
 						darkHallway.antialiasing = FlxG.save.data.highquality;
 						darkHallway.alpha = 0.0001;
 						add(darkHallway);
+						darkHallwayRestX = darkHallway.x;
 
 						bgs[randomPick].alpha = 1;
-						bgs[randomPick].animation.play('bruh', true);
+						var initialPick = randomPick;
+						playHallwayScroll(bgs[initialPick], bgsRestX[initialPick], function() bgsScrollDone[initialPick] = true);
 
-						darkHallway.animation.play('bruh', true);
+						playHallwayScroll(darkHallway, darkHallwayRestX, function() darkHallwayScrollDone = true);
 
 						daBF = 'bfChase';
 						daDad = 'bendyChase';
@@ -4745,13 +4768,10 @@ class PlayState extends MusicBeatState
 
 			if (curStage == 'factory')
 			{
-				if (SONG.song.toLowerCase() == 'nightmare-run')
-				{
-					if (bgs != null)
-					{
-						bgs[randomPick].animation.pause();
-					}
-				}
+				// Nightmare-Run's hallway scroll is now driven by an FlxTween on
+				// spr.x (see playHallwayScroll()), which PauseSubState already
+				// freezes via FlxTween.globalManager.active = false -- no explicit
+				// pause needed here anymore.
 
 				if (jumpingBendyTimer1 != null)
 				{
@@ -4861,13 +4881,8 @@ class PlayState extends MusicBeatState
 
 			if (curStage == 'factory')
 			{
-				if (SONG.song.toLowerCase() == 'nightmare-run')
-				{
-					if (bgs != null)
-					{
-						bgs[randomPick].animation.resume();
-					}
-				}
+				// See matching comment in openSubState(): nothing to resume here
+				// anymore, PauseSubState's global tween freeze already covers it.
 
 				if (jumpingBendyTimer1 != null)
 				{
@@ -10345,7 +10360,9 @@ class PlayState extends MusicBeatState
 				if (darkHallway != null)
 				{
 					darkHallway.alpha = 1;
-					darkHallway.animation.play('bruh', true, false, bgs[randomPick].animation.curAnim.curFrame);
+					darkHallwayScrollDone = false;
+					playHallwayScroll(darkHallway, darkHallwayRestX, function() darkHallwayScrollDone = true,
+						hallwayScrollProgress(bgs[randomPick], bgsRestX[randomPick]));
 					overrideNMZoom = true;
 					FlxTween.tween(this, {defaultCamZoom: defaultCamZoom - 0.15}, 0.7, {ease: FlxEase.smoothStepOut, startDelay: 1});
 					// trace('Tweening cam shit');
@@ -10397,7 +10414,9 @@ class PlayState extends MusicBeatState
 				}
 
 				bgs[randomPick].alpha = 1;
-				bgs[randomPick].animation.play('bruh', true, false, darkHallway.animation.curAnim.curFrame);
+				bgsScrollDone[randomPick] = false;
+				playHallwayScroll(bgs[randomPick], bgsRestX[randomPick], function() bgsScrollDone[randomPick] = true,
+					hallwayScrollProgress(darkHallway, darkHallwayRestX));
 
 				// trace('SWITCHING FRAMES');
 
@@ -10551,6 +10570,60 @@ class PlayState extends MusicBeatState
 		});
 	}
 
+	/**
+	 * Reproduces the Nightmare-Run hallway "scroll" without the original
+	 * 255-frame Sparrow animation (Fuck_the_hallway.xml): every one of those
+	 * frames sampled the exact same pixel rect and only varied by its
+	 * `frameX` trim value, going from -5505 (first frame) to 0 (last frame,
+	 * where the non-looping animation then holds). FlxFrame.prepareMatrix()
+	 * bakes that trim shift into the render matrix *before*
+	 * matrix.scale(scale.x, scale.y) is applied (see FlxSprite.
+	 * prepareComplexMatrix), so on screen it's equivalent to moving the whole
+	 * sprite's `.x` by the same 5505 range scaled by scale.x -- just with one
+	 * static frame instead of 255 duplicate-pixel ones.
+	 *
+	 * `restX` is the sprite's screenCenter()'d resting position (== frameX 0).
+	 * `startProgress` (0..1) lets a scroll resume partway through -- used for
+	 * the darkHallway <-> bgs[randomPick] blackout handoff, which originally
+	 * passed the outgoing sprite's curFrame into the incoming .animation.play()
+	 * so the pan wouldn't visibly jump/restart.
+	 */
+	function playHallwayScroll(spr:FlxSprite, restX:Float, ?onDone:Void->Void, startProgress:Float = 0):Void
+	{
+		var totalDelta = 5505 * spr.scale.x;
+
+		FlxTween.cancelTweensOf(spr);
+		spr.x = restX - totalDelta * (1 - startProgress);
+
+		var duration = (255 / 75) * (1 - startProgress);
+		if (duration <= 0)
+		{
+			spr.x = restX;
+			if (onDone != null) onDone();
+			return;
+		}
+
+		FlxTween.tween(spr, {x: restX}, duration, {
+			ease: FlxEase.linear,
+			onComplete: function(_)
+			{
+				if (onDone != null) onDone();
+			}
+		});
+	}
+
+	/**
+	 * How far along (0..1) a hallway-scroll sprite's pan currently is, given
+	 * its cached resting `.x`. Used to hand off progress between darkHallway
+	 * and bgs[randomPick] during blackout transitions -- see playHallwayScroll().
+	 */
+	function hallwayScrollProgress(spr:FlxSprite, restX:Float):Float
+	{
+		var totalDelta = 5505 * spr.scale.x;
+		if (totalDelta == 0) return 1;
+		return 1 - (restX - spr.x) / totalDelta;
+	}
+
 	function cycleScroll()
 	{
 		if (bgs != null && !nmStairs)
@@ -10559,18 +10632,16 @@ class PlayState extends MusicBeatState
 			{
 				if (darkHallway != null)
 				{
-					if (darkHallway.animation.curAnim != null)
+					if (darkHallwayScrollDone)
 					{
-						if (darkHallway.animation.curAnim.finished)
-						{
-							darkHallway.animation.play('bruh', true);
-						}
+						darkHallwayScrollDone = false;
+						playHallwayScroll(darkHallway, darkHallwayRestX, function() darkHallwayScrollDone = true);
 					}
 				}
 			}
 			else
 			{
-				if (bgs[randomPick].animation.curAnim.finished)
+				if (bgsScrollDone[randomPick])
 				{
 					randomPick = FlxG.random.int(0, bgs.length - 1);
 					if (!FlxG.save.data.highquality)
@@ -10598,8 +10669,10 @@ class PlayState extends MusicBeatState
 					{
 						if (i == randomPick)
 						{
-							bgs[i].alpha = 1;
-							bgs[i].animation.play('bruh', true);
+							var idx = i;
+							bgs[idx].alpha = 1;
+							bgsScrollDone[idx] = false;
+							playHallwayScroll(bgs[idx], bgsRestX[idx], function() bgsScrollDone[idx] = true);
 						}
 						else
 						{
