@@ -12585,17 +12585,34 @@ class PlayState extends MusicBeatState
 		return Math.min(1, combo / COMBO_INTENSITY_CAP);
 	}
 
+	// How packed with notes the section about to be focused is (notes per
+	// step), 0 (sparse) to 1 (a stream/burst section, at or above
+	// SECTION_DENSITY_REF notes/step). A whole section is always one
+	// character's turn (that's what mustHitSection means), so this doubles as
+	// "how much whoever's about to get focus has to play" -- e.g. the opponent
+	// dropping into a dense stream should snap the camera to them hard even if
+	// the player hasn't built up a combo yet.
+	static inline var SECTION_DENSITY_REF:Float = 0.75;
+
+	function sectionIntensity(sectionIndex:Int):Float
+	{
+		var section = SONG.notes[sectionIndex];
+		if (section == null || section.lengthInSteps <= 0) return 0;
+		var density = section.sectionNotes.length / section.lengthInSteps;
+		return Math.min(1, density / SECTION_DENSITY_REF);
+	}
+
 	function checkFocus(?resync:Bool = true, forcefocus:String = '', addzoom:Float = 0, speed:Float = 0)
 	{
 		var lastspeed:Float;
 		var focusEase:EaseFunction = FlxEase.quintOut;
 		if (speed == 0)
 		{
-			// Only the default (unspecified) speed gets combo-scaled -- callers
-			// that pass an explicit speed (e.g. the funne-offset shake) are
-			// syncing to something precise like the song's crochet and shouldn't
-			// have that timing altered by how good the current streak is.
-			var intensity = comboIntensity();
+			// Only the default (unspecified) speed gets combo/density-scaled --
+			// callers that pass an explicit speed (e.g. the funne-offset shake)
+			// are syncing to something precise like the song's crochet and
+			// shouldn't have that timing altered by how hot the streak/section is.
+			var intensity = Math.max(comboIntensity(), sectionIntensity(Std.int(curStep / 16)));
 			lastspeed = camLerp * (1 - intensity * 0.6);
 			focusEase = intensity > 0.66 ? FlxEase.backOut : (intensity > 0.33 ? FlxEase.expoOut : FlxEase.quintOut);
 		}
