@@ -7239,7 +7239,8 @@ class PlayState extends MusicBeatState
 				if (health < 0.99)
 				{
 					defaultCamZoom = 0.85 + (health * -0.35);
-					camMovement = FlxTween.tween(camFollow, {x: bfPos[0] + 100, y: bfPos[1] + 25}, camLerp, {ease: FlxEase.quintOut}); // bad
+					camMovement.cancel();
+					camMovement = FlxTween.tween(camFollow, {x: bfPos[0] + 100, y: bfPos[1] + 25}, camLerp, {ease: FlxEase.quintOut});
 				}
 				else if (health >= 1.00 && curStep >= 1)
 					defaultCamZoom = 0.55;
@@ -7248,6 +7249,7 @@ class PlayState extends MusicBeatState
 		else if (SONG.song.toLowerCase() == 'nightmare-run' && nmStairs)
 		{
 			defaultCamZoom = 1;
+			camMovement.cancel();
 			camMovement = FlxTween.tween(camFollow, {x: 500, y: 500}, camLerp, {ease: FlxEase.quintOut});
 			canCameraMove = false;
 
@@ -12455,6 +12457,24 @@ class PlayState extends MusicBeatState
 		// NIGHTMARE RUN STAIRS
 		if (SONG.song.toLowerCase() == 'nightmare-run' && nmStairs)
 		{
+			// layerChars() also runs from several places unrelated to the nmStairs
+			// toggle (character swaps, etc.), so this branch can fire again while
+			// nmStairs is still true. Clean up any previous stairs sprites/tween
+			// first so they don't pile up dead-but-not-destroyed in stairsGrp --
+			// see the matching cleanup in the !nmStairs branch below.
+			if (stairsBG != null)
+			{
+				FlxTween.cancelTweensOf(stairs);
+				stairsGrp.remove(stairsBG, true);
+				stairsGrp.remove(stairsChainL, true);
+				stairsGrp.remove(stairsChainR, true);
+				stairsGrp.remove(stairs, true);
+				stairsBG.destroy();
+				stairsChainL.destroy();
+				stairsChainR.destroy();
+				stairs.destroy();
+			}
+
 			stairsBG = new FlxBackdrop(Paths.image('stairs/scrollingBG', 'bendy'), FlxAxes.fromBools(false, true));
 			stairsBG.scrollFactor.set(0, 1);
 			stairsBG.screenCenter();
@@ -12500,6 +12520,40 @@ class PlayState extends MusicBeatState
 				{
 					member.kill();
 				}
+			}
+
+			// stairsBG/stairsChainL/stairsChainR/stairs get rebuilt from scratch
+			// every time nmStairs flips back on -- kill() alone (above) leaves
+			// the old instances (and their loaded graphics/tween) dead-but-
+			// resident in stairsGrp instead of actually freeing them. boyfriend/
+			// dad/stairsGradient are intentionally left to kill() only: the
+			// first two get replaced by the caller right after this returns,
+			// and stairsGradient is a single long-lived sprite reused every
+			// stairs segment, not recreated here.
+			if (stairsBG != null)
+			{
+				stairsGrp.remove(stairsBG, true);
+				stairsBG.destroy();
+				stairsBG = null;
+			}
+			if (stairsChainL != null)
+			{
+				stairsGrp.remove(stairsChainL, true);
+				stairsChainL.destroy();
+				stairsChainL = null;
+			}
+			if (stairsChainR != null)
+			{
+				stairsGrp.remove(stairsChainR, true);
+				stairsChainR.destroy();
+				stairsChainR = null;
+			}
+			if (stairs != null)
+			{
+				FlxTween.cancelTweensOf(stairs);
+				stairsGrp.remove(stairs, true);
+				stairs.destroy();
+				stairs = null;
 			}
 			// the transitions aren't layered correctly if somebody could fix it that would be awesom
 		}
