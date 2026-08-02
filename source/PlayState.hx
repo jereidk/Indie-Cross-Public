@@ -2611,8 +2611,17 @@ class PlayState extends MusicBeatState
 
 		add(camFollow);
 
-		FlxG.camera.follow(camFollow, LOCKON, 0.04 * (30 / (cast(Lib.current.getChildAt(0), Main)).getFPS()));
-		// camHUD.follow(camFollow, LOCKON, 0.04 * (30 / (cast(Lib.current.getChildAt(0), Main)).getFPS()));
+		// FlxCamera's LOCKON follow-lerp is already framerate-compensated
+		// internally (FlxCamera.updateLerp() scales it by elapsed*60 every
+		// frame), so scaling it again here by a one-time getFPS() reading was
+		// double-compensating -- and getFPS() reads a live, constantly-updating
+		// FPS counter widget, not a stable config value, so whatever it happened
+		// to read at this exact instant (often still settling right after this
+		// scene's asset load hitch) got baked in as the camera's responsiveness
+		// for the entire song. Pass the plain constant and let Flixel handle the
+		// actual per-frame timing correctly every frame instead.
+		FlxG.camera.follow(camFollow, LOCKON, 0.04);
+		// camHUD.follow(camFollow, LOCKON, 0.04);
 		// FlxG.camera.setScrollBounds(0, FlxG.width, 0, FlxG.height);
 		FlxG.camera.zoom = defaultCamZoom;
 		FlxG.camera.focusOn(camFollow.getPosition());
@@ -12564,11 +12573,32 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	// How deep into a hit streak the player currently is: 0 (no combo) to 1
+	// (full intensity at combo 30+). Used by checkFocus() to make the camera's
+	// focus-swap movement snappier/punchier the hotter the streak gets, instead
+	// of always gliding at the same speed/ease regardless of how well the
+	// player's doing.
+	static inline var COMBO_INTENSITY_CAP:Int = 30;
+
+	function comboIntensity():Float
+	{
+		return Math.min(1, combo / COMBO_INTENSITY_CAP);
+	}
+
 	function checkFocus(?resync:Bool = true, forcefocus:String = '', addzoom:Float = 0, speed:Float = 0)
 	{
 		var lastspeed:Float;
+		var focusEase:EaseFunction = FlxEase.quintOut;
 		if (speed == 0)
-			lastspeed = camLerp;
+		{
+			// Only the default (unspecified) speed gets combo-scaled -- callers
+			// that pass an explicit speed (e.g. the funne-offset shake) are
+			// syncing to something precise like the song's crochet and shouldn't
+			// have that timing altered by how good the current streak is.
+			var intensity = comboIntensity();
+			lastspeed = camLerp * (1 - intensity * 0.6);
+			focusEase = intensity > 0.66 ? FlxEase.backOut : (intensity > 0.33 ? FlxEase.expoOut : FlxEase.quintOut);
+		}
 		else
 			lastspeed = speed;
 
@@ -12603,7 +12633,7 @@ class PlayState extends MusicBeatState
 					camFocus = 'player3';
 
 					if (canCameraMove)
-						camMovement = FlxTween.tween(camFollow, {x: player3Pos[0], y: player3Pos[1]}, lastspeed, {ease: FlxEase.quintOut});
+						camMovement = FlxTween.tween(camFollow, {x: player3Pos[0], y: player3Pos[1]}, lastspeed, {ease: focusEase});
 
 					if (luaModchart != null)
 						luaModchart.executeState('playerThreeTurn', []);
@@ -12623,7 +12653,7 @@ class PlayState extends MusicBeatState
 					camFocus = 'dad';
 
 					if (canCameraMove)
-						camMovement = FlxTween.tween(camFollow, {x: dadPos[0], y: dadPos[1]}, lastspeed, {ease: FlxEase.quintOut});
+						camMovement = FlxTween.tween(camFollow, {x: dadPos[0], y: dadPos[1]}, lastspeed, {ease: focusEase});
 
 					if (luaModchart != null)
 						luaModchart.executeState('playerTwoTurn', []);
@@ -12651,7 +12681,7 @@ class PlayState extends MusicBeatState
 					camFocus = 'bf';
 
 					if (canCameraMove)
-						camMovement = FlxTween.tween(camFollow, {x: bfPos[0], y: bfPos[1]}, lastspeed, {ease: FlxEase.quintOut});
+						camMovement = FlxTween.tween(camFollow, {x: bfPos[0], y: bfPos[1]}, lastspeed, {ease: focusEase});
 
 					if (luaModchart != null)
 						luaModchart.executeState('playerOneTurn', []);
