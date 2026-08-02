@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Devil_Intro-4.png" width="3693" height="2487">
+	<SubTexture name="Intro instance 10044" x="0" y="0" width="1301" height="1192" frameX="-1" frameY="-143" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10049" x="0" y="1192" width="1208" height="1245" frameX="-0" frameY="-90" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10050" x="1208" y="1226" width="1206" height="1246" frameX="-2" frameY="-89" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10051" x="2414" y="1241" width="1203" height="1246" frameX="-5" frameY="-89" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10052" x="2495" y="0" width="1198" height="1241" frameX="-10" frameY="-94" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10053" x="1301" y="0" width="1194" height="1226" frameX="-14" frameY="-109" frameWidth="1454" frameHeight="1438"/>
+</TextureAtlas>

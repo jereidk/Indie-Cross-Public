@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Devil_Intro-3.png" width="3720" height="3356">
+	<SubTexture name="Intro instance 10039" x="1008" y="2163" width="1199" height="1176" frameX="-9" frameY="-159" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10040" x="2207" y="2169" width="1237" height="1187" frameX="-6" frameY="-148" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10042" x="2362" y="1073" width="1358" height="1096" frameX="-3" frameY="-239" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10043" x="0" y="0" width="1350" height="1025" frameX="-2" frameY="-310" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10046" x="2482" y="0" width="1208" height="1073" frameX="-0" frameY="-262" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10060" x="1350" y="0" width="1132" height="1070" frameX="-201" frameY="-335" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10061" x="1350" y="0" width="1132" height="1070" frameX="-201" frameY="-335" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10062" x="0" y="1025" width="1164" height="1084" frameX="-201" frameY="-336" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10063" x="0" y="1025" width="1164" height="1084" frameX="-201" frameY="-336" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10064" x="1164" y="1070" width="1198" height="1093" frameX="-201" frameY="-336" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10065" x="1164" y="1070" width="1198" height="1093" frameX="-201" frameY="-336" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10066" x="0" y="2109" width="1008" height="1101" frameX="-201" frameY="-336" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10067" x="0" y="2109" width="1008" height="1101" frameX="-201" frameY="-336" frameWidth="1454" frameHeight="1438"/>
+</TextureAtlas>

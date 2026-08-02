@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Devil_Intro-2.png" width="3841" height="3011">
+	<SubTexture name="Intro instance 10000" x="1979" y="1921" width="741" height="1014" frameX="-158" frameY="-335" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10001" x="1979" y="1921" width="741" height="1014" frameX="-158" frameY="-335" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10002" x="0" y="1830" width="751" height="1007" frameX="-158" frameY="-342" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10003" x="0" y="1830" width="751" height="1007" frameX="-158" frameY="-342" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10004" x="878" y="924" width="766" height="994" frameX="-158" frameY="-355" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10006" x="0" y="0" width="899" height="839" frameX="-158" frameY="-510" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10041" x="751" y="1921" width="1228" height="1003" frameX="-5" frameY="-332" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10047" x="899" y="0" width="1208" height="924" frameX="-0" frameY="-411" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10048" x="1644" y="958" width="1246" height="963" frameX="-0" frameY="-372" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10054" x="2107" y="0" width="875" height="958" frameX="-181" frameY="-360" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10055" x="0" y="839" width="878" height="991" frameX="-199" frameY="-328" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10056" x="2890" y="983" width="951" height="999" frameX="-200" frameY="-331" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10057" x="2890" y="983" width="951" height="999" frameX="-200" frameY="-331" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10058" x="2720" y="1982" width="1018" height="1029" frameX="-201" frameY="-333" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10059" x="2720" y="1982" width="1018" height="1029" frameX="-201" frameY="-333" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10068" x="2982" y="0" width="785" height="983" frameX="-201" frameY="-336" frameWidth="1454" frameHeight="1438"/>
+	<SubTexture name="Intro instance 10069" x="2982" y="0" width="785" height="983" frameX="-201" frameY="-336" frameWidth="1454" frameHeight="1438"/>
+</TextureAtlas>

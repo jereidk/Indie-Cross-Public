@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="DeathSans002-3.png" width="3630" height="3426">
+	<SubTexture name="DOWNN instance 10005" x="1601" y="0" width="520" height="836" frameX="-66" frameY="-79" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10007" x="1891" y="836" width="519" height="846" frameX="-69" frameY="-69" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10008" x="1584" y="2545" width="516" height="869" frameX="-67" frameY="-46" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10010" x="0" y="1666" width="525" height="850" frameX="-68" frameY="-65" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10012" x="486" y="2530" width="522" height="865" frameX="-67" frameY="-50" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10014" x="1375" y="836" width="516" height="845" frameX="-68" frameY="-70" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10017" x="2620" y="2549" width="522" height="876" frameX="-66" frameY="-39" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10019" x="2499" y="1685" width="584" height="864" frameX="-0" frameY="-51" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10020" x="1008" y="2541" width="576" height="865" frameX="-8" frameY="-50" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10022" x="2121" y="0" width="521" height="836" frameX="-68" frameY="-79" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10024" x="2410" y="836" width="518" height="846" frameX="-67" frameY="-69" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="DOWNN instance 10025" x="2100" y="2549" width="520" height="869" frameX="-66" frameY="-46" frameWidth="604" frameHeight="915"/>
+	<SubTexture name="Leftt instance 10021" x="705" y="830" width="670" height="842" frameX="-118" frameY="-0" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10022" x="0" y="829" width="705" height="837" frameX="-117" frameY="-5" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Nightmare SANS Idle instance 10000" x="2928" y="836" width="492" height="849" frameX="-77" frameY="-79" frameWidth="592" frameHeight="928"/>
+	<SubTexture name="Nightmare SANS Idle instance 10002" x="1013" y="1681" width="483" height="859" frameX="-80" frameY="-69" frameWidth="592" frameHeight="928"/>
+	<SubTexture name="Nightmare SANS Idle instance 10004" x="0" y="0" width="499" height="820" frameX="-77" frameY="-108" frameWidth="592" frameHeight="928"/>
+	<SubTexture name="Nightmare SANS Idle instance 10005" x="1985" y="1682" width="514" height="863" frameX="-78" frameY="-65" frameWidth="592" frameHeight="928"/>
+	<SubTexture name="Nightmare SANS Idle instance 10007" x="3142" y="2549" width="488" height="877" frameX="-78" frameY="-51" frameWidth="592" frameHeight="928"/>
+	<SubTexture name="Nightmare SANS Idle instance 10009" x="525" y="1672" width="488" height="858" frameX="-78" frameY="-70" frameWidth="592" frameHeight="928"/>
+	<SubTexture name="Nightmare SANS Idle instance 10011" x="1090" y="0" width="511" height="830" frameX="-78" frameY="-98" frameWidth="592" frameHeight="928"/>
+	<SubTexture name="Rightt instance 10017" x="2642" y="0" width="691" height="836" frameX="-27" frameY="-0" frameWidth="805" frameHeight="841"/>
+	<SubTexture name="Rightt instance 10018" x="499" y="0" width="591" height="829" frameX="-124" frameY="-7" frameWidth="805" frameHeight="841"/>
+	<SubTexture name="UPP instance 10001" x="3083" y="1685" width="480" height="864" frameX="-0" frameY="-120" frameWidth="490" frameHeight="1008"/>
+	<SubTexture name="UPP instance 10003" x="3083" y="1685" width="480" height="864" frameX="-0" frameY="-120" frameWidth="490" frameHeight="1008"/>
+	<SubTexture name="UPP instance 10005" x="3083" y="1685" width="480" height="864" frameX="-0" frameY="-120" frameWidth="490" frameHeight="1008"/>
+	<SubTexture name="UPP instance 10007" x="3083" y="1685" width="480" height="864" frameX="-0" frameY="-120" frameWidth="490" frameHeight="1008"/>
+	<SubTexture name="UPP instance 10009" x="0" y="2516" width="486" height="864" frameX="-0" frameY="-120" frameWidth="490" frameHeight="1008"/>
+	<SubTexture name="UPP instance 10011" x="1496" y="1682" width="489" height="859" frameX="-0" frameY="-125" frameWidth="490" frameHeight="1008"/>
+</TextureAtlas>

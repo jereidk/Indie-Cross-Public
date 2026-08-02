@@ -556,7 +556,8 @@ class Character extends FlxSprite
 				setZoom(1.45);
 
 			case 'sanswinter':
-				frames = Paths.getSparrowAtlas('characters/Sans_Brrrr', 'shared');
+				// Split across 3 pieces (Sans_Brrrr-0..2), was 8192x6193 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Sans_Brrrr-0', 'characters/Sans_Brrrr-1', 'characters/Sans_Brrrr-2'], 'shared');
 
 				animation.addByPrefix('wakeup', '03 instance 1', 24, false);
 				animation.addByPrefix('fallasleep', '01 instance 1', 24, false);
@@ -596,7 +597,14 @@ class Character extends FlxSprite
 				addOffset('putin', 39, 88);
 
 			case 'sansNightmare':
-				frames = Paths.getSparrowAtlas('characters/DeathSans002', 'shared');
+				// Split across 5 pieces (DeathSans002-0..4), was 8192x8192 as one atlas.
+				frames = Paths.getMultiSparrowAtlas([
+					'characters/DeathSans002-0',
+					'characters/DeathSans002-1',
+					'characters/DeathSans002-2',
+					'characters/DeathSans002-3',
+					'characters/DeathSans002-4'
+				], 'shared');
 				animation.addByPrefix('idle', 'Nightmare SANS Idle instance 1', 24, true);
 				animation.addByPrefix('singUP', 'UPP instance 1', 24);
 				animation.addByPrefix('singRIGHT', 'Rightt instance 1', 24);

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Nightmare Sans Stage-0.png" width="3858" height="4056">
+	<SubTexture name="Normal instance 10000" x="0" y="0" width="1929" height="1085" frameX="-0" frameY="-0" frameWidth="1932" frameHeight="1088"/>
+	<SubTexture name="Normal instance 10001" x="0" y="1085" width="1929" height="1085" frameX="-0" frameY="-0" frameWidth="1932" frameHeight="1088"/>
+	<SubTexture name="Normal instance 10002" x="0" y="2170" width="1929" height="1085" frameX="-0" frameY="-0" frameWidth="1932" frameHeight="1088"/>
+	<SubTexture name="Normal instance 10003" x="1929" y="0" width="1929" height="1085" frameX="-0" frameY="-0" frameWidth="1932" frameHeight="1088"/>
+	<SubTexture name="Normal instance 10004" x="1929" y="1085" width="1929" height="1085" frameX="-0" frameY="-0" frameWidth="1932" frameHeight="1088"/>
+	<SubTexture name="Normal instance 10005" x="1929" y="2170" width="1929" height="1085" frameX="-0" frameY="-0" frameWidth="1932" frameHeight="1088"/>
+	<SubTexture name="dd instance 10000" x="0" y="3255" width="1923" height="580" frameX="-0" frameY="-1" frameWidth="1923" frameHeight="585"/>
+	<SubTexture name="dd instance 10001" x="1923" y="3255" width="1923" height="529" frameX="-0" frameY="-53" frameWidth="1923" frameHeight="585"/>
+	<SubTexture name="dd instance 10006" x="1923" y="3784" width="1923" height="272" frameX="-0" frameY="-312" frameWidth="1923" frameHeight="585"/>
+	<SubTexture name="dd instance 10007" x="0" y="3835" width="1923" height="221" frameX="-0" frameY="-363" frameWidth="1923" frameHeight="585"/>
+</TextureAtlas>

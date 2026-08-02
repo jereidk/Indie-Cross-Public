@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Nightmare Sans Stage-2.png" width="1929" height="3255">
+	<SubTexture name="Normal instance 10012" x="0" y="0" width="1929" height="1085" frameX="-0" frameY="-0" frameWidth="1932" frameHeight="1088"/>
+	<SubTexture name="Normal instance 10013" x="0" y="1085" width="1929" height="1085" frameX="-0" frameY="-0" frameWidth="1932" frameHeight="1088"/>
+	<SubTexture name="sdfs instance 10000" x="0" y="2170" width="1929" height="1085" frameX="-0" frameY="-0" frameWidth="1929" frameHeight="1085"/>
+</TextureAtlas>

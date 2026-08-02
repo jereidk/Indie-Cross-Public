@@ -834,7 +834,7 @@ class PlayState extends MusicBeatState
 						var beatDropbg:FlxSprite = new FlxSprite(-100, 300);
 						var bg:FlxSprite = new FlxSprite(-600, -160);
 
-						bg.frames = Paths.getSparrowAtlas('Nightmare Sans Stage', 'sans');
+						bg.frames = Paths.getMultiSparrowAtlas(['Nightmare Sans Stage-0', 'Nightmare Sans Stage-1', 'Nightmare Sans Stage-2'], 'sans') /* was 8192x8192 as one atlas */;
 						bg.animation.addByIndices('normal', 'Normal instance 1', [0], '', 24, false);
 						bg.animation.addByPrefix('beatdrop', 'Normal instance 1', 24, true);
 						bg.animation.addByPrefix('beatDropFinish', 'sdfs instance 1', 24, false);
@@ -844,7 +844,7 @@ class PlayState extends MusicBeatState
 
 						add(bg);
 
-						beatDropbg.frames = Paths.getSparrowAtlas('Nightmare Sans Stage', 'sans');
+						beatDropbg.frames = Paths.getMultiSparrowAtlas(['Nightmare Sans Stage-0', 'Nightmare Sans Stage-1', 'Nightmare Sans Stage-2'], 'sans') /* was 8192x8192 as one atlas */;
 						beatDropbg.animation.addByPrefix('beatHit', 'dd instance 1', 32, false);
 						beatDropbg.scrollFactor.set(0, 0);
 						beatDropbg.blend = BlendMode.ADD;
@@ -2376,7 +2376,14 @@ class PlayState extends MusicBeatState
 						if (SONG.song.toLowerCase() == 'satanic-funkin')
 						{
 							devilIntroSpr = new FlxSprite(-322, -283);
-							devilIntroSpr.frames = Paths.getSparrowAtlas('characters/Devil_Intro', 'shared');
+							// Split across 5 pieces (Devil_Intro-0..4), was 8192x8192 as one atlas.
+							devilIntroSpr.frames = Paths.getMultiSparrowAtlas([
+								'characters/Devil_Intro-0',
+								'characters/Devil_Intro-1',
+								'characters/Devil_Intro-2',
+								'characters/Devil_Intro-3',
+								'characters/Devil_Intro-4'
+							], 'shared');
 							devilIntroSpr.animation.addByPrefix('start', "Intro instance 1", 24, false);
 							devilIntroSpr.updateHitbox();
 							devilIntroSpr.antialiasing = FlxG.save.data.highquality;

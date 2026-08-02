@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="DeathSans002-0.png" width="3641" height="3564">
+	<SubTexture name="Leftt instance 10000" x="1988" y="693" width="735" height="694" frameX="-111" frameY="-150" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10001" x="2723" y="693" width="716" height="695" frameX="-35" frameY="-149" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10002" x="1353" y="0" width="697" height="693" frameX="-128" frameY="-149" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10003" x="2050" y="0" width="697" height="693" frameX="-0" frameY="-149" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10004" x="2747" y="0" width="697" height="693" frameX="-130" frameY="-149" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10005" x="594" y="692" width="697" height="693" frameX="-110" frameY="-149" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10006" x="1291" y="693" width="697" height="693" frameX="-138" frameY="-149" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10007" x="1291" y="693" width="697" height="693" frameX="-116" frameY="-149" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10008" x="0" y="2059" width="549" height="709" frameX="-117" frameY="-133" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10009" x="1248" y="2805" width="621" height="734" frameX="-118" frameY="-108" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10011" x="2405" y="2094" width="633" height="727" frameX="-116" frameY="-115" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10015" x="1184" y="1386" width="739" height="696" frameX="-116" frameY="-146" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10016" x="3038" y="2094" width="603" height="735" frameX="-117" frameY="-107" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10023" x="0" y="0" width="657" height="669" frameX="-116" frameY="-173" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10024" x="657" y="0" width="696" height="692" frameX="-117" frameY="-150" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10025" x="1169" y="2082" width="548" height="709" frameX="-118" frameY="-133" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10026" x="1869" y="2821" width="622" height="734" frameX="-117" frameY="-108" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10028" x="0" y="2788" width="632" height="727" frameX="-117" frameY="-115" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10032" x="1923" y="1387" width="738" height="696" frameX="-117" frameY="-146" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Leftt instance 10033" x="2491" y="2829" width="602" height="735" frameX="-118" frameY="-107" frameWidth="855" frameHeight="848"/>
+	<SubTexture name="Rightt instance 10009" x="0" y="669" width="594" height="695" frameX="-142" frameY="-140" frameWidth="805" frameHeight="841"/>
+	<SubTexture name="Rightt instance 10011" x="0" y="1364" width="593" height="695" frameX="-124" frameY="-140" frameWidth="805" frameHeight="841"/>
+	<SubTexture name="Rightt instance 10012" x="2661" y="1388" width="623" height="706" frameX="-92" frameY="-129" frameWidth="805" frameHeight="841"/>
+	<SubTexture name="Rightt instance 10019" x="632" y="2791" width="616" height="728" frameX="-96" frameY="-108" frameWidth="805" frameHeight="841"/>
+	<SubTexture name="Rightt instance 10023" x="1717" y="2083" width="688" height="722" frameX="-24" frameY="-114" frameWidth="805" frameHeight="841"/>
+	<SubTexture name="Rightt instance 10028" x="593" y="1385" width="591" height="696" frameX="-124" frameY="-140" frameWidth="805" frameHeight="841"/>
+	<SubTexture name="Rightt instance 10029" x="549" y="2081" width="620" height="707" frameX="-92" frameY="-129" frameWidth="805" frameHeight="841"/>
+</TextureAtlas>

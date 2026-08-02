@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="NightmareJumpscares01-0.png" width="3452" height="3579">
+	<SubTexture name="CupScare instance 10000" x="0" y="2208" width="819" height="1371" frameX="-1044" frameY="-1236" frameWidth="2341" frameHeight="2613"/>
+	<SubTexture name="CupScare instance 10001" x="819" y="2208" width="841" height="1362" frameX="-1024" frameY="-852" frameWidth="2341" frameHeight="2613"/>
+	<SubTexture name="CupScare instance 10002" x="1660" y="2230" width="854" height="1347" frameX="-1038" frameY="-446" frameWidth="2341" frameHeight="2613"/>
+	<SubTexture name="CupScare instance 10015" x="2221" y="1170" width="1180" height="1060" frameX="-761" frameY="-536" frameWidth="2341" frameHeight="2613"/>
+	<SubTexture name="CupScare instance 10018" x="2514" y="2230" width="938" height="1103" frameX="-1017" frameY="-493" frameWidth="2341" frameHeight="2613"/>
+	<SubTexture name="CupScare instance 10019" x="2221" y="0" width="1202" height="1170" frameX="-691" frameY="-475" frameWidth="2341" frameHeight="2613"/>
+	<SubTexture name="CupScare instance 10022" x="0" y="0" width="2221" height="2208" frameX="-62" frameY="-60" frameWidth="2341" frameHeight="2613"/>
+</TextureAtlas>

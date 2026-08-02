@@ -255,7 +255,12 @@ class ChartingState extends MusicBeatState
 		add(bendy);
 
 		cuphead = new FlxSprite(-900, -800);
-		cuphead.frames = Paths.getSparrowAtlas('bonusSongs/NightmareJumpscares01', 'shared');
+		// Split across 3 pieces (NightmareJumpscares01-0..2), was 8192x7165 as one atlas.
+		cuphead.frames = Paths.getMultiSparrowAtlas([
+			'bonusSongs/NightmareJumpscares01-0',
+			'bonusSongs/NightmareJumpscares01-1',
+			'bonusSongs/NightmareJumpscares01-2'
+		], 'shared');
 		cuphead.animation.addByPrefix('play', 'CupScare instance 1', 24, false);
 		cuphead.antialiasing = FlxG.save.data.highquality;
 		cuphead.updateHitbox();
