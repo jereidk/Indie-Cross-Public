@@ -356,8 +356,10 @@ class PlayState extends MusicBeatState
 	var bgs:Array<FlxSprite>;
 	// Nightmare-Run hallway scroll: replaces what used to be a 255-frame Sparrow
 	// "animation" (Fuck_the_hallway.xml) whose every frame samples the exact same
-	// pixel rect and only differs by its frameX trim value (-5505 down to 0,
-	// linear) -- i.e. a fake horizontal pan baked as 255 duplicate-pixel frames.
+	// pixel rect and only differs by its frameX trim value (-2753 down to 0,
+	// linear -- half of the original -5505, since the atlas was downscaled 0.5x
+	// to fit under the 4096x4096 sprite limit) -- i.e. a fake horizontal pan
+	// baked as 255 duplicate-pixel frames.
 	// Since that frameX shift is applied to the render matrix *before* the
 	// sprite's own scale is applied (FlxFrame.prepareMatrix, then
 	// matrix.scale(scale.x, scale.y) in FlxSprite.prepareComplexMatrix), moving
@@ -997,7 +999,7 @@ class PlayState extends MusicBeatState
 
 							bg.frames = Paths.getSparrowAtlas('run/' + imgName, 'bendy');
 							bg.frame = bg.frames.getByName(animName + '0000');
-							bg.setGraphicSize(Std.int(bg.width * 3));
+							bg.setGraphicSize(Std.int(bg.width * 3 * HALLWAY_ATLAS_SCALE_COMPENSATION));
 							bg.updateHitbox();
 							bg.screenCenter();
 							bg.scrollFactor.set(0.8, 0.8);
@@ -1020,7 +1022,10 @@ class PlayState extends MusicBeatState
 						darkHallway = new FlxSprite();
 						darkHallway.frames = Paths.getSparrowAtlas('run/Fuck_the_hallway', 'bendy');
 						darkHallway.frame = darkHallway.frames.getByName('Tunnel instance 10000');
-						darkHallway.setGraphicSize(Std.int(darkHallway.width * infiniteResize));
+						// infiniteResize alone would now undersize darkHallway by 2x -- see
+						// HALLWAY_ATLAS_SCALE_COMPENSATION. Applied only here, not to the shared
+						// infiniteResize var, since transition/lights use unrelated, unscaled atlases.
+						darkHallway.setGraphicSize(Std.int(darkHallway.width * infiniteResize * HALLWAY_ATLAS_SCALE_COMPENSATION));
 						darkHallway.updateHitbox();
 						darkHallway.screenCenter();
 						darkHallway.x -= 200;
@@ -10570,16 +10575,27 @@ class PlayState extends MusicBeatState
 		});
 	}
 
+	// |frameX| of Fuck_the_hallway.xml's "instance 10000" frames (was 5505 before
+	// the atlas got downscaled 0.5x to fit under the 4096x4096 sprite limit --
+	// keep this in sync with the XML's frameX if that asset is ever re-exported).
+	static inline var HALLWAY_SCROLL_RANGE:Float = 2753;
+
+	// setGraphicSize() multiplies against bg.width, which now reads the
+	// downscaled atlas's (halved) frameWidth -- without this, the hallway
+	// backgrounds would render at half their intended on-screen size. Keep in
+	// sync with the atlas's actual scale factor (currently 0.5x -> compensate 2x).
+	static inline var HALLWAY_ATLAS_SCALE_COMPENSATION:Float = 2;
+
 	/**
 	 * Reproduces the Nightmare-Run hallway "scroll" without the original
 	 * 255-frame Sparrow animation (Fuck_the_hallway.xml): every one of those
 	 * frames sampled the exact same pixel rect and only varied by its
-	 * `frameX` trim value, going from -5505 (first frame) to 0 (last frame,
-	 * where the non-looping animation then holds). FlxFrame.prepareMatrix()
-	 * bakes that trim shift into the render matrix *before*
-	 * matrix.scale(scale.x, scale.y) is applied (see FlxSprite.
+	 * `frameX` trim value, going from -HALLWAY_SCROLL_RANGE (first frame) to 0
+	 * (last frame, where the non-looping animation then holds).
+	 * FlxFrame.prepareMatrix() bakes that trim shift into the render matrix
+	 * *before* matrix.scale(scale.x, scale.y) is applied (see FlxSprite.
 	 * prepareComplexMatrix), so on screen it's equivalent to moving the whole
-	 * sprite's `.x` by the same 5505 range scaled by scale.x -- just with one
+	 * sprite's `.x` by that same range scaled by scale.x -- just with one
 	 * static frame instead of 255 duplicate-pixel ones.
 	 *
 	 * `restX` is the sprite's screenCenter()'d resting position (== frameX 0).
@@ -10590,7 +10606,7 @@ class PlayState extends MusicBeatState
 	 */
 	function playHallwayScroll(spr:FlxSprite, restX:Float, ?onDone:Void->Void, startProgress:Float = 0):Void
 	{
-		var totalDelta = 5505 * spr.scale.x;
+		var totalDelta = HALLWAY_SCROLL_RANGE * spr.scale.x;
 
 		FlxTween.cancelTweensOf(spr);
 		spr.x = restX - totalDelta * (1 - startProgress);
@@ -10619,7 +10635,7 @@ class PlayState extends MusicBeatState
 	 */
 	function hallwayScrollProgress(spr:FlxSprite, restX:Float):Float
 	{
-		var totalDelta = 5505 * spr.scale.x;
+		var totalDelta = HALLWAY_SCROLL_RANGE * spr.scale.x;
 		if (totalDelta == 0) return 1;
 		return 1 - (restX - spr.x) / totalDelta;
 	}

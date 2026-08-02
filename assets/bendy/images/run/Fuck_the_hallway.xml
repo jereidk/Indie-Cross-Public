@@ -9,15 +9,25 @@
 		6 pixel rects and only varied by a linear frameX trim value used to
 		fake a scroll -- see playHallwayScroll()/hallwayScrollProgress() in
 		PlayState.hx, which now reproduces that motion with a real position
-		tween instead of frame-swapping. Fuck_the_hallway.png was cropped
-		from 8192x8192 to 6362x4391 (the bounding box of these 6 rects, kept
-		at their original x/y so no coordinate offset was needed) since the
-		rest of the canvas held no unique pixel content either.
+		tween instead of frame-swapping.
+
+		Fuck_the_hallway.png went through two passes:
+		 1) cropped from 8192x8192 to 6362x4391, the bounding box of these 6
+		    rects at their original x/y (no coordinate offset needed) -- the
+		    rest of the canvas held no unique pixel content either.
+		 2) downscaled 0.5x to 3181x2196 to get under the 4096x4096 sprite
+		    size limit (each individual frame was 6341-6342px wide on its
+		    own, so no repacking/multi-atlas could have gotten under 4096
+		    without this). Every numeric attribute below (x/y/width/height/
+		    frameX/frameY/frameWidth/frameHeight) is scaled 0.5x and rounded
+		    to match -- the frameX magnitude (2753) must stay in sync with
+		    the matching constant in PlayState.hx's playHallwayScroll()/
+		    hallwayScrollProgress() if this ever gets re-exported.
 	-->
-	<SubTexture name="Loop01 instance 10000" x="10" y="10" width="6341" height="720" frameX="-5505" frameY="0" frameWidth="11846" frameHeight="720"/>
-	<SubTexture name="Loop02 instance 10000" x="10" y="740" width="6341" height="720" frameX="-5505" frameY="0" frameWidth="11846" frameHeight="720"/>
-	<SubTexture name="Loop03 instance 10000" x="10" y="2200" width="6342" height="720" frameX="-5505" frameY="0" frameWidth="11846" frameHeight="720"/>
-	<SubTexture name="Loop04 instance 10000" x="10" y="1470" width="6341" height="720" frameX="-5505" frameY="0" frameWidth="11846" frameHeight="720"/>
-	<SubTexture name="Loop05 instance 10000" x="10" y="2930" width="6341" height="720" frameX="-5505" frameY="0" frameWidth="11846" frameHeight="720"/>
-	<SubTexture name="Tunnel instance 10000" x="10" y="3660" width="6341" height="721" frameX="-5505" frameY="0" frameWidth="11846" frameHeight="721"/>
+	<SubTexture name="Loop01 instance 10000" x="5" y="5" width="3171" height="360" frameX="-2753" frameY="0" frameWidth="5923" frameHeight="360"/>
+	<SubTexture name="Loop02 instance 10000" x="5" y="370" width="3171" height="360" frameX="-2753" frameY="0" frameWidth="5923" frameHeight="360"/>
+	<SubTexture name="Loop03 instance 10000" x="5" y="1100" width="3171" height="360" frameX="-2753" frameY="0" frameWidth="5923" frameHeight="360"/>
+	<SubTexture name="Loop04 instance 10000" x="5" y="735" width="3171" height="360" frameX="-2753" frameY="0" frameWidth="5923" frameHeight="360"/>
+	<SubTexture name="Loop05 instance 10000" x="5" y="1465" width="3171" height="360" frameX="-2753" frameY="0" frameWidth="5923" frameHeight="360"/>
+	<SubTexture name="Tunnel instance 10000" x="5" y="1830" width="3171" height="361" frameX="-2753" frameY="0" frameWidth="5923" frameHeight="361"/>
 </TextureAtlas>
