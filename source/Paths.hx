@@ -318,6 +318,23 @@ class Paths
 	inline static public function getSparrowAtlas(key:String, ?library:String):FlxAtlasFrames
 		return FlxAtlasFrames.fromSparrow(image(key, library, true), file('images/$key.xml', library));
 
+	/**
+	 * Merges several Sparrow atlases (same convention as getSparrowAtlas -- one
+	 * `key` per XML/PNG pair) into a single FlxAtlasFrames, for sprites whose
+	 * full frame set got split across multiple pieces to stay under a texture
+	 * size limit. Animation names can keep sharing a prefix across pieces (e.g.
+	 * "Up instance 10000" in one piece, "Up instance 10001" in another) --
+	 * animation.addByPrefix() finds all of them once merged, regardless of
+	 * which piece they actually came from.
+	 */
+	static public function getMultiSparrowAtlas(keys:Array<String>, ?library:String):FlxAtlasFrames
+	{
+		var frames = getSparrowAtlas(keys[0], library);
+		for (i in 1...keys.length)
+			frames.addAtlas(getSparrowAtlas(keys[i], library));
+		return frames;
+	}
+
 	inline static public function getPackerAtlas(key:String, ?library:String)
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library, true), file('images/$key.txt', library));
 

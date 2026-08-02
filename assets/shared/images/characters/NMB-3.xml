@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="NMB-3.png" width="3284" height="1335">
+	<SubTexture name="FUCK YOU instance 10001" x="2358" y="0" width="926" height="661" frameX="-152" frameY="-13" frameWidth="1082" frameHeight="683"/>
+	<SubTexture name="FUCK YOU instance 10003" x="1502" y="657" width="798" height="670" frameX="-160" frameY="-4" frameWidth="1082" frameHeight="683"/>
+	<SubTexture name="FUCK YOU instance 10005" x="2300" y="661" width="774" height="674" frameX="-88" frameY="-0" frameWidth="1082" frameHeight="683"/>
+	<SubTexture name="FUCK YOU instance 10007" x="1560" y="0" width="798" height="657" frameX="-87" frameY="-17" frameWidth="1082" frameHeight="683"/>
+	<SubTexture name="Left instance 10008" x="745" y="0" width="815" height="656" frameX="-114" frameY="-0" frameWidth="1087" frameHeight="662"/>
+	<SubTexture name="Up instance 10001" x="771" y="656" width="731" height="667" rotated="true" frameX="-26" frameY="-58" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10004" x="0" y="656" width="771" height="662" rotated="true" frameX="-20" frameY="-18" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10009" x="0" y="0" width="745" height="653" rotated="true" frameX="-29" frameY="-44" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10011" x="0" y="656" width="771" height="662" rotated="true" frameX="-20" frameY="-18" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10016" x="0" y="0" width="745" height="653" rotated="true" frameX="-29" frameY="-44" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10018" x="0" y="656" width="771" height="662" rotated="true" frameX="-20" frameY="-18" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10023" x="0" y="0" width="745" height="653" rotated="true" frameX="-29" frameY="-44" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10025" x="0" y="656" width="771" height="662" rotated="true" frameX="-20" frameY="-18" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10030" x="0" y="0" width="745" height="653" rotated="true" frameX="-29" frameY="-44" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10032" x="0" y="656" width="771" height="662" rotated="true" frameX="-20" frameY="-18" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10037" x="0" y="0" width="745" height="653" rotated="true" frameX="-29" frameY="-44" frameWidth="697" frameHeight="813"/>
+	<SubTexture name="Up instance 10039" x="0" y="656" width="771" height="662" rotated="true" frameX="-20" frameY="-18" frameWidth="697" frameHeight="813"/>
+</TextureAtlas>

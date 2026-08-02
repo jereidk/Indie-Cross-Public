@@ -210,7 +210,12 @@ class Character extends FlxSprite
 
 				setZoom(2.4);
 			case 'bendyNightmare':
-				frames = Paths.getSparrowAtlas('characters/NMB', 'shared');
+				// Split across 4 pieces (NMB-0..NMB-3) since the full frame set no
+				// longer fits under the 4096x4096 sprite limit as one atlas -- see
+				// Paths.getMultiSparrowAtlas(). Animation prefixes below (e.g. "Up
+				// instance") are unaffected: their frames are just spread across
+				// more than one of the 4 pieces now.
+				frames = Paths.getMultiSparrowAtlas(['characters/NMB-0', 'characters/NMB-1', 'characters/NMB-2', 'characters/NMB-3'], 'shared');
 				animation.addByPrefix('idle', 'DeathBendy instance 1', 25, true);
 				animation.addByPrefix('singUP', 'Up instance 1', 25, false);
 				animation.addByPrefix('singRIGHT', 'FUCK YOU instance 1', 25, false);
