@@ -214,8 +214,14 @@ class Note extends FlxSprite
 					animation.addByPrefix(typeDirName[0][i] + 'hold', typeDirName[t][i] + ' hold');
 					animation.addByPrefix(typeDirName[0][i] + 'holdend', typeDirName[t][i] + ' tail');
 				case 'no':
-					animation.addByPrefix(typeDirName[0][i] + 'hold', typeDirName[t][i] + ' alone');
-					animation.addByPrefix(typeDirName[0][i] + 'holdend', typeDirName[t][i] + ' alone');
+					// Types 9/10 (tunnel death/ink notes) have no " alone" suffix on
+					// their frame names -- the Scroll case above already knows this
+					// (case 9 | 10 uses typeDirName[t][i] with no suffix at all), but
+					// this switch didn't, so it kept requesting e.g. "left alone"
+					// for type 10 when the atlas only has a frame named "left".
+					var aloneSuffix:String = (t == 9 || t == 10) ? '' : ' alone';
+					animation.addByPrefix(typeDirName[0][i] + 'hold', typeDirName[t][i] + aloneSuffix);
+					animation.addByPrefix(typeDirName[0][i] + 'holdend', typeDirName[t][i] + aloneSuffix);
 				case 'shared':
 					animation.addByPrefix(typeDirName[0][i] + 'hold', typeDirName[t][0] + ' hold');
 					animation.addByPrefix(typeDirName[0][i] + 'holdend', typeDirName[t][0] + ' tail');
