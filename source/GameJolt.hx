@@ -797,20 +797,33 @@ class Toast extends Sprite
 
 		if (iconPath != null)
 		{
-			icon = new Bitmap(openfl.utils.Assets.getBitmapData(iconPath));
-			trace("BITMAP DATA: " + openfl.utils.Assets.getBitmapData(iconPath));
-			icon.x = 10;
-			icon.y = 10;
+			var iconData = openfl.utils.Assets.getBitmapData(iconPath);
+			trace("BITMAP DATA: " + iconData);
 
-			if (titleText == 'Saness')
+			// getBitmapData() returns null (after logging its own "no IMAGE
+			// asset" error) for a path with no matching file -- e.g. the
+			// "What Is Blood?" achievement's "g5" icon, which was never
+			// actually shipped (see its "DO NOT USE THIS ONE YET" comment in
+			// Achievements.hx). Sizing a Bitmap built from a null BitmapData
+			// reads that null's own width/height internally and crashes;
+			// skip the icon entirely instead so a missing/incomplete
+			// achievement icon just shows a toast with no icon, not a crash.
+			if (iconData != null)
 			{
-				icon.width = 118;
+				icon = new Bitmap(iconData);
+				icon.x = 10;
+				icon.y = 10;
+
+				if (titleText == 'Saness')
+				{
+					icon.width = 118;
+				}
+				else
+				{
+					icon.width = 100;
+				}
+				icon.height = 100;
 			}
-			else
-			{
-				icon.width = 100;
-			}
-			icon.height = 100;
 		}
 
 		title = new TextField();
@@ -856,7 +869,7 @@ class Toast extends Sprite
 		}
 
 		addChild(back);
-		if (iconPath != null)
+		if (icon != null)
 		{
 			addChild(icon);
 		}
