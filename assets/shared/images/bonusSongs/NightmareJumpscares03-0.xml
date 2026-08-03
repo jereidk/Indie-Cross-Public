@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="NightmareJumpscares03-0.png" width="3377" height="4079">
+	<SubTexture name="Emmi instance 10000" x="0" y="3267" width="851" height="533" frameX="-875" frameY="-1429" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10001" x="1470" y="3260" width="668" height="708" frameX="-873" frameY="-1149" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10002" x="2700" y="3260" width="562" height="769" frameX="-871" frameY="-1082" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10003" x="2138" y="3260" width="562" height="780" frameX="-867" frameY="-1069" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10004" x="2842" y="1830" width="535" height="788" frameX="-863" frameY="-1070" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10005" x="851" y="3267" width="557" height="812" frameX="-1050" frameY="-1192" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10007" x="1653" y="953" width="1468" height="877" frameX="-191" frameY="-1140" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10012" x="1653" y="0" width="1719" height="953" frameX="-0" frameY="-929" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10014" x="1470" y="1887" width="1372" height="1373" frameX="-347" frameY="-870" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10015" x="0" y="1887" width="1470" height="1380" frameX="-245" frameY="-502" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10016" x="0" y="0" width="1653" height="1887" frameX="-56" frameY="-2" frameWidth="1738" frameHeight="2382"/>
+</TextureAtlas>

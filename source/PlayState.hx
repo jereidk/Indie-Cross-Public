@@ -1891,7 +1891,7 @@ class PlayState extends MusicBeatState
 
 						if (SONG.song.toLowerCase() == 'ritual')
 						{
-							sammyAxe.frames = Paths.getSparrowAtlas('characters/SammyRemastered', 'shared');
+							sammyAxe.frames = Paths.getMultiSparrowAtlas(['characters/SammyRemastered-0', 'characters/SammyRemastered-1', 'characters/SammyRemastered-2'], 'shared');
 							sammyAxe.animation.addByPrefix('throw', 'Axe attack instance 1', 24, false);
 							sammyAxe.alpha = 0.00001;
 							sammyAxe.antialiasing = FlxG.save.data.highquality;
@@ -2098,7 +2098,6 @@ class PlayState extends MusicBeatState
 						for (i in 0...4)
 						{
 							var cutout:FlxSprite = new FlxSprite();
-							var imgName:String = 'BendyCutouts';
 							var animName:String = '';
 							switch (i)
 							{
@@ -2112,7 +2111,8 @@ class PlayState extends MusicBeatState
 									animName = '04 instance 1';
 							}
 
-							cutout.frames = Paths.getSparrowAtlas('Cutouts/' + imgName, 'bendy');
+							// Split across 2 pieces (BendyCutouts-0..1), was 8056x5408 as one atlas.
+							cutout.frames = Paths.getMultiSparrowAtlas(['Cutouts/BendyCutouts-0', 'Cutouts/BendyCutouts-1'], 'bendy');
 							cutout.animation.addByPrefix('bruh', animName, 24, false);
 							cutout.setGraphicSize(Std.int(FlxG.width * 1 / 2));
 							cutout.updateHitbox();
@@ -2222,7 +2222,7 @@ class PlayState extends MusicBeatState
 						if (SONG.song.toLowerCase() == 'despair')
 						{
 							bendy = new FlxSprite(-410, -980);
-							bendy.frames = Paths.getSparrowAtlas('bonusSongs/NightmareJumpscares03', 'shared');
+							bendy.frames = Paths.getMultiSparrowAtlas(['bonusSongs/NightmareJumpscares03-0', 'bonusSongs/NightmareJumpscares03-1'], 'shared');
 							bendy.animation.addByPrefix('play', 'Emmi instance 1', 24, false);
 							bendy.antialiasing = FlxG.save.data.highquality;
 							bendy.setGraphicSize(FlxG.width);

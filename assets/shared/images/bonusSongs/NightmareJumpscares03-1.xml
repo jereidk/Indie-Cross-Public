@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="NightmareJumpscares03-1.png" width="3151" height="3196">
+	<SubTexture name="Emmi instance 10006" x="1421" y="2132" width="1391" height="1064" frameX="-233" frameY="-1306" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10008" x="1647" y="0" width="1504" height="1052" frameX="-215" frameY="-830" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10009" x="0" y="976" width="1482" height="1057" frameX="-239" frameY="-805" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10010" x="1482" y="1052" width="1449" height="1080" frameX="-249" frameY="-751" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10011" x="0" y="2033" width="1421" height="1086" frameX="-295" frameY="-796" frameWidth="1738" frameHeight="2382"/>
+	<SubTexture name="Emmi instance 10013" x="0" y="0" width="1647" height="976" frameX="-72" frameY="-929" frameWidth="1738" frameHeight="2382"/>
+</TextureAtlas>

@@ -65,7 +65,8 @@ class Character extends FlxSprite
 				playAnim('idle');
 
 			case 'cupheadNightmare':
-				frames = Paths.getSparrowAtlas('characters/Nightmare_Cuphead', 'shared');
+				// Split across 3 pieces (Nightmare_Cuphead-0..2), was 8192x4908 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Nightmare_Cuphead-0', 'characters/Nightmare_Cuphead-1', 'characters/Nightmare_Cuphead-2'], 'shared');
 				animation.addByPrefix('idle', 'Idle instance 1', 24, true);
 				animation.addByPrefix('singUP', 'Up instance 1', 24);
 				animation.addByPrefix('singRIGHT', 'Right instance 1', 24);
@@ -164,7 +165,8 @@ class Character extends FlxSprite
 				playAnim('idle');
 
 			case 'sammy':
-				frames = Paths.getSparrowAtlas('characters/SammyRemastered', 'shared');
+				// Split across 3 pieces (SammyRemastered-0..2), was 8192x5546 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/SammyRemastered-0', 'characters/SammyRemastered-1', 'characters/SammyRemastered-2'], 'shared');
 				animation.addByPrefix('idle', 'Sammy Idle instance 1', 24, false);
 				animation.addByPrefix('singUP', 'Up instance 1', 24);
 				animation.addByPrefix('singRIGHT', 'Right instance 1', 24);
@@ -842,7 +844,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'bf-bendo':
-				frames = Paths.getSparrowAtlas('characters/BoyFriend_BendyShade', 'shared');
+				// Split across 2 pieces (BoyFriend_BendyShade-0..1), was 8192x4361 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BoyFriend_BendyShade-0', 'characters/BoyFriend_BendyShade-1'], 'shared');
 
 				animation.addByPrefix('idle', 'BF idle dance instance 1', 24, false);
 				animation.addByPrefix('idleA', 'BFA idle dance  instance 1', 24, false);

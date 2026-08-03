@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="NightmareJumpscares02-1.png" width="3542" height="3129">
+	<SubTexture name="Wussup Bitch instance 10000" x="2655" y="1554" width="791" height="1575" frameX="-434" frameY="-132" frameWidth="1751" frameHeight="1707"/>
+	<SubTexture name="Wussup Bitch instance 10002" x="1864" y="0" width="790" height="1552" frameX="-435" frameY="-132" frameWidth="1751" frameHeight="1707"/>
+	<SubTexture name="Wussup Bitch instance 10007" x="992" y="0" width="872" height="1524" frameX="-432" frameY="-136" frameWidth="1751" frameHeight="1707"/>
+	<SubTexture name="Wussup Bitch instance 10008" x="2654" y="0" width="888" height="1554" frameX="-431" frameY="-100" frameWidth="1751" frameHeight="1707"/>
+	<SubTexture name="Wussup Bitch instance 10013" x="0" y="0" width="992" height="1507" frameX="-428" frameY="-139" frameWidth="1751" frameHeight="1707"/>
+	<SubTexture name="Wussup Bitch instance 10014" x="0" y="1507" width="980" height="1554" frameX="-427" frameY="-91" frameWidth="1751" frameHeight="1707"/>
+	<SubTexture name="Wussup Bitch instance 10016" x="1856" y="1554" width="799" height="1570" frameX="-420" frameY="-79" frameWidth="1751" frameHeight="1707"/>
+	<SubTexture name="Wussup Bitch instance 10019" x="980" y="1524" width="876" height="1566" frameX="-459" frameY="-112" frameWidth="1751" frameHeight="1707"/>
+</TextureAtlas>

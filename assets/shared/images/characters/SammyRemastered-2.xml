@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="SammyRemastered-2.png" width="3666" height="3109">
+	<SubTexture name="End02 instance 10002" x="3139" y="572" width="289" height="578" frameX="-151" frameY="-13" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10003" x="3139" y="572" width="289" height="578" frameX="-151" frameY="-13" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10010" x="1433" y="571" width="241" height="574" frameX="-148" frameY="-16" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10011" x="3380" y="1161" width="241" height="590" frameX="-148" frameY="-0" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10012" x="3428" y="572" width="238" height="589" frameX="-148" frameY="-1" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10015" x="3044" y="0" width="238" height="572" frameX="-148" frameY="-18" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10026" x="2355" y="571" width="339" height="575" frameX="-47" frameY="-19" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10027" x="0" y="1722" width="354" height="586" frameX="-32" frameY="-19" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10028" x="0" y="1143" width="361" height="579" frameX="-25" frameY="-19" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10029" x="1674" y="571" width="365" height="574" frameX="-21" frameY="-19" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10035" x="993" y="571" width="440" height="573" frameX="-9" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10036" x="361" y="1143" width="444" height="579" frameX="-5" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10037" x="2694" y="572" width="445" height="575" frameX="-4" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10038" x="805" y="1144" width="443" height="580" frameX="-3" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10039" x="1248" y="1145" width="445" height="580" frameX="-1" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10040" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10041" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10042" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10045" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10046" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10047" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10048" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10049" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10050" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10051" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10052" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10055" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10056" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10057" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10058" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10059" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10060" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10061" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10062" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10065" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10066" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10067" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10068" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10069" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10070" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10071" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10074" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10075" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10076" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10077" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10078" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10079" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10080" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10081" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10084" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10085" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10086" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10087" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10088" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10089" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10090" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10091" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10094" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10095" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10096" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10097" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10098" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10099" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10100" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10101" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10104" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10105" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10106" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10107" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10108" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10109" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10110" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10111" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10114" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10115" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10116" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10117" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10118" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10119" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10120" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10121" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10124" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10125" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10126" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10127" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10128" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10129" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10130" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10133" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10134" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10135" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10136" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10137" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10138" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10139" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10140" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10143" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10144" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10145" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10146" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10147" x="2142" y="1146" width="446" height="581" frameX="-0" frameY="-26" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10148" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10149" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10150" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10151" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10152" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10153" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10154" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10155" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="End02 instance 10156" x="1693" y="1145" width="449" height="580" frameX="-0" frameY="-27" frameWidth="557" frameHeight="607"/>
+	<SubTexture name="Intro instance 10004" x="0" y="0" width="287" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10005" x="287" y="0" width="301" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10006" x="287" y="0" width="301" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10007" x="588" y="0" width="287" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10008" x="588" y="0" width="287" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10009" x="875" y="0" width="301" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10010" x="875" y="0" width="301" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10011" x="1176" y="0" width="299" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10014" x="1475" y="0" width="300" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10015" x="1475" y="0" width="300" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10016" x="1775" y="0" width="293" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10017" x="1775" y="0" width="293" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10018" x="1775" y="0" width="293" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10019" x="1775" y="0" width="293" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10020" x="1775" y="0" width="293" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10021" x="1775" y="0" width="293" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10026" x="0" y="0" width="287" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10027" x="287" y="0" width="301" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10028" x="287" y="0" width="301" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10029" x="588" y="0" width="287" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10030" x="588" y="0" width="287" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10031" x="875" y="0" width="301" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10032" x="875" y="0" width="301" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10033" x="1176" y="0" width="299" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10036" x="1475" y="0" width="300" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10037" x="1475" y="0" width="300" height="571" frameX="-544" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10146" x="2039" y="571" width="316" height="574" frameX="-522" frameY="-92" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10147" x="2068" y="0" width="316" height="571" frameX="-522" frameY="-95" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10148" x="698" y="1724" width="343" height="589" frameX="-495" frameY="-77" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10149" x="354" y="1722" width="344" height="587" frameX="-494" frameY="-79" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10150" x="2588" y="1150" width="792" height="580" frameX="-99" frameY="-173" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10151" x="435" y="2318" width="904" height="696" frameX="-43" frameY="-115" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Intro instance 10152" x="1339" y="2320" width="946" height="789" frameX="-22" frameY="-69" frameWidth="994" frameHeight="868"/>
+	<SubTexture name="Sammy Idle instance 10003" x="2384" y="0" width="329" height="571" frameX="-0" frameY="-2" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10004" x="2384" y="0" width="329" height="571" frameX="-0" frameY="-2" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10005" x="2384" y="0" width="329" height="571" frameX="-0" frameY="-2" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10006" x="2713" y="0" width="331" height="571" frameX="-3" frameY="-2" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10007" x="2713" y="0" width="331" height="571" frameX="-3" frameY="-2" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10008" x="2713" y="0" width="331" height="571" frameX="-3" frameY="-2" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10009" x="3282" y="0" width="332" height="572" frameX="-5" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10010" x="3282" y="0" width="332" height="572" frameX="-5" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10011" x="3282" y="0" width="332" height="572" frameX="-5" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10012" x="3282" y="0" width="332" height="572" frameX="-5" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10013" x="0" y="571" width="331" height="572" frameX="-6" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10014" x="0" y="571" width="331" height="572" frameX="-6" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10015" x="0" y="571" width="331" height="572" frameX="-6" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10016" x="0" y="571" width="331" height="572" frameX="-6" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10017" x="331" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10018" x="331" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10019" x="331" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10020" x="331" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10021" x="662" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10022" x="662" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10023" x="662" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10024" x="662" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10025" x="662" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10026" x="662" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Sammy Idle instance 10027" x="662" y="571" width="331" height="572" frameX="-7" frameY="-1" frameWidth="338" frameHeight="573"/>
+	<SubTexture name="Up instance 10000" x="3290" y="1751" width="374" height="606" frameX="-57" frameY="-0" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10001" x="3290" y="1751" width="374" height="606" frameX="-57" frameY="-0" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10002" x="0" y="2309" width="435" height="596" frameX="-12" frameY="-10" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10003" x="0" y="2309" width="435" height="596" frameX="-12" frameY="-10" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10004" x="2844" y="1730" width="446" height="594" frameX="-4" frameY="-11" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10005" x="2844" y="1730" width="446" height="594" frameX="-4" frameY="-11" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10006" x="2844" y="1730" width="446" height="594" frameX="-4" frameY="-11" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10007" x="1041" y="1725" width="449" height="593" frameX="-2" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10008" x="1041" y="1725" width="449" height="593" frameX="-2" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10009" x="1041" y="1725" width="449" height="593" frameX="-2" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10010" x="1490" y="1725" width="450" height="593" frameX="-1" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10011" x="1490" y="1725" width="450" height="593" frameX="-1" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10012" x="1490" y="1725" width="450" height="593" frameX="-1" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10013" x="1490" y="1725" width="450" height="593" frameX="-1" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10014" x="1940" y="1727" width="452" height="593" frameX="-0" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10015" x="1940" y="1727" width="452" height="593" frameX="-0" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10016" x="1940" y="1727" width="452" height="593" frameX="-0" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10017" x="1940" y="1727" width="452" height="593" frameX="-0" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10018" x="1940" y="1727" width="452" height="593" frameX="-0" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10019" x="2392" y="1730" width="452" height="593" frameX="-0" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10020" x="2392" y="1730" width="452" height="593" frameX="-0" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10021" x="2392" y="1730" width="452" height="593" frameX="-0" frameY="-12" frameWidth="452" frameHeight="606"/>
+	<SubTexture name="Up instance 10022" x="2392" y="1730" width="452" height="593" frameX="-0" frameY="-12" frameWidth="452" frameHeight="606"/>
+</TextureAtlas>

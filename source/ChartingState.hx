@@ -246,7 +246,8 @@ class ChartingState extends MusicBeatState
 		add(snapText);
 
 		bendy = new FlxSprite(-410, -980);
-		bendy.frames = Paths.getSparrowAtlas('bonusSongs/NightmareJumpscares03', 'shared');
+		// Split across 2 pieces (NightmareJumpscares03-0..1), was 8192x4178 as one atlas.
+		bendy.frames = Paths.getMultiSparrowAtlas(['bonusSongs/NightmareJumpscares03-0', 'bonusSongs/NightmareJumpscares03-1'], 'shared');
 		bendy.animation.addByPrefix('play', 'Emmi instance 1', 24, false);
 		bendy.antialiasing = FlxG.save.data.highquality;
 		bendy.updateHitbox();
@@ -269,7 +270,8 @@ class ChartingState extends MusicBeatState
 		add(cuphead);
 
 		sans = new FlxSprite(-210, -630);
-		sans.frames = Paths.getSparrowAtlas('bonusSongs/NightmareJumpscares02', 'shared');
+		// Split across 3 pieces (NightmareJumpscares02-0..2), was 8192x4920 as one atlas.
+		sans.frames = Paths.getMultiSparrowAtlas(['bonusSongs/NightmareJumpscares02-0', 'bonusSongs/NightmareJumpscares02-1', 'bonusSongs/NightmareJumpscares02-2'], 'shared');
 		sans.animation.addByPrefix('play', 'Wussup Bitch instance 1', 24, false);
 		sans.antialiasing = FlxG.save.data.highquality;
 		sans.updateHitbox();
