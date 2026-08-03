@@ -1464,6 +1464,18 @@ class Character extends FlxSprite
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0, playafterfin:Bool = false,
 			whatanimtoplay:String = ''):Void
 	{
+		// On a character's very first construction, the atlas its `frames` was
+		// just set from can occasionally not be fully ready yet (seen with
+		// getMultiSparrowAtlas-based characters as well as plain single-atlas
+		// ones), so addByPrefix('idle', ...) a few lines up silently added zero
+		// frames. Every later construction of the same character re-parses the
+		// atlas fine. Flixel's own animation.play() already no-ops when the
+		// name doesn't exist (just logs "No animation called ..."), so skipping
+		// here changes nothing visible -- it only keeps that self-healing,
+		// first-load-only miss from spamming the log.
+		if (animation.getByName(AnimName) == null)
+			return;
+
 		if (constantLooping)
 		{
 			animation.play(AnimName, Force, Reversed, this.animation.curAnim.curFrame + 1);

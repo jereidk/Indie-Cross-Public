@@ -227,7 +227,14 @@ class Note extends FlxSprite
 					animation.addByPrefix(typeDirName[0][i] + 'holdend', typeDirName[t][0] + ' tail');
 			}
 
-			if (!FlxG.save.data.mechanicsEnabled && !PlayState.inNightmareSong)
+			// Was checking FlxG.save.data.mechanicsEnabled -- a separate, legacy
+			// save flag from the PlayState.mechanicsEnabled runtime flag (derived
+			// from mechanicType) that the rest of this constructor uses. Whenever
+			// they disagreed, `frames` was already bound to a special note-type
+			// atlas (see the t == 0 || !PlayState.mechanicsEnabled check above)
+			// that has no plain "red"/"purple"/etc " alone" frames, so this always
+			// failed and spammed the log without ever changing anything.
+			if (!PlayState.mechanicsEnabled && !PlayState.inNightmareSong)
 			{
 				animation.addByPrefix(typeDirName[0][i] + 'Scroll', typeDirName[0][i] + ' alone');
 			}

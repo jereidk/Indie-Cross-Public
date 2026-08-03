@@ -118,6 +118,7 @@ class GameLogger
 			style.onLog.add(function(data:Any, ?pos:haxe.PosInfos)
 			{
 				final formatted = (pos != null) ? haxe.Log.formatOutput(data, pos) : Std.string(data);
+				if (_isBenignNoise(formatted)) return;
 				_write(stamp() + ' [FLXLOG] ' + formatted);
 			});
 		}
@@ -150,6 +151,29 @@ class GameLogger
 		if (logPath.length == 0) return;
 		_write(stamp() + ' ' + line);
 		#end
+	}
+
+	/**
+	 * A couple of Flixel-internal FLXLOG warnings are known-benign and, on a
+	 * long session, drown out everything else in game.log:
+	 *
+	 *  - "Could not parse frame number of ... in frame named ..." -- Flixel's
+	 *    Sparrow-atlas frame sorter trying (and failing) to number frames
+	 *    whose Adobe Animate export names don't end the way it expects.
+	 *    Purely cosmetic; the frames themselves load and play fine.
+	 *  - "Cannot render a destroyed graphic, the placeholder image will be
+	 *    used instead" -- a leftover sprite from the outgoing state getting
+	 *    one more render call while the next state's fade transition is
+	 *    already covering the screen. Never seen outside a transition.
+	 *
+	 * Both come from the vendored Flixel library itself (not this repo), so
+	 * they can't be fixed at the source -- filtered here instead of writing
+	 * thousands of lines that make real errors harder to spot.
+	 */
+	static function _isBenignNoise(formatted:String):Bool
+	{
+		return formatted.indexOf('Could not parse frame number') != -1
+			|| formatted.indexOf('Cannot render a destroyed graphic') != -1;
 	}
 
 	static function stamp():String
