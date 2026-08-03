@@ -419,7 +419,8 @@ class Character extends FlxSprite
 				playAnim('idle');
 
 			case 'sans':
-				frames = Paths.getSparrowAtlas('characters/Sans', 'shared');
+				// Split across 2 pieces (Sans-0..1), was 8192x3275 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Sans-0', 'characters/Sans-1'], 'shared');
 				animation.addByIndices('idleLeft', 'Sans FNF instance 1', [28, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "", 24, false);
 				animation.addByIndices('idleRight', 'Sans FNF instance 1', [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27], "", 24, false);
 				animation.addByPrefix('singUP', 'Up instance 1', 24, false);
@@ -722,7 +723,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'bfswag':
-				frames = Paths.getSparrowAtlas('characters/BoyFriend_Cuphead', 'shared');
+				// Split across 2 pieces (BoyFriend_Cuphead-0..1), was 8192x2378 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BoyFriend_Cuphead-0', 'characters/BoyFriend_Cuphead-1'], 'shared');
 				animation.addByPrefix('idle', 'BF idle dance instance 1', 24, false);
 				animation.addByPrefix('singUP', 'BF NOTE UP instance 1', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT instance 1', 24, false);
@@ -754,7 +756,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'bfda':
-				frames = Paths.getSparrowAtlas('characters/BoyFriend_DA', 'shared');
+				// Split across 2 pieces (BoyFriend_DA-0..1), was 8192x2378 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BoyFriend_DA-0', 'characters/BoyFriend_DA-1'], 'shared');
 				animation.addByPrefix('idle', 'BF idle dance instance 1', 24, false);
 				animation.addByPrefix('singUP', 'BF NOTE UP instance 1', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT instance 1', 24, false);
@@ -786,7 +789,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'rainbf':
-				frames = Paths.getSparrowAtlas('characters/BoyFriend_Rain', 'shared');
+				// Split across 2 pieces (BoyFriend_Rain-0..1), was 8192x2346 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BoyFriend_Rain-0', 'characters/BoyFriend_Rain-1'], 'shared');
 				animation.addByPrefix('idle', 'BF idle dance instance 1', 24, false);
 				animation.addByPrefix('singUP', 'BF NOTE UP instance 1', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE RIGHT instance 1', 24, false);
@@ -818,7 +822,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'bfnightmareCup':
-				frames = Paths.getSparrowAtlas('characters/BoyFriend_NM', 'shared');
+				// Split across 2 pieces (BoyFriend_NM-0..1), was 8192x2376 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BoyFriend_NM-0', 'characters/BoyFriend_NM-1'], 'shared');
 				animation.addByPrefix('idle', 'BF idle dance instance 1', 24, false);
 				animation.addByPrefix('singUP', 'BF NOTE UP instance 1', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT instance 1', 24, false);
@@ -1005,7 +1010,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'bfsanswaterfall':
-				frames = Paths.getSparrowAtlas('characters/BoyFriend_SansWT', 'shared');
+				// Split across 2 pieces (BoyFriend_SansWT-0..1), was 8192x2378 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BoyFriend_SansWT-0', 'characters/BoyFriend_SansWT-1'], 'shared');
 				animation.addByPrefix('idle', 'BF idle dance instance 1', 24, false);
 				animation.addByPrefix('singUP', 'BF NOTE UP instance 1', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT instance 1', 24, false);

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="BoyFriend_Rain-1.png" width="2523" height="537">
+	<SubTexture name="BF hit instance 10003" x="1014" y="0" width="481" height="533" frameX="-52" frameY="-0" frameWidth="561" frameHeight="547"/>
+	<SubTexture name="BF hit instance 10004" x="1495" y="0" width="510" height="534" frameX="-45" frameY="-9" frameWidth="561" frameHeight="547"/>
+	<SubTexture name="BF hit instance 10005" x="2005" y="0" width="518" height="537" frameX="-42" frameY="-9" frameWidth="561" frameHeight="547"/>
+	<SubTexture name="BF hit instance 10006" x="508" y="0" width="506" height="525" frameX="-48" frameY="-6" frameWidth="561" frameHeight="547"/>
+	<SubTexture name="BF hit instance 10007" x="0" y="0" width="508" height="523" frameX="-47" frameY="-4" frameWidth="561" frameHeight="547"/>
+</TextureAtlas>

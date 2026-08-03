@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Sans-0.png" width="3683" height="3615">
+	<SubTexture name="Down 02 instance 10000" x="0" y="0" width="491" height="477" frameX="-0" frameY="-28" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down 02 instance 10001" x="1121" y="0" width="473" height="495" frameX="-9" frameY="-10" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down 02 instance 10002" x="1121" y="0" width="473" height="495" frameX="-9" frameY="-10" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down 02 instance 10003" x="0" y="477" width="471" height="503" frameX="-11" frameY="-2" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down 02 instance 10004" x="0" y="477" width="471" height="503" frameX="-11" frameY="-2" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down 02 instance 10005" x="1982" y="499" width="468" height="505" frameX="-13" frameY="-0" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down 02 instance 10006" x="1982" y="499" width="468" height="505" frameX="-13" frameY="-0" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down 02 instance 10007" x="2450" y="499" width="526" height="505" frameX="-4" frameY="-0" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down 02 instance 10008" x="2450" y="499" width="526" height="505" frameX="-4" frameY="-0" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down instance 10000" x="0" y="0" width="491" height="477" frameX="-0" frameY="-28" frameWidth="530" frameHeight="507"/>
+	<SubTexture name="Down instance 10001" x="1121" y="0" width="473" height="495" frameX="-9" frameY="-10" frameWidth="530" frameHeight="507"/>
+	<SubTexture name="Down instance 10002" x="1121" y="0" width="473" height="495" frameX="-9" frameY="-10" frameWidth="530" frameHeight="507"/>
+	<SubTexture name="Down instance 10003" x="1511" y="497" width="471" height="504" frameX="-11" frameY="-2" frameWidth="530" frameHeight="507"/>
+	<SubTexture name="Down instance 10004" x="1511" y="497" width="471" height="504" frameX="-11" frameY="-2" frameWidth="530" frameHeight="507"/>
+	<SubTexture name="Down instance 10005" x="1982" y="499" width="468" height="505" frameX="-13" frameY="-0" frameWidth="530" frameHeight="507"/>
+	<SubTexture name="Down instance 10006" x="1982" y="499" width="468" height="505" frameX="-13" frameY="-0" frameWidth="530" frameHeight="507"/>
+	<SubTexture name="Down instance 10007" x="2976" y="499" width="525" height="505" frameX="-4" frameY="-1" frameWidth="530" frameHeight="507"/>
+	<SubTexture name="Down instance 10008" x="2976" y="499" width="525" height="505" frameX="-4" frameY="-1" frameWidth="530" frameHeight="507"/>
+	<SubTexture name="Left 02 instance 10000" x="0" y="983" width="603" height="505" frameX="-0" frameY="-16" frameWidth="603" frameHeight="521"/>
+	<SubTexture name="Left 02 instance 10009" x="2168" y="0" width="424" height="499" frameX="-60" frameY="-22" frameWidth="603" frameHeight="521"/>
+	<SubTexture name="Left 02 instance 10010" x="2168" y="0" width="424" height="499" frameX="-60" frameY="-22" frameWidth="603" frameHeight="521"/>
+	<SubTexture name="Left instance 10000" x="603" y="995" width="539" height="505" frameX="-1" frameY="-15" frameWidth="579" frameHeight="521"/>
+	<SubTexture name="Left instance 10005" x="454" y="3045" width="471" height="520" frameX="-57" frameY="-0" frameWidth="579" frameHeight="521"/>
+	<SubTexture name="Left instance 10006" x="454" y="3045" width="471" height="520" frameX="-57" frameY="-0" frameWidth="579" frameHeight="521"/>
+	<SubTexture name="Left instance 10009" x="2592" y="0" width="518" height="499" frameX="-61" frameY="-21" frameWidth="579" frameHeight="521"/>
+	<SubTexture name="Left instance 10010" x="2592" y="0" width="518" height="499" frameX="-61" frameY="-21" frameWidth="579" frameHeight="521"/>
+	<SubTexture name="Right 02 instance 10000" x="2141" y="1511" width="471" height="514" frameX="-22" frameY="-5" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10001" x="1964" y="2025" width="459" height="519" frameX="-12" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10002" x="1964" y="2025" width="459" height="519" frameX="-12" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10003" x="2423" y="2027" width="453" height="519" frameX="-7" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10004" x="2423" y="2027" width="453" height="519" frameX="-7" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10005" x="2876" y="2029" width="459" height="519" frameX="-3" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10006" x="2876" y="2029" width="459" height="519" frameX="-3" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10007" x="2876" y="2029" width="459" height="519" frameX="-3" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10008" x="0" y="2512" width="459" height="519" frameX="-2" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10009" x="0" y="2512" width="459" height="519" frameX="-2" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10010" x="0" y="2512" width="459" height="519" frameX="-2" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10011" x="1102" y="1506" width="520" height="511" frameX="-0" frameY="-8" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right 02 instance 10012" x="1102" y="1506" width="520" height="511" frameX="-0" frameY="-8" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10000" x="459" y="2526" width="472" height="519" frameX="-17" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10001" x="931" y="2535" width="459" height="519" frameX="-12" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10002" x="931" y="2535" width="459" height="519" frameX="-12" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10003" x="1390" y="2538" width="453" height="519" frameX="-6" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10004" x="1390" y="2538" width="453" height="519" frameX="-6" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10005" x="1843" y="2544" width="459" height="519" frameX="-2" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10006" x="1843" y="2544" width="459" height="519" frameX="-2" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10007" x="2302" y="2546" width="459" height="519" frameX="-1" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10008" x="2302" y="2546" width="459" height="519" frameX="-1" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10009" x="1622" y="1509" width="519" height="511" frameX="-0" frameY="-9" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10010" x="1622" y="1509" width="519" height="511" frameX="-0" frameY="-9" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10000" x="589" y="1500" width="513" height="509" frameX="-0" frameY="-11" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10001" x="589" y="1500" width="513" height="509" frameX="-0" frameY="-11" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10002" x="2612" y="1512" width="498" height="515" frameX="-6" frameY="-5" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10003" x="2612" y="1512" width="498" height="515" frameX="-6" frameY="-5" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10004" x="481" y="2009" width="496" height="517" frameX="-8" frameY="-3" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10005" x="481" y="2009" width="496" height="517" frameX="-8" frameY="-3" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10006" x="977" y="2017" width="495" height="518" frameX="-9" frameY="-2" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10007" x="977" y="2017" width="495" height="518" frameX="-9" frameY="-2" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10008" x="2761" y="2548" width="493" height="519" frameX="-10" frameY="-1" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10009" x="2761" y="2548" width="493" height="519" frameX="-10" frameY="-1" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10010" x="925" y="3057" width="493" height="519" frameX="-11" frameY="-1" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF 02 instance 10011" x="925" y="3057" width="493" height="519" frameX="-11" frameY="-1" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF instance 10003" x="2733" y="1004" width="500" height="508" frameX="-26" frameY="-13" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10004" x="2733" y="1004" width="500" height="508" frameX="-26" frameY="-13" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10005" x="1472" y="2020" width="492" height="518" frameX="-28" frameY="-3" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10006" x="1472" y="2020" width="492" height="518" frameX="-28" frameY="-3" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10013" x="1418" y="3063" width="492" height="519" frameX="-16" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10014" x="1418" y="3063" width="492" height="519" frameX="-16" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10015" x="1910" y="3065" width="492" height="519" frameX="-13" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10016" x="1910" y="3065" width="492" height="519" frameX="-13" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10017" x="2228" y="1004" width="505" height="507" frameX="-0" frameY="-13" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10018" x="2228" y="1004" width="505" height="507" frameX="-0" frameY="-13" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10019" x="3110" y="1513" width="490" height="516" frameX="-11" frameY="-5" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10020" x="3110" y="1513" width="490" height="516" frameX="-11" frameY="-5" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10021" x="2402" y="3067" width="492" height="519" frameX="-13" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10022" x="2402" y="3067" width="492" height="519" frameX="-13" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10023" x="2402" y="3067" width="492" height="519" frameX="-13" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10024" x="1418" y="3063" width="492" height="519" frameX="-16" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10025" x="1418" y="3063" width="492" height="519" frameX="-16" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10026" x="1418" y="3063" width="492" height="519" frameX="-16" frameY="-2" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="SansDodge instance 10000" x="491" y="0" width="630" height="483" frameX="-32" frameY="-59" frameWidth="662" frameHeight="616"/>
+	<SubTexture name="SansDodge instance 10002" x="0" y="1488" width="589" height="508" frameX="-29" frameY="-59" frameWidth="662" frameHeight="616"/>
+	<SubTexture name="SansDodge instance 10029" x="491" y="0" width="630" height="483" frameX="-32" frameY="-59" frameWidth="662" frameHeight="616"/>
+	<SubTexture name="Switch to UT mode instance 10000" x="2894" y="3096" width="492" height="519" frameX="-46" frameY="-1" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10001" x="2894" y="3096" width="492" height="519" frameX="-46" frameY="-1" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10002" x="0" y="1996" width="481" height="516" frameX="-51" frameY="-4" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10003" x="3110" y="0" width="451" height="499" frameX="-58" frameY="-21" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10004" x="3110" y="0" width="451" height="499" frameX="-58" frameY="-21" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10005" x="3233" y="1004" width="440" height="509" frameX="-63" frameY="-11" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10006" x="3233" y="1004" width="440" height="509" frameX="-63" frameY="-11" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10007" x="1594" y="0" width="574" height="497" frameX="-0" frameY="-23" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10008" x="1142" y="1001" width="543" height="505" frameX="-21" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10009" x="1142" y="1001" width="543" height="505" frameX="-21" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10010" x="1685" y="1004" width="543" height="505" frameX="-24" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10011" x="1685" y="1004" width="543" height="505" frameX="-24" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10012" x="1685" y="1004" width="543" height="505" frameX="-24" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10013" x="1685" y="1004" width="543" height="505" frameX="-24" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10014" x="1685" y="1004" width="543" height="505" frameX="-24" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10015" x="1685" y="1004" width="543" height="505" frameX="-24" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10016" x="1685" y="1004" width="543" height="505" frameX="-24" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Switch to UT mode instance 10017" x="1685" y="1004" width="543" height="505" frameX="-24" frameY="-15" frameWidth="574" frameHeight="520"/>
+	<SubTexture name="Up 02 instance 10007" x="471" y="483" width="520" height="500" frameX="-52" frameY="-50" frameWidth="573" frameHeight="550"/>
+	<SubTexture name="Up 02 instance 10008" x="471" y="483" width="520" height="500" frameX="-52" frameY="-50" frameWidth="573" frameHeight="550"/>
+	<SubTexture name="Up instance 10000" x="3254" y="2548" width="429" height="548" frameX="-11" frameY="-0" frameWidth="520" frameHeight="549"/>
+	<SubTexture name="Up instance 10003" x="0" y="3031" width="454" height="523" frameX="-0" frameY="-25" frameWidth="520" frameHeight="549"/>
+	<SubTexture name="Up instance 10004" x="0" y="3031" width="454" height="523" frameX="-0" frameY="-25" frameWidth="520" frameHeight="549"/>
+	<SubTexture name="Up instance 10007" x="991" y="495" width="520" height="500" frameX="-0" frameY="-49" frameWidth="520" frameHeight="549"/>
+	<SubTexture name="Up instance 10008" x="991" y="495" width="520" height="500" frameX="-0" frameY="-49" frameWidth="520" frameHeight="549"/>
+</TextureAtlas>

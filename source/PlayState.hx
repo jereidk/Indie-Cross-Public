@@ -1976,7 +1976,11 @@ class PlayState extends MusicBeatState
 							transition = new FlxSprite();
 							transition.frames = Paths.getSparrowAtlas('dark/Trans', 'bendy');
 							transition.animation.addByPrefix('bruh', 'beb instance 1', 24, false);
-							transition.setGraphicSize(Std.int(transition.width * infiniteResize));
+							// Trans.png was downscaled 0.5x to fit under 4096x4096; infiniteResize
+							// alone would now undersize this by 2x (applied only here, not to the
+							// shared infiniteResize var, since darkHallway compensates separately
+							// and the dead/commented-out 'lights' block uses an untouched atlas).
+							transition.setGraphicSize(Std.int(transition.width * infiniteResize * 2));
 							transition.updateHitbox();
 							transition.screenCenter();
 							transition.scrollFactor.set(0.8, 0.8);
