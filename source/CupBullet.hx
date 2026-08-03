@@ -48,6 +48,10 @@ class CupBullet extends FlxSprite
 				{
 					frames = Paths.getSparrowAtlas('bull/Cuphead Hadoken', 'cup');
 					animation.addByPrefix('fire', 'Hadolen instance 1', 24, false);
+					// Cuphead Hadoken.png was downscaled 0.5x to fit under 4096x4096;
+					// there's no setGraphicSize() here (just the raw updateHitbox()
+					// below), so compensate directly or this renders at half size.
+					scale.set(2, 2);
 				}
 				animation.play('fire');
 
@@ -95,6 +99,10 @@ class CupBullet extends FlxSprite
 			case 'hadokenFX':
 				frames = Paths.getSparrowAtlas('bull/Cuphead Hadoken', 'cup');
 				animation.addByPrefix('fire', 'BurstFX', 24, false);
+				// See the 'hadoken' case above: Cuphead Hadoken.png was downscaled
+				// 0.5x, and this path also relies on the raw updateHitbox() below
+				// with no setGraphicSize() to self-correct.
+				scale.set(2, 2);
 				animation.play('fire');
 
 			case 'laser':
