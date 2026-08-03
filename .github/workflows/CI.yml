@@ -565,7 +565,18 @@ jobs:
           # debug info -- Gradle's own AGP packaging strips the .so that
           # actually ships in the APK regardless, so this doesn't change
           # final APK size, only what dump_syms gets to read beforehand.
-          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}" -D HXCPP_DEBUG_LINK
+          # --app-version only sets android:versionName (the display string) --
+          # android:versionCode comes from an entirely separate Lime field
+          # (project.meta.buildNumber, see tools/platforms/AndroidPlatform.hx
+          # and CommandLineTools.hx's getBuildNumber()) that --app-version
+          # never touches. Left unset, Lime defaults it to `git rev-list HEAD
+          # --count`, which is IDENTICAL across two builds of the same commit
+          # -- Android then refuses to install the new APK over the old one
+          # ("update" requires a strictly higher versionCode), forcing a full
+          # uninstall every time. github.run_number increments on every run
+          # regardless of whether new commits landed, and (unlike run_id,
+          # which can exceed Android's 32-bit versionCode limit) stays small.
+          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}" --meta-build-number="${{ github.run_number }}" -D HXCPP_DEBUG_LINK
 
       # Confirms the .sym files documented above actually made it into the
       # built APK's assets, so a silent breakage (Gradle task not wired up,
@@ -1208,7 +1219,9 @@ jobs:
           # debug info -- Gradle's own AGP packaging strips the .so that
           # actually ships in the APK regardless, so this doesn't change
           # final APK size, only what dump_syms gets to read beforehand.
-          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}" -D HXCPP_DEBUG_LINK -D ANDROID_ARM64_ONLY
+          # See the fat-APK job's own comment above this same flag: --app-version
+          # doesn't set android:versionCode, --meta-build-number does.
+          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}" --meta-build-number="${{ github.run_number }}" -D HXCPP_DEBUG_LINK -D ANDROID_ARM64_ONLY
 
       # Confirms the .sym files documented above actually made it into the
       # built APK's assets, so a silent breakage (Gradle task not wired up,
@@ -1851,7 +1864,9 @@ jobs:
           # debug info -- Gradle's own AGP packaging strips the .so that
           # actually ships in the APK regardless, so this doesn't change
           # final APK size, only what dump_syms gets to read beforehand.
-          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}" -D HXCPP_DEBUG_LINK -D ANDROID_ARM32_ONLY
+          # See the fat-APK job's own comment above this same flag: --app-version
+          # doesn't set android:versionCode, --meta-build-number does.
+          haxelib run lime build android --app-version="4.0.0-${{ github.run_id}}" --meta-build-number="${{ github.run_number }}" -D HXCPP_DEBUG_LINK -D ANDROID_ARM32_ONLY
 
       # Confirms the .sym files documented above actually made it into the
       # built APK's assets, so a silent breakage (Gradle task not wired up,
