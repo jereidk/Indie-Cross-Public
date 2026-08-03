@@ -452,7 +452,8 @@ class Character extends FlxSprite
 			 */
 
 			case 'sansScared':
-				frames = Paths.getSparrowAtlas('characters/Sans_Phase_3', 'shared');
+				// Split across 2 pieces (Sans_Phase_3-0..1), was 8192x4096 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Sans_Phase_3-0', 'characters/Sans_Phase_3-1'], 'shared');
 				animation.addByIndices('idleLeft', 'Sans FNF instance 1', [28, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "", 24, false);
 				animation.addByIndices('idleRight', 'Sans FNF instance 1', [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27], "", 24, false);
 				animation.addByPrefix('singUP', 'Up instance 1', 24, false);
@@ -624,7 +625,8 @@ class Character extends FlxSprite
 				playAnim('idle');
 
 			case 'sansbattle':
-				frames = Paths.getSparrowAtlas('characters/Sans_but_Rip_colors', 'shared');
+				// Split across 2 pieces (Sans_but_Rip_colors-0..1), was 8192x4096 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Sans_but_Rip_colors-0', 'characters/Sans_but_Rip_colors-1'], 'shared');
 				animation.addByIndices('idleLeft', 'EReree ee instance 1', [24, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "", 24, false);
 				animation.addByIndices('idleRight', 'EReree ee instance 1', [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23], "", 24, false);
 				animation.addByPrefix('singUP', 'UpUT instance 1', 24, false);
@@ -676,7 +678,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'bf':
-				frames = Paths.getSparrowAtlas('characters/BOYFRIEND', 'shared');
+				// Split across 2 pieces (BOYFRIEND-0..1), was 8192x4096 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BOYFRIEND-0', 'characters/BOYFRIEND-1'], 'shared');
 				animation.addByPrefix('idle', '0Idle', 24, false);
 				animation.addByPrefix('singUP', '0UPPP', 24, false);
 				animation.addByPrefix('singLEFT', '0EERR', 24, false);
@@ -1030,7 +1033,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'bfchara':
-				frames = Paths.getSparrowAtlas('characters/Chara', 'shared');
+				// Split across 2 pieces (Chara-0..1), was 8192x4096 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Chara-0', 'characters/Chara-1'], 'shared');
 				animation.addByPrefix('idle', '0Idle', 24, false);
 				animation.addByPrefix('singUP', '0UPPP', 24, false);
 				animation.addByPrefix('singLEFT', '0EERR', 24, false);
@@ -1231,7 +1235,8 @@ class Character extends FlxSprite
 				setZoom(1.3);
 
 			case 'bendyDA':
-				frames = Paths.getSparrowAtlas('characters/BendyDAgames', 'shared');
+				// Split across 2 pieces (BendyDAgames-0..1), was 8192x4096 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BendyDAgames-0', 'characters/BendyDAgames-1'], 'shared');
 
 				animation.addByPrefix('idle-alt', 'Oblivion Bendy instance 1', 24, true);
 				animation.addByPrefix('singUP-alt', 'Up Oblivion instance 1', 24, false);

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Sans_Phase_3-0.png" width="4086" height="3089">
+	<SubTexture name="Down Tired instance 10000" x="0" y="0" width="491" height="477" frameX="-0" frameY="-28" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down Tired instance 10001" x="2242" y="0" width="473" height="495" frameX="-9" frameY="-10" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down Tired instance 10002" x="2242" y="0" width="473" height="495" frameX="-9" frameY="-10" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down Tired instance 10003" x="2433" y="495" width="471" height="503" frameX="-11" frameY="-2" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down Tired instance 10004" x="2433" y="495" width="471" height="503" frameX="-11" frameY="-2" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down Tired instance 10005" x="543" y="980" width="468" height="505" frameX="-13" frameY="-0" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down Tired instance 10006" x="543" y="980" width="468" height="505" frameX="-13" frameY="-0" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down Tired instance 10007" x="1011" y="983" width="526" height="505" frameX="-4" frameY="-0" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down Tired instance 10008" x="1011" y="983" width="526" height="505" frameX="-4" frameY="-0" frameWidth="530" frameHeight="506"/>
+	<SubTexture name="Down instance 10000" x="491" y="0" width="491" height="477" frameX="-0" frameY="-28" frameWidth="529" frameHeight="506"/>
+	<SubTexture name="Down instance 10001" x="2715" y="0" width="473" height="495" frameX="-9" frameY="-10" frameWidth="529" frameHeight="506"/>
+	<SubTexture name="Down instance 10002" x="2715" y="0" width="473" height="495" frameX="-9" frameY="-10" frameWidth="529" frameHeight="506"/>
+	<SubTexture name="Down instance 10003" x="2904" y="496" width="471" height="503" frameX="-11" frameY="-2" frameWidth="529" frameHeight="506"/>
+	<SubTexture name="Down instance 10004" x="2904" y="496" width="471" height="503" frameX="-11" frameY="-2" frameWidth="529" frameHeight="506"/>
+	<SubTexture name="Down instance 10005" x="1537" y="995" width="468" height="505" frameX="-13" frameY="-0" frameWidth="529" frameHeight="506"/>
+	<SubTexture name="Down instance 10006" x="1537" y="995" width="468" height="505" frameX="-13" frameY="-0" frameWidth="529" frameHeight="506"/>
+	<SubTexture name="Down instance 10007" x="2005" y="998" width="525" height="505" frameX="-4" frameY="-0" frameWidth="529" frameHeight="506"/>
+	<SubTexture name="Down instance 10008" x="2005" y="998" width="525" height="505" frameX="-4" frameY="-0" frameWidth="529" frameHeight="506"/>
+	<SubTexture name="Left Tired instance 10000" x="2530" y="999" width="603" height="505" frameX="-0" frameY="-16" frameWidth="603" frameHeight="521"/>
+	<SubTexture name="Left Tired instance 10009" x="451" y="477" width="424" height="499" frameX="-60" frameY="-22" frameWidth="603" frameHeight="521"/>
+	<SubTexture name="Left Tired instance 10010" x="451" y="477" width="424" height="499" frameX="-60" frameY="-22" frameWidth="603" frameHeight="521"/>
+	<SubTexture name="Left instance 10000" x="3133" y="999" width="539" height="505" frameX="-0" frameY="-16" frameWidth="579" frameHeight="521"/>
+	<SubTexture name="Left instance 10009" x="875" y="481" width="518" height="499" frameX="-60" frameY="-22" frameWidth="579" frameHeight="521"/>
+	<SubTexture name="Left instance 10010" x="875" y="481" width="518" height="499" frameX="-60" frameY="-22" frameWidth="579" frameHeight="521"/>
+	<SubTexture name="Right Tired instance 10000" x="0" y="1987" width="471" height="514" frameX="-22" frameY="-5" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10001" x="0" y="2501" width="459" height="519" frameX="-12" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10002" x="0" y="2501" width="459" height="519" frameX="-12" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10003" x="991" y="1996" width="453" height="519" frameX="-7" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10004" x="991" y="1996" width="453" height="519" frameX="-7" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10005" x="1443" y="2523" width="459" height="519" frameX="-3" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10006" x="1443" y="2523" width="459" height="519" frameX="-3" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10007" x="1443" y="2523" width="459" height="519" frameX="-3" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10008" x="1902" y="2526" width="459" height="519" frameX="-2" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10009" x="1902" y="2526" width="459" height="519" frameX="-2" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10010" x="1902" y="2526" width="459" height="519" frameX="-2" frameY="-0" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10011" x="3137" y="1504" width="520" height="511" frameX="-0" frameY="-8" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right Tired instance 10012" x="3137" y="1504" width="520" height="511" frameX="-0" frameY="-8" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10000" x="2361" y="2528" width="472" height="519" frameX="-18" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10001" x="2833" y="2532" width="460" height="519" frameX="-12" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10002" x="2833" y="2532" width="460" height="519" frameX="-12" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10003" x="3293" y="2570" width="453" height="519" frameX="-7" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10004" x="3293" y="2570" width="453" height="519" frameX="-7" frameY="-1" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10009" x="471" y="1993" width="520" height="511" frameX="-0" frameY="-9" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Right instance 10010" x="471" y="1993" width="520" height="511" frameX="-0" frameY="-9" frameWidth="520" frameHeight="520"/>
+	<SubTexture name="Sans FNF Tired instance 10000" x="1445" y="1500" width="513" height="509" frameX="-0" frameY="-11" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF Tired instance 10001" x="1445" y="1500" width="513" height="509" frameX="-0" frameY="-11" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF Tired instance 10002" x="1925" y="2011" width="498" height="515" frameX="-6" frameY="-5" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF Tired instance 10003" x="1925" y="2011" width="498" height="515" frameX="-6" frameY="-5" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF Tired instance 10004" x="2913" y="2015" width="496" height="517" frameX="-8" frameY="-3" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF Tired instance 10005" x="2913" y="2015" width="496" height="517" frameX="-8" frameY="-3" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF Tired instance 10006" x="3409" y="2052" width="495" height="518" frameX="-9" frameY="-2" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF Tired instance 10007" x="3409" y="2052" width="495" height="518" frameX="-9" frameY="-2" frameWidth="513" frameHeight="520"/>
+	<SubTexture name="Sans FNF instance 10003" x="0" y="1479" width="500" height="508" frameX="-26" frameY="-13" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10004" x="0" y="1479" width="500" height="508" frameX="-26" frameY="-13" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10005" x="459" y="2504" width="492" height="518" frameX="-28" frameY="-3" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10006" x="459" y="2504" width="492" height="518" frameX="-28" frameY="-3" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10017" x="500" y="1485" width="505" height="508" frameX="-0" frameY="-13" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10018" x="500" y="1485" width="505" height="508" frameX="-0" frameY="-13" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10019" x="2423" y="2012" width="490" height="516" frameX="-11" frameY="-5" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="Sans FNF instance 10020" x="2423" y="2012" width="490" height="516" frameX="-11" frameY="-5" frameWidth="526" frameHeight="521"/>
+	<SubTexture name="SansDodge instance 10000" x="982" y="0" width="630" height="481" frameX="-33" frameY="-60" frameWidth="663" frameHeight="615"/>
+	<SubTexture name="SansDodge instance 10002" x="1958" y="1504" width="590" height="507" frameX="-29" frameY="-59" frameWidth="663" frameHeight="615"/>
+	<SubTexture name="SansDodge instance 10029" x="982" y="0" width="630" height="481" frameX="-33" frameY="-60" frameWidth="663" frameHeight="615"/>
+	<SubTexture name="SansDodgeTired instance 10000" x="1612" y="0" width="630" height="483" frameX="-33" frameY="-59" frameWidth="663" frameHeight="616"/>
+	<SubTexture name="SansDodgeTired instance 10002" x="2548" y="1504" width="589" height="508" frameX="-30" frameY="-59" frameWidth="663" frameHeight="616"/>
+	<SubTexture name="SansDodgeTired instance 10029" x="1612" y="0" width="630" height="483" frameX="-33" frameY="-59" frameWidth="663" frameHeight="616"/>
+	<SubTexture name="Snap to UT mode instance 10000" x="951" y="2515" width="492" height="518" frameX="-46" frameY="-0" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10001" x="951" y="2515" width="492" height="518" frameX="-46" frameY="-0" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10002" x="1444" y="2009" width="481" height="514" frameX="-51" frameY="-4" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10003" x="0" y="477" width="451" height="498" frameX="-58" frameY="-20" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10004" x="0" y="477" width="451" height="498" frameX="-58" frameY="-20" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10005" x="1005" y="1488" width="440" height="508" frameX="-63" frameY="-10" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10006" x="1005" y="1488" width="440" height="508" frameX="-63" frameY="-10" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10007" x="3188" y="0" width="574" height="496" frameX="-0" frameY="-22" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10008" x="3375" y="496" width="544" height="503" frameX="-21" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10009" x="3375" y="496" width="544" height="503" frameX="-21" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10010" x="0" y="976" width="543" height="503" frameX="-24" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10011" x="0" y="976" width="543" height="503" frameX="-24" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10012" x="0" y="976" width="543" height="503" frameX="-24" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10013" x="0" y="976" width="543" height="503" frameX="-24" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10014" x="0" y="976" width="543" height="503" frameX="-24" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10015" x="0" y="976" width="543" height="503" frameX="-24" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10016" x="0" y="976" width="543" height="503" frameX="-24" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Snap to UT mode instance 10017" x="0" y="976" width="543" height="503" frameX="-24" frameY="-15" frameWidth="574" frameHeight="519"/>
+	<SubTexture name="Up Tired instance 10007" x="1393" y="483" width="520" height="500" frameX="-52" frameY="-50" frameWidth="573" frameHeight="550"/>
+	<SubTexture name="Up Tired instance 10008" x="1393" y="483" width="520" height="500" frameX="-52" frameY="-50" frameWidth="573" frameHeight="550"/>
+	<SubTexture name="Up instance 10000" x="3657" y="1504" width="429" height="548" frameX="-11" frameY="-0" frameWidth="521" frameHeight="549"/>
+	<SubTexture name="Up instance 10007" x="1913" y="495" width="520" height="500" frameX="-0" frameY="-49" frameWidth="521" frameHeight="549"/>
+	<SubTexture name="Up instance 10008" x="1913" y="495" width="520" height="500" frameX="-0" frameY="-49" frameWidth="521" frameHeight="549"/>
+</TextureAtlas>

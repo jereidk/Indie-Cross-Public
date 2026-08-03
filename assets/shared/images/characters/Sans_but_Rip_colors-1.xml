@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Sans_but_Rip_colors-1.png" width="3122" height="626">
+	<SubTexture name="Sike instance 10000" x="2482" y="0" width="640" height="626" frameX="-276" frameY="-0" frameWidth="917" frameHeight="719"/>
+	<SubTexture name="Sike instance 10004" x="1641" y="0" width="841" height="611" frameX="-75" frameY="-107" frameWidth="917" frameHeight="719"/>
+	<SubTexture name="Sike instance 10018" x="0" y="0" width="821" height="519" frameX="-0" frameY="-107" frameWidth="917" frameHeight="719"/>
+	<SubTexture name="Sike instance 10019" x="821" y="0" width="820" height="519" frameX="-0" frameY="-107" frameWidth="917" frameHeight="719"/>
+	<SubTexture name="Sike instance 10020" x="821" y="0" width="820" height="519" frameX="-0" frameY="-107" frameWidth="917" frameHeight="719"/>
+	<SubTexture name="Sike instance 10021" x="821" y="0" width="820" height="519" frameX="-0" frameY="-107" frameWidth="917" frameHeight="719"/>
+	<SubTexture name="Sike instance 10022" x="821" y="0" width="820" height="519" frameX="-0" frameY="-107" frameWidth="917" frameHeight="719"/>
+	<SubTexture name="Sike instance 10023" x="821" y="0" width="820" height="519" frameX="-0" frameY="-107" frameWidth="917" frameHeight="719"/>
+	<SubTexture name="Sike instance 10024" x="821" y="0" width="820" height="519" frameX="-0" frameY="-107" frameWidth="917" frameHeight="719"/>
+	<SubTexture name="Sike instance 10025" x="821" y="0" width="820" height="519" frameX="-0" frameY="-107" frameWidth="917" frameHeight="719"/>
+</TextureAtlas>

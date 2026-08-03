@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Chara-1.png" width="3964" height="1427">
+	<SubTexture name="0UPPP instance 10001" x="2256" y="897" width="384" height="453" frameX="-4" frameY="-15" frameWidth="392" frameHeight="470"/>
+	<SubTexture name="0UPPP instance 10000" x="3522" y="958" width="365" height="469" frameX="-13" frameY="-0" frameWidth="392" frameHeight="470"/>
+	<SubTexture name="U-Miss instance 10000" x="3608" y="448" width="356" height="510" frameX="-0" frameY="-0" frameWidth="357" frameHeight="545"/>
+	<SubTexture name="U-Miss instance 10001" x="0" y="0" width="356" height="446" frameX="-0" frameY="-99" frameWidth="357" frameHeight="545"/>
+	<SubTexture name="gdgdg instance 10001" x="2640" y="897" width="441" height="455" frameX="-24" frameY="-0" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10002" x="3081" y="897" width="441" height="455" frameX="-24" frameY="-0" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10003" x="1370" y="896" width="443" height="450" frameX="-16" frameY="-5" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10004" x="1813" y="897" width="443" height="450" frameX="-16" frameY="-5" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10005" x="2251" y="448" width="450" height="449" frameX="-7" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10006" x="2701" y="448" width="451" height="449" frameX="-7" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10007" x="3152" y="448" width="456" height="449" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10008" x="0" y="896" width="449" height="449" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10009" x="356" y="0" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10010" x="805" y="0" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10011" x="1254" y="0" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10012" x="1703" y="0" width="454" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10013" x="2157" y="0" width="456" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10014" x="2613" y="0" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10015" x="3062" y="0" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10016" x="3511" y="0" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10017" x="0" y="448" width="450" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10018" x="449" y="896" width="459" height="449" frameX="-0" frameY="-5" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10019" x="450" y="448" width="454" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10020" x="908" y="896" width="462" height="449" frameX="-0" frameY="-5" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10021" x="904" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10022" x="1353" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10023" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10024" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10025" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10026" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10027" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10028" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10029" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10030" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10031" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10032" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10033" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10034" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10035" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10036" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10037" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10038" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10039" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10040" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10041" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10042" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10043" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10044" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+	<SubTexture name="gdgdg instance 10045" x="1802" y="448" width="449" height="448" frameX="-6" frameY="-6" frameWidth="465" frameHeight="455"/>
+</TextureAtlas>
