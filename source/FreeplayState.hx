@@ -60,6 +60,14 @@ class FreeplayState extends MusicBeatState
 	var mechDiffBG:FlxSprite;
 	var mechDiffTextinfo:FlxText;
 
+	// C (or SHIFT on desktop) used to be a hold-modifier -- keep it held
+	// while pressing LEFT/RIGHT to change Mechanic Difficulty instead of
+	// chart Difficulty. Awkward on touch (two simultaneous virtual-pad
+	// presses), and gave no on-screen hint about which one LEFT/RIGHT was
+	// about to change. Now a toggle: tap C once to switch, tap again to
+	// switch back -- see updateMechDiffModeVisual() for the highlight.
+	var mechDiffMode:Bool = false;
+
 	static var intendedScore:Int = 0;
 	static var combo:String = '';
 
@@ -537,32 +545,31 @@ class FreeplayState extends MusicBeatState
 			FlxG.switchState(() -> new IconOffsets(songs[curSelected[freeplayType]].songCharacter));
 		}
 
-		if (!lockDiff)
+		if (FlxG.keys.justPressed.SHIFT #if android || virtualPad.buttonC.justPressed #end)
 		{
-			if (FlxG.keys.pressed.SHIFT #if android || virtualPad.buttonC.pressed #end) // change mech diff
+			// Only allow toggling INTO mechanics mode for a song that actually
+			// has a mechanics panel to show -- toggling out is always allowed,
+			// so a stuck/hidden mode never traps LEFT/RIGHT doing nothing.
+			if (mechDiffMode || HelperFunctions.getSongData(songs[curSelected[freeplayType]].songName.toLowerCase(), 'hasmech') != "false")
 			{
-				if (controls.LEFT_P)
-					changeMechDiff(1);
-				if (controls.RIGHT_P)
-					changeMechDiff(-1);
-			}
-			else // change chart diff
-			{
-				if (controls.LEFT_P)
-					changeDiff(-1);
-				if (controls.RIGHT_P)
-					changeDiff(1);
+				mechDiffMode = !mechDiffMode;
+				updateMechDiffModeVisual();
 			}
 		}
-		else
+
+		if (mechDiffMode)
 		{
-			if (FlxG.keys.pressed.SHIFT #if android || virtualPad.buttonC.pressed #end) // change mech diff
-			{
-				if (controls.LEFT_P)
-					changeMechDiff(1);
-				if (controls.RIGHT_P)
-					changeMechDiff(-1);
-			}
+			if (controls.LEFT_P)
+				changeMechDiff(1);
+			if (controls.RIGHT_P)
+				changeMechDiff(-1);
+		}
+		else if (!lockDiff)
+		{
+			if (controls.LEFT_P)
+				changeDiff(-1);
+			if (controls.RIGHT_P)
+				changeDiff(1);
 		}
 
 		if (controls.BACK && allowTransit)
@@ -929,6 +936,19 @@ class FreeplayState extends MusicBeatState
 		}
 	}
 
+	/**
+	 * Visual cue for which selector LEFT/RIGHT currently targets: the
+	 * inactive one dims, the active one's panel gets a warm highlight.
+	 * Doesn't touch either side's alpha-based show/hide logic (that stays
+	 * entirely in changeMechDiff()'s hasmech gating above) -- this only
+	 * swaps mechDiffBG's own fill color and diffText's alpha.
+	 */
+	function updateMechDiffModeVisual():Void
+	{
+		diffText.alpha = mechDiffMode ? 0.4 : 1;
+		mechDiffBG.makeGraphic(409, 63, mechDiffMode ? 0xFF4A3B00 : 0xFF000000);
+	}
+
 	var gotSong:Bool = false;
 
 	function changeSelection(change:Int = 0)
@@ -1013,6 +1033,15 @@ class FreeplayState extends MusicBeatState
 
 				checkCustom();
 				changeMechDiff();
+
+				// A song without mechanics support hides the whole panel via
+				// changeMechDiff() above -- if the player was mid-toggle into
+				// mechanics mode when they scrolled onto one, force back to
+				// difficulty mode so LEFT/RIGHT doesn't silently adjust a
+				// hidden, irrelevant value.
+				if (mechDiffMode && HelperFunctions.getSongData(songs[curSelected[freeplayType]].songName.toLowerCase(), 'hasmech') == "false")
+					mechDiffMode = false;
+				updateMechDiffModeVisual();
 			}
 		}
 	}

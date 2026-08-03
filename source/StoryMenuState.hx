@@ -107,6 +107,13 @@ class StoryMenuState extends MusicBeatState
 	var diffmechOrigX:Int = -2;
 	var diffmechTween:FlxTween;
 
+	// Same fix as FreeplayState.hx's mechDiffMode -- C/SHIFT was a
+	// hold-modifier (hold it while pressing LEFT/RIGHT to change Mechanic
+	// Difficulty instead of chart Difficulty), awkward on touch and gave no
+	// on-screen hint of which one LEFT/RIGHT was about to change. Now a
+	// toggle: tap C once to switch, tap again to switch back.
+	var mechDiffMode:Bool = false;
+
 	var options:Array<FlxSprite>;
 	var optFlashes:Array<FlxSprite>;
 	var optionShit:Array<String> = ['Week1', 'Week2', 'Week3'];
@@ -344,14 +351,20 @@ class StoryMenuState extends MusicBeatState
 				changeWeek(curWeek + 1);
 			}
 
-			if (FlxG.keys.pressed.SHIFT #if android || virtualPad.buttonC.pressed #end) // holding shift while changing diffiuclty, change mech diff
+			if (FlxG.keys.justPressed.SHIFT #if android || virtualPad.buttonC.justPressed #end)
+			{
+				mechDiffMode = !mechDiffMode;
+				updateMechDiffModeVisual();
+			}
+
+			if (mechDiffMode)
 			{
 				if (controls.RIGHT_P)
 					changeMechDifficulty(-1);
 				if (controls.LEFT_P)
 					changeMechDifficulty(1);
 			}
-			else // not holding shift, change chart diffiuclty
+			else
 			{
 				if (controls.RIGHT_P)
 					changeDifficulty(1);
@@ -596,6 +609,17 @@ class StoryMenuState extends MusicBeatState
 			diffmechTween.cancel();
 
 		diffmechTween = FlxTween.tween(diffmechSpr, {x: diffmechOrigX}, 0.2, {ease: FlxEase.quadOut});
+	}
+
+	/**
+	 * Visual cue for which selector LEFT/RIGHT currently targets: the
+	 * inactive sprite dims, the active one gets a warm tint.
+	 */
+	function updateMechDiffModeVisual():Void
+	{
+		diffifSpr.alpha = mechDiffMode ? 0.4 : 1;
+		diffmechSpr.alpha = mechDiffMode ? 1 : 0.4;
+		diffmechSpr.color = mechDiffMode ? 0xFFFFD700 : FlxColor.WHITE;
 	}
 
 	var lerpScore:Int = 0;
