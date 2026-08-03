@@ -5,7 +5,7 @@ package;
 // rename dropped it, and Lime's own lime.system.System has no equivalent either). Commented
 // out instead of removed so it's easy to restore if a JNI vibrate binding ever gets added back.
 // import android.Hardware;
-import android.flixel.FlxJoyStick;
+import android.flixel.SimpleJoystick;
 import android.AndroidControls;
 import flixel.input.touch.FlxTouch;
 #end
@@ -153,7 +153,7 @@ class PlayState extends MusicBeatState
 	var cangethurt:Bool = true;
 
 	#if android
-	var utJoystick:FlxJoyStick;
+	var utJoystick:SimpleJoystick;
 	var utStickTouch:FlxTouch;
 	static inline var UT_JOYSTICK_RADIUS:Float = 110;
 	#end
@@ -12860,20 +12860,16 @@ class PlayState extends MusicBeatState
 	{
 		if (utJoystick == null)
 		{
-			utJoystick = new FlxJoyStick(150, FlxG.height - 220, UT_JOYSTICK_RADIUS);
+			utJoystick = new SimpleJoystick(150, FlxG.height - 220, UT_JOYSTICK_RADIUS);
 			utJoystick.scrollFactor.set();
 			utJoystick.alpha = 0.0001;
 			if (androidControls != null)
 				utJoystick.cameras = androidControls.cameras;
 
-			// Its own update() does its own FlxG.touches.list tracking (with a
-			// long-standing unresolved TODO in that logic about multi-instance
-			// behavior) and runs via super.update() *after* the utmode movement
-			// block below in this same frame -- reading _amount/_direction from
-			// it here would always be a frame stale regardless. Disabling its
-			// update() and driving the touch tracking, ball movement, and the
-			// thumb sprite's position directly from this class sidesteps both
-			// problems; base/thumb stay as pure visual sprites.
+			// SimpleJoystick only draws ring/thumb -- no update() logic of its
+			// own to disable, unlike the vendored FlxJoyStick this replaced.
+			// Touch tracking, ball movement, and thumb positioning all happen
+			// directly in the utmode movement block below instead.
 			utJoystick.active = false;
 
 			add(utJoystick);
