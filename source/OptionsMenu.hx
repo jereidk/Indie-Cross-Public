@@ -17,9 +17,9 @@ class OptionsMenu extends MusicBeatState
 	public static var instance:OptionsMenu;
 
 	var selector:FlxText;
-	var curSelected:Int = 0;
+	public var curSelected:Int = 0;
 
-	var options:Array<OptionCategory> = [
+	public var options:Array<OptionCategory> = [
 		new OptionCategory("Gameplay", [
 			new DFJKOption(),
 			#if android
@@ -88,7 +88,7 @@ class OptionsMenu extends MusicBeatState
 
 	public static var versionShit:FlxText;
 
-	var currentSelectedCat:OptionCategory;
+	public var currentSelectedCat:OptionCategory;
 	var blackBorder:FlxSprite;
 
 	public static var fromFreeplay:Bool = false;
