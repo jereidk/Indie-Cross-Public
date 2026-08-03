@@ -1302,6 +1302,10 @@ class PlayState extends MusicBeatState
 					gosebg = new FlxSprite();
 					gosebg.frames = Paths.getSparrowAtlas('BG', 'hiddenContent');
 					gosebg.animation.addByPrefix('bop', 'BG instance 1', 24, false);
+					// BG.png was downscaled 0.5x to fit under 4096x4096; there's no
+					// setGraphicSize() here (just the raw updateHitbox() below), so
+					// compensate directly or this renders at half size.
+					gosebg.scale.set(2, 2);
 					gosebg.updateHitbox();
 					gosebg.screenCenter();
 					gosebg.antialiasing = FlxG.save.data.highquality;
@@ -2206,7 +2210,14 @@ class PlayState extends MusicBeatState
 							add(piper);
 
 							fisher = new FlxSprite(-1280);
-							fisher.frames = Paths.getSparrowAtlas('jumpscares/DontmindmeImmajustwalkby', 'bendy');
+							// Split across 5 pieces (DontmindmeImmajustwalkby-0..4), was 8139x7144 as one atlas.
+							fisher.frames = Paths.getMultiSparrowAtlas([
+								'jumpscares/DontmindmeImmajustwalkby-0',
+								'jumpscares/DontmindmeImmajustwalkby-1',
+								'jumpscares/DontmindmeImmajustwalkby-2',
+								'jumpscares/DontmindmeImmajustwalkby-3',
+								'jumpscares/DontmindmeImmajustwalkby-4'
+							], 'bendy');
 							fisher.animation.addByPrefix('bruh', 'WalkinFhis instance 1', 24, true);
 							fisher.updateHitbox();
 							fisher.screenCenter(Y);

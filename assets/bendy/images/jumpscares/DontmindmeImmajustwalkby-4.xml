@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="DontmindmeImmajustwalkby-4.png" width="3499" height="884">
+	<SubTexture name="WalkinFhis instance 10031" x="1660" y="0" width="487" height="884" frameX="-460" frameY="-27" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10052" x="2147" y="0" width="506" height="884" frameX="-851" frameY="-27" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10071" x="0" y="0" width="824" height="883" frameX="-1172" frameY="-20" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10072" x="824" y="0" width="836" height="883" frameX="-1188" frameY="-27" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10073" x="2653" y="0" width="846" height="884" frameX="-1205" frameY="-27" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10115" x="1660" y="0" width="487" height="884" frameX="-1876" frameY="-27" frameWidth="2650" frameHeight="911"/>
+</TextureAtlas>

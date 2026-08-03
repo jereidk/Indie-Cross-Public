@@ -149,7 +149,8 @@ class StoryMenuState extends MusicBeatState
 		add(actualBG);
 
 		gamingSands = new FlxSprite();
-		gamingSands.frames = Paths.getSparrowAtlas('story mode/SansStorymodeMenu', 'preload');
+		// Split across 2 pieces (SansStorymodeMenu-0..1), was 8192x4096 as one atlas.
+		gamingSands.frames = Paths.getMultiSparrowAtlas(['story mode/SansStorymodeMenu-0', 'story mode/SansStorymodeMenu-1'], 'preload');
 		gamingSands.animation.addByPrefix('bruh', 'Saness instance 1', 24, true);
 		gamingSands.animation.play('bruh');
 		gamingSands.scrollFactor.set();

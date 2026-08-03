@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="DontmindmeImmajustwalkby-0.png" width="3389" height="3517">
+	<SubTexture name="WalkinFhis instance 10000" x="0" y="0" width="878" height="879" frameX="-0" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10001" x="878" y="0" width="878" height="879" frameX="-16" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10002" x="1756" y="0" width="875" height="879" frameX="-33" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10018" x="2631" y="0" width="600" height="879" frameX="-303" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10019" x="0" y="879" width="573" height="879" frameX="-320" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10020" x="2631" y="1758" width="571" height="880" frameX="-337" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10021" x="1758" y="2637" width="568" height="880" frameX="-354" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10039" x="573" y="879" width="562" height="879" frameX="-544" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10040" x="1135" y="879" width="564" height="879" frameX="-559" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10041" x="1699" y="879" width="565" height="879" frameX="-575" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10042" x="2264" y="879" width="564" height="879" frameX="-593" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10043" x="2828" y="879" width="561" height="879" frameX="-613" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10044" x="0" y="1758" width="556" height="879" frameX="-635" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10063" x="556" y="1758" width="672" height="879" frameX="-1061" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10064" x="1228" y="1758" width="691" height="879" frameX="-1078" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10065" x="1919" y="1758" width="712" height="879" frameX="-1094" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10082" x="0" y="2637" width="879" height="879" frameX="-1381" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10083" x="879" y="2637" width="879" height="879" frameX="-1398" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10084" x="2326" y="2638" width="880" height="879" frameX="-1415" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10085" x="878" y="0" width="878" height="879" frameX="-1432" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10086" x="1756" y="0" width="875" height="879" frameX="-1448" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10102" x="2631" y="0" width="600" height="879" frameX="-1718" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10103" x="0" y="879" width="573" height="879" frameX="-1735" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10104" x="2631" y="1758" width="571" height="880" frameX="-1752" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10105" x="1758" y="2637" width="568" height="880" frameX="-1769" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10123" x="573" y="879" width="562" height="879" frameX="-1959" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10124" x="1135" y="879" width="564" height="879" frameX="-1974" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10125" x="1699" y="879" width="565" height="879" frameX="-1991" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10126" x="2264" y="879" width="564" height="879" frameX="-2008" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10127" x="2828" y="879" width="561" height="879" frameX="-2028" frameY="-0" frameWidth="2650" frameHeight="911"/>
+	<SubTexture name="WalkinFhis instance 10128" x="0" y="1758" width="556" height="879" frameX="-2050" frameY="-0" frameWidth="2650" frameHeight="911"/>
+</TextureAtlas>

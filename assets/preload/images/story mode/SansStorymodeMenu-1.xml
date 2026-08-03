@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="SansStorymodeMenu-1.png" width="3942" height="722">
+	<SubTexture name="Saness instance 10000" x="1314" y="0" width="1314" height="720" frameX="-0" frameY="-26" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10001" x="1314" y="0" width="1314" height="720" frameX="-0" frameY="-26" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10002" x="2628" y="0" width="1314" height="720" frameX="-0" frameY="-26" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10003" x="2628" y="0" width="1314" height="720" frameX="-0" frameY="-26" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10004" x="0" y="0" width="1314" height="722" frameX="-0" frameY="-25" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10005" x="0" y="0" width="1314" height="722" frameX="-0" frameY="-25" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10040" x="0" y="0" width="1314" height="722" frameX="-0" frameY="-25" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10041" x="0" y="0" width="1314" height="722" frameX="-0" frameY="-25" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10042" x="2628" y="0" width="1314" height="720" frameX="-0" frameY="-26" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10043" x="2628" y="0" width="1314" height="720" frameX="-0" frameY="-26" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10044" x="1314" y="0" width="1314" height="720" frameX="-0" frameY="-26" frameWidth="1321" frameHeight="754"/>
+	<SubTexture name="Saness instance 10045" x="1314" y="0" width="1314" height="720" frameX="-0" frameY="-26" frameWidth="1321" frameHeight="754"/>
+</TextureAtlas>

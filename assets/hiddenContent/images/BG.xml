@@ -1,20 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<TextureAtlas imagePath="Untitled_Goose_BG.png">
-	<!-- Created with Adobe Animate version 21.0.7.42652 -->
-	<!-- http://www.adobe.com/products/animate.html -->
-	<SubTexture name="BG instance 10000" x="0" y="0" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10001" x="0" y="0" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10002" x="2165" y="0" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10003" x="2165" y="0" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10004" x="4330" y="0" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10005" x="4330" y="0" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10006" x="0" y="1252" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10007" x="0" y="1252" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10008" x="2165" y="1252" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10009" x="2165" y="1252" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10010" x="4330" y="1252" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10011" x="0" y="2504" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10012" x="0" y="2504" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10013" x="0" y="2504" width="2165" height="1252"/>
-	<SubTexture name="BG instance 10014" x="0" y="2504" width="2165" height="1252"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="BG.png" width="3874" height="1252">
+	<SubTexture name="BG instance 10000" x="0" y="0" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10001" x="0" y="0" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10002" x="1082.5" y="0" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10003" x="1082.5" y="0" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10004" x="2165" y="0" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10005" x="2165" y="0" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10006" x="3247.5" y="0" width="626" height="1082.5" rotated="true" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10007" x="3247.5" y="0" width="626" height="1082.5" rotated="true" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10008" x="0" y="626" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10009" x="0" y="626" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10010" x="1082.5" y="626" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10011" x="2165" y="626" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10012" x="2165" y="626" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10013" x="2165" y="626" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
+	<SubTexture name="BG instance 10014" x="2165" y="626" width="1082.5" height="626" frameX="-0" frameY="-0" frameWidth="1082.5" frameHeight="626"/>
 </TextureAtlas>
