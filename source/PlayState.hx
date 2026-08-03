@@ -519,12 +519,19 @@ class PlayState extends MusicBeatState
 
 	static function cupheadPewDamage(song:String):Float
 	{
-		return switch (song)
+		var baseDamage:Float = switch (song)
 		{
 			case 'knockout': 0.0475;
 			case 'devils-gambit': 0.075;
 			default: 0.0225; // snake-eyes, technicolor-tussle
 		}
+
+		// Hell hits at full damage; Standard/Off take 25% less per bullet,
+		// matching how dodgeAttackEvent's 'cuphead' case already treats a
+		// missed dodge more harshly on Hell (instant death) than Standard/Off
+		// (a health percentage instead) -- this mechanic had no equivalent
+		// split before now.
+		return mechanicType == 0 ? baseDamage : baseDamage * 0.75;
 	}
 
 	override public function create()
@@ -12172,7 +12179,7 @@ class PlayState extends MusicBeatState
 	function useAttackSlot()
 	{
 		trace(cardfloat);
-		if (cardfloat >= 200)
+		if (cardfloat >= 200 && attackCooldown == 0)
 		{
 			// attackMeter.y = healthBarBG.y - 10;
 			// attackMeter.animation.play('blank', true);
@@ -12182,6 +12189,7 @@ class PlayState extends MusicBeatState
 			cardanims.animation.play('use', true);
 			cupheadPewMode = false;
 			pewdmgScale = 1.0;
+			attackCooldown = (mechanicType == 0) ? 5 : 3;
 			cardanims.animation.onFinish.add(function(use)
 			{
 				didntdoanimyet = true;
