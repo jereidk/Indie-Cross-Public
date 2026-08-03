@@ -155,6 +155,11 @@ class PlayState extends MusicBeatState
 	#if android
 	var utJoystick:SimpleJoystick;
 	var utStickTouch:FlxTouch;
+	// Visual-only: how far off-center and in which direction the thumb is
+	// currently drawn. Kept even while untouched so it can ease back to 0
+	// instead of snapping there the instant the finger lifts.
+	var utThumbAmount:Float = 0;
+	var utThumbDirection:Float = 0;
 	static inline var UT_JOYSTICK_RADIUS:Float = 110;
 	#end
 
@@ -6075,11 +6080,12 @@ class PlayState extends MusicBeatState
 						var dx:Float = utStickTouch.screenX - utJoystick.x;
 						var dy:Float = utStickTouch.screenY - utJoystick.y;
 						var dist:Float = Math.sqrt(dx * dx + dy * dy);
-						var amount:Float = Math.min(1, dist / UT_JOYSTICK_RADIUS);
-						var direction:Float = Math.atan2(dy, dx);
 
-						var moveX:Float = Math.cos(direction) * amount * speed * elapsed;
-						var moveY:Float = Math.sin(direction) * amount * speed * elapsed;
+						utThumbAmount = Math.min(1, dist / UT_JOYSTICK_RADIUS);
+						utThumbDirection = Math.atan2(dy, dx);
+
+						var moveX:Float = Math.cos(utThumbDirection) * utThumbAmount * speed * elapsed;
+						var moveY:Float = Math.sin(utThumbDirection) * utThumbAmount * speed * elapsed;
 
 						ball.x += moveX;
 						if (!ball.isInside(battleBoundaries))
@@ -6088,15 +6094,19 @@ class PlayState extends MusicBeatState
 						ball.y += moveY;
 						if (!ball.isInside(battleBoundaries))
 							ball.y -= moveY;
-
-						utJoystick.thumb.x = utJoystick.x + Math.cos(direction) * amount * UT_JOYSTICK_RADIUS - utJoystick.thumb.width * 0.5;
-						utJoystick.thumb.y = utJoystick.y + Math.sin(direction) * amount * UT_JOYSTICK_RADIUS - utJoystick.thumb.height * 0.5;
 					}
-					else
+					else if (utThumbAmount > 0)
 					{
-						utJoystick.thumb.x = utJoystick.x - utJoystick.thumb.width * 0.5;
-						utJoystick.thumb.y = utJoystick.y - utJoystick.thumb.height * 0.5;
+						// Eased spring-back instead of an instant snap to center --
+						// frame-rate independent (scales with elapsed, not a flat
+						// per-frame subtraction), fully settled in a few hundred ms.
+						utThumbAmount -= utThumbAmount * Math.min(1, elapsed * 15);
+						if (utThumbAmount < 0.03)
+							utThumbAmount = 0;
 					}
+
+					utJoystick.thumb.x = utJoystick.x + Math.cos(utThumbDirection) * utThumbAmount * UT_JOYSTICK_RADIUS - utJoystick.thumb.width * 0.5;
+					utJoystick.thumb.y = utJoystick.y + Math.sin(utThumbDirection) * utThumbAmount * UT_JOYSTICK_RADIUS - utJoystick.thumb.height * 0.5;
 				}
 				#end
 		}
@@ -12909,6 +12919,8 @@ class PlayState extends MusicBeatState
 		else
 		{
 			utStickTouch = null;
+			utThumbAmount = 0;
+			utThumbDirection = 0;
 
 			androidControls.visible = true;
 			androidControls.active = true;
