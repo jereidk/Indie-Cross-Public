@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Bendy_remastered.-0.png" width="4082" height="3957">
+	<SubTexture name="B-Right instance 10000" x="3208" y="1070" width="622" height="418" frameX="-12" frameY="-111" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10001" x="0" y="1418" width="614" height="429" frameX="-9" frameY="-102" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10002" x="614" y="1451" width="614" height="432" frameX="-6" frameY="-99" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10003" x="1228" y="1466" width="614" height="432" frameX="-6" frameY="-99" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10004" x="1842" y="1467" width="614" height="436" frameX="-4" frameY="-96" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10005" x="2456" y="1470" width="614" height="436" frameX="-4" frameY="-96" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10006" x="3070" y="1488" width="614" height="439" frameX="-2" frameY="-94" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10007" x="0" y="1847" width="614" height="439" frameX="-2" frameY="-94" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10008" x="614" y="1883" width="614" height="439" frameX="-2" frameY="-94" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10009" x="3070" y="1927" width="615" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10010" x="1228" y="1898" width="614" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10011" x="1842" y="1903" width="614" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10012" x="2456" y="1906" width="614" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10013" x="0" y="2286" width="614" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10014" x="614" y="2322" width="614" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10015" x="0" y="2286" width="614" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10016" x="614" y="2322" width="614" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10017" x="1228" y="2338" width="611" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10018" x="1839" y="2343" width="611" height="440" frameX="-1" frameY="-93" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10019" x="2450" y="2346" width="604" height="443" frameX="-0" frameY="-90" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10020" x="3054" y="2367" width="604" height="443" frameX="-0" frameY="-90" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10021" x="0" y="2726" width="590" height="447" frameX="-0" frameY="-87" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10022" x="590" y="2762" width="563" height="467" frameX="-5" frameY="-60" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10023" x="1153" y="2778" width="497" height="495" frameX="-41" frameY="-32" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="B-Right instance 10024" x="3161" y="2810" width="440" height="527" frameX="-54" frameY="-0" frameWidth="634" frameHeight="534"/>
+	<SubTexture name="Bendy Idle instance 10000" x="3601" y="2878" width="421" height="534" frameX="-0" frameY="-12" frameWidth="422" frameHeight="547"/>
+	<SubTexture name="Bendy Idle instance 10001" x="3601" y="2878" width="421" height="534" frameX="-0" frameY="-12" frameWidth="422" frameHeight="547"/>
+	<SubTexture name="Bendy Idle instance 10002" x="1112" y="3273" width="417" height="542" frameX="-4" frameY="-4" frameWidth="422" frameHeight="547"/>
+	<SubTexture name="Bendy Idle instance 10003" x="1112" y="3273" width="417" height="542" frameX="-4" frameY="-4" frameWidth="422" frameHeight="547"/>
+	<SubTexture name="Bendy Idle instance 10004" x="2982" y="3337" width="417" height="545" frameX="-4" frameY="-1" frameWidth="422" frameHeight="547"/>
+	<SubTexture name="Bendy Idle instance 10005" x="2982" y="3337" width="417" height="545" frameX="-4" frameY="-1" frameWidth="422" frameHeight="547"/>
+	<SubTexture name="Bendy Idle instance 10006" x="3399" y="3412" width="417" height="545" frameX="-4" frameY="-1" frameWidth="422" frameHeight="547"/>
+	<SubTexture name="Bendy Idle instance 10007" x="3399" y="3412" width="417" height="545" frameX="-4" frameY="-1" frameWidth="422" frameHeight="547"/>
+	<SubTexture name="Bendy Idle instance 10008" x="3399" y="3412" width="417" height="545" frameX="-4" frameY="-1" frameWidth="422" frameHeight="547"/>
+	<SubTexture name="Left instance 10000" x="1966" y="3315" width="579" height="543" frameX="-0" frameY="-14" frameWidth="621" frameHeight="558"/>
+	<SubTexture name="Left instance 10017" x="0" y="3173" width="584" height="537" frameX="-28" frameY="-20" frameWidth="621" frameHeight="558"/>
+	<SubTexture name="Left instance 10018" x="0" y="3173" width="584" height="537" frameX="-28" frameY="-20" frameWidth="621" frameHeight="558"/>
+	<SubTexture name="Left instance 10019" x="584" y="3229" width="528" height="539" frameX="-93" frameY="-18" frameWidth="621" frameHeight="558"/>
+	<SubTexture name="Scream instance 10003" x="1529" y="3299" width="437" height="543" frameX="-52" frameY="-5" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10004" x="1529" y="3299" width="437" height="543" frameX="-52" frameY="-5" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10005" x="2103" y="2789" width="535" height="526" frameX="-0" frameY="-22" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10006" x="1369" y="670" width="618" height="385" frameX="-77" frameY="-173" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10007" x="2571" y="676" width="590" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10008" x="3161" y="676" width="591" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10009" x="1987" y="676" width="584" height="393" frameX="-89" frameY="-166" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10010" x="1597" y="1069" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10011" x="428" y="1024" width="595" height="394" frameX="-85" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10012" x="2188" y="1070" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10013" x="2571" y="676" width="590" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10014" x="3161" y="676" width="591" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10015" x="1987" y="676" width="584" height="393" frameX="-89" frameY="-166" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10016" x="1597" y="1069" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10017" x="428" y="1024" width="595" height="394" frameX="-85" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10018" x="2188" y="1070" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10019" x="2571" y="676" width="590" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10020" x="3161" y="676" width="591" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10021" x="1987" y="676" width="584" height="393" frameX="-89" frameY="-166" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10022" x="1597" y="1069" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10023" x="428" y="1024" width="595" height="394" frameX="-85" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10024" x="2188" y="1070" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10025" x="2571" y="676" width="590" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10026" x="3161" y="676" width="591" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10027" x="1987" y="676" width="584" height="393" frameX="-89" frameY="-166" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10028" x="1597" y="1069" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10029" x="428" y="1024" width="595" height="394" frameX="-85" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10030" x="2188" y="1070" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10031" x="2571" y="676" width="590" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10032" x="3161" y="676" width="591" height="394" frameX="-87" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10033" x="1987" y="676" width="584" height="393" frameX="-89" frameY="-166" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10034" x="1597" y="1069" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10035" x="428" y="1024" width="595" height="394" frameX="-85" frameY="-165" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10036" x="2188" y="1070" width="591" height="397" frameX="-87" frameY="-162" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10037" x="1023" y="1055" width="574" height="396" frameX="-87" frameY="-163" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10038" x="2638" y="2810" width="523" height="526" frameX="-0" frameY="-22" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10039" x="2638" y="2810" width="523" height="526" frameX="-0" frameY="-22" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10040" x="2545" y="3336" width="437" height="543" frameX="-52" frameY="-5" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Scream instance 10041" x="2545" y="3336" width="437" height="543" frameX="-52" frameY="-5" frameWidth="696" frameHeight="559"/>
+	<SubTexture name="Up instance 10021" x="1650" y="2783" width="453" height="516" frameX="-119" frameY="-131" frameWidth="580" frameHeight="655"/>
+	<SubTexture name="bendydown instance 10000" x="0" y="0" width="512" height="310" frameX="-0" frameY="-200" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10001" x="512" y="0" width="498" height="324" frameX="-5" frameY="-187" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10002" x="1010" y="0" width="498" height="324" frameX="-5" frameY="-187" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10003" x="1508" y="0" width="492" height="331" frameX="-7" frameY="-180" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10004" x="2000" y="0" width="492" height="331" frameX="-7" frameY="-180" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10005" x="2492" y="0" width="487" height="336" frameX="-8" frameY="-175" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10006" x="2979" y="0" width="487" height="336" frameX="-8" frameY="-175" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10007" x="3466" y="0" width="487" height="336" frameX="-8" frameY="-175" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10008" x="0" y="310" width="485" height="339" frameX="-9" frameY="-172" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10009" x="485" y="324" width="485" height="339" frameX="-9" frameY="-172" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10010" x="970" y="324" width="485" height="339" frameX="-9" frameY="-172" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10011" x="1455" y="331" width="485" height="339" frameX="-9" frameY="-172" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10012" x="1940" y="331" width="485" height="339" frameX="-9" frameY="-172" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10013" x="2425" y="336" width="483" height="340" frameX="-10" frameY="-171" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10014" x="2908" y="336" width="483" height="340" frameX="-10" frameY="-171" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10015" x="3391" y="336" width="483" height="340" frameX="-10" frameY="-171" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10016" x="2908" y="336" width="483" height="340" frameX="-10" frameY="-171" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10017" x="0" y="649" width="457" height="361" frameX="-18" frameY="-153" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10018" x="457" y="663" width="456" height="361" frameX="-18" frameY="-153" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10019" x="913" y="663" width="456" height="361" frameX="-18" frameY="-153" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10020" x="0" y="1010" width="428" height="400" frameX="-34" frameY="-112" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10021" x="2779" y="1070" width="429" height="400" frameX="-34" frameY="-112" frameWidth="512" frameHeight="515"/>
+	<SubTexture name="bendydown instance 10022" x="3658" y="2367" width="424" height="511" frameX="-64" frameY="-0" frameWidth="512" frameHeight="515"/>
+</TextureAtlas>

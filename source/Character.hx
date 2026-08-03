@@ -103,7 +103,8 @@ class Character extends FlxSprite
 				playAnim('idle');
 
 			case 'saness':
-				frames = Paths.getSparrowAtlas('characters/Saness', 'hiddenContent');
+				// Split across 2 pieces (Saness-0..1), was 8192x4096 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Saness-0', 'characters/Saness-1'], 'hiddenContent');
 				animation.addByPrefix('idle', 'Sans instance 1', 24, false);
 				animation.addByPrefix('singUP', 'Up instance 1', 24);
 				animation.addByPrefix('singRIGHT', 'Right instance 1', 24);
@@ -192,7 +193,8 @@ class Character extends FlxSprite
 				setGraphicSize(Std.int(frameWidth * 1.75));
 				updateHitbox();
 			case 'bendy':
-				frames = Paths.getSparrowAtlas('characters/Bendy_remastered', 'shared');
+				// Split across 2 pieces (Bendy_remastered.-0..1), was 8192x4096 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Bendy_remastered.-0', 'characters/Bendy_remastered.-1'], 'shared');
 				animation.addByPrefix('idle', 'Bendy Idle instance 1', 24, false);
 				animation.addByPrefix('singUP', 'Up instance 1', 24, false);
 				animation.addByPrefix('singRIGHT', 'B-Right instance 1', 24, false);
@@ -907,7 +909,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'bfFUCKINWHATTHEFUCKBITCH':
-				frames = Paths.getSparrowAtlas('characters/BoyFriend_3rdPhase', 'shared');
+				// Split across 2 pieces (BoyFriend_3rdPhase-0..1), was 8192x4096 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BoyFriend_3rdPhase-0', 'characters/BoyFriend_3rdPhase-1'], 'shared');
 				animation.addByPrefix('idle', 'BF idle dance copy 2 instance', 24, true);
 				animation.addByPrefix('singUP', 'BF NOTE UP copy 2 instance', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT copy 2 instance', 24, false);

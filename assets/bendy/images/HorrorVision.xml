@@ -1,15 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<TextureAtlas imagePath="HorrorVision.png">
-	<!-- Created with Adobe Animate version 21.0.1.37179 -->
-	<!-- http://www.adobe.com/products/animate.html -->
-	<SubTexture name="Add instance 10000" x="10" y="10" width="1948" height="1120" frameX="-62" frameY="-13" frameWidth="2039" frameHeight="1174"/>
-	<SubTexture name="Add instance 10001" x="1968" y="10" width="2016" height="1121" frameX="0" frameY="-13" frameWidth="2039" frameHeight="1174"/>
-	<SubTexture name="Add instance 10002" x="3994" y="10" width="1948" height="1120" frameX="-62" frameY="-13" frameWidth="2039" frameHeight="1174"/>
-	<SubTexture name="Add instance 10003" x="5952" y="10" width="1992" height="1174" frameX="-28" frameY="0" frameWidth="2039" frameHeight="1174"/>
-	<SubTexture name="Add instance 10004" x="10" y="1194" width="1948" height="1120" frameX="-62" frameY="-13" frameWidth="2039" frameHeight="1174"/>
-	<SubTexture name="Add instance 10005" x="1968" y="1194" width="1997" height="1127" frameX="-42" frameY="-13" frameWidth="2039" frameHeight="1174"/>
-	<SubTexture name="Add instance 10006" x="3975" y="1194" width="1948" height="1120" frameX="-62" frameY="-13" frameWidth="2039" frameHeight="1174"/>
-	<SubTexture name="Add instance 10007" x="5933" y="1194" width="2011" height="1133" frameX="-27" frameY="-4" frameWidth="2039" frameHeight="1174"/>
-	<SubTexture name="Add instance 10008" x="10" y="2337" width="1948" height="1120" frameX="-62" frameY="-13" frameWidth="2039" frameHeight="1174"/>
-	<SubTexture name="Add instance 10009" x="10" y="1194" width="1948" height="1120" frameX="-62" frameY="-13" frameWidth="2039" frameHeight="1174"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="HorrorVision.png" width="2972" height="1704">
+	<SubTexture name="Add instance 10000" x="1999" y="0" width="972.5" height="558.5" frameX="-31" frameY="-6.5" frameWidth="1019.5" frameHeight="587"/>
+	<SubTexture name="Add instance 10001" x="0" y="0" width="1006.5" height="559.5" frameX="-0" frameY="-6.5" frameWidth="1019.5" frameHeight="587"/>
+	<SubTexture name="Add instance 10002" x="997" y="1145" width="972.5" height="558.5" frameX="-31" frameY="-6.5" frameWidth="1019.5" frameHeight="587"/>
+	<SubTexture name="Add instance 10003" x="1004.5" y="559.5" width="994.5" height="585.5" frameX="-14" frameY="-0" frameWidth="1019.5" frameHeight="587"/>
+	<SubTexture name="Add instance 10004" x="1999" y="558.5" width="972.5" height="558.5" frameX="-31" frameY="-6.5" frameWidth="1019.5" frameHeight="587"/>
+	<SubTexture name="Add instance 10005" x="0" y="1124.5" width="997" height="562" frameX="-21" frameY="-6.5" frameWidth="1019.5" frameHeight="587"/>
+	<SubTexture name="Add instance 10006" x="1969.5" y="1145" width="972.5" height="558.5" frameX="-31" frameY="-6.5" frameWidth="1019.5" frameHeight="587"/>
+	<SubTexture name="Add instance 10007" x="0" y="559.5" width="1004.5" height="565" frameX="-13.5" frameY="-2" frameWidth="1019.5" frameHeight="587"/>
+	<SubTexture name="Add instance 10008" x="1006.5" y="0" width="972.5" height="558.5" frameX="-31" frameY="-6.5" frameWidth="1019.5" frameHeight="587"/>
+	<SubTexture name="Add instance 10009" x="1999" y="558.5" width="972.5" height="558.5" frameX="-31" frameY="-6.5" frameWidth="1019.5" frameHeight="587"/>
 </TextureAtlas>

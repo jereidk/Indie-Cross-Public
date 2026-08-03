@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<TextureAtlas imagePath="Light(Add-Blend).png">
-	<!-- Created with Adobe Animate version 21.0.1.37179 -->
-	<!-- http://www.adobe.com/products/animate.html -->
-	<SubTexture name="fezt instance 10000" x="10" y="10" width="3056" height="1551"/>
-	<SubTexture name="fezt instance 10001" x="3076" y="10" width="3056" height="1551"/>
-	<SubTexture name="fezt instance 10002" x="10" y="10" width="3056" height="1551"/>
-	<SubTexture name="fezt instance 10003" x="10" y="1571" width="3056" height="1551"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Light(Add-Blend).png" width="1528" height="2325">
+	<SubTexture name="fezt instance 10000" x="0" y="0" width="1528" height="775" frameX="-0" frameY="-0" frameWidth="1528" frameHeight="775.5"/>
+	<SubTexture name="fezt instance 10001" x="0" y="775" width="1527.5" height="775" frameX="-0.5" frameY="-0" frameWidth="1528" frameHeight="775.5"/>
+	<SubTexture name="fezt instance 10002" x="0" y="0" width="1528" height="775" frameX="-0" frameY="-0" frameWidth="1528" frameHeight="775.5"/>
+	<SubTexture name="fezt instance 10003" x="0" y="1550" width="1527" height="775" frameX="-0.5" frameY="-0" frameWidth="1528" frameHeight="775.5"/>
 </TextureAtlas>
