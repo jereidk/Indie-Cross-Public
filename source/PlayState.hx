@@ -5,6 +5,7 @@ package;
 // rename dropped it, and Lime's own lime.system.System has no equivalent either). Commented
 // out instead of removed so it's easy to restore if a JNI vibrate binding ever gets added back.
 // import android.Hardware;
+import android.flixel.FlxJoyStick;
 #end
 import lime.math.Vector2;
 import offsetMenus.AnimationDebug;
@@ -148,6 +149,10 @@ class PlayState extends MusicBeatState
 	var utmode:Bool = false;
 	var battleBoundaries:FlxRect;
 	var cangethurt:Bool = true;
+
+	#if android
+	var utJoystick:FlxJoyStick;
+	#end
 
 	var animName:String = 'normal';
 
@@ -6037,6 +6042,22 @@ class PlayState extends MusicBeatState
 					}
 				}
 			}
+
+				#if android
+				if (utJoystick != null && utJoystick.pressed && utJoystick._amount > 0)
+				{
+					var moveX:Float = Math.cos(utJoystick._direction) * utJoystick._amount * speed * elapsed;
+					var moveY:Float = Math.sin(utJoystick._direction) * utJoystick._amount * speed * elapsed;
+
+					ball.x += moveX;
+					if (!ball.isInside(battleBoundaries))
+						ball.x -= moveX;
+
+					ball.y += moveY;
+					if (!ball.isInside(battleBoundaries))
+						ball.y -= moveY;
+				}
+				#end
 		}
 
 		if (utmode)
@@ -12793,6 +12814,71 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	#if android
+	function ensureUtJoystick():Void
+	{
+		if (utJoystick == null)
+		{
+			utJoystick = new FlxJoyStick(150, FlxG.height - 220, 110);
+			utJoystick.scrollFactor.set();
+			utJoystick.alpha = 0.0001;
+			if (androidControls != null)
+				utJoystick.cameras = androidControls.cameras;
+			add(utJoystick);
+		}
+	}
+
+	function swapToUtControls(toJoystick:Bool):Void
+	{
+		if (androidControls == null)
+			return;
+
+		ensureUtJoystick();
+
+		// FlxSpriteGroup propagates alpha to its children proportionally
+		// (child.alpha *= newAlpha / oldAlpha), so a literal 0 would make that
+		// ratio unrecoverable on the next fade back in -- use 0.0001 like the
+		// rest of this file does everywhere else it needs "invisible".
+		// Deactivating the outgoing control right away (instead of onComplete)
+		// avoids a ~0.5s window where both controls are touchable at once,
+		// since the Hitbox covers the full screen underneath the joystick.
+		if (toJoystick)
+		{
+			androidControls.active = false;
+
+			utJoystick.visible = true;
+			utJoystick.active = true;
+			FlxTween.cancelTweensOf(utJoystick);
+			FlxTween.tween(utJoystick, {alpha: AndroidControls.getOpacity(true)}, 0.5);
+
+			FlxTween.cancelTweensOf(androidControls);
+			FlxTween.tween(androidControls, {alpha: 0.0001}, 0.5, {
+				onComplete: function(twn:FlxTween)
+				{
+					androidControls.visible = false;
+				}
+			});
+		}
+		else
+		{
+			utJoystick.active = false;
+
+			androidControls.visible = true;
+			androidControls.active = true;
+			FlxTween.cancelTweensOf(androidControls);
+			FlxTween.tween(androidControls, {alpha: 1}, 0.5);
+
+			FlxTween.cancelTweensOf(utJoystick);
+			FlxTween.tween(utJoystick, {alpha: 0.0001}, 0.5, {
+				onComplete: function(twn:FlxTween)
+				{
+					utJoystick.visible = false;
+				}
+			});
+		}
+	}
+	#end
+
 	function doutshit()
 	{
 		if (ball == null)
@@ -12804,12 +12890,20 @@ class PlayState extends MusicBeatState
 		FlxTween.tween(ball, {alpha: 1}, 0.5);
 		FlxTween.tween(boyfriend, {alpha: 0.5}, 0.5);
 		utmode = true;
+
+		#if android
+		swapToUtControls(true);
+		#end
 	}
 
 	function dontutshit()
 	{
 		FlxTween.tween(ball, {alpha: 0}, 0.5);
 		FlxTween.tween(boyfriend, {alpha: 1}, 0.5);
+
+		#if android
+		swapToUtControls(false);
+		#end
 		utmode = false;
 	}
 
