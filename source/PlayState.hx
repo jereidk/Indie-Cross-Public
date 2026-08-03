@@ -10012,10 +10012,10 @@ class PlayState extends MusicBeatState
 							blastem(ball.y);
 						});
 
-						// blastemDirectional()/spawnBoneHazard(): more UT-mode
-						// variety than blastem()'s single always-from-the-left
-						// homing shot, staggered into the gaps between the
-						// steps above so nothing double-fires on the same beat.
+						// blastemDirectional(): more UT-mode variety than
+						// blastem()'s single always-from-the-left homing shot,
+						// staggered into the gaps between the steps above so
+						// nothing double-fires on the same beat.
 						pushMultStepEvents([410, 668], function()
 						{
 							blastemDirectional('right', ball.y, 0);
@@ -10032,9 +10032,19 @@ class PlayState extends MusicBeatState
 						{
 							blastemDirectional('right', ball.y, 0);
 						});
-						pushMultStepEvents([420, 490, 680, 750], function()
+						// spawnBoneWall(): the actual bone-wall-with-a-gap-to-thread
+						// attack, not just a single bone. First UT window (400-508)
+						// stays approachable -- 3 wide lanes, 1 gap, moderate speed.
+						// Second window (662-762) is the harder one -- 5 narrower
+						// lanes (so the gap itself is narrower too), faster, and
+						// one more wall than the first window gets.
+						pushMultStepEvents([420, 490], function()
 						{
-							spawnBoneHazard();
+							spawnBoneWall(3, 1, 550);
+						});
+						pushMultStepEvents([680, 720, 750], function()
+						{
+							spawnBoneWall(5, 1, 750);
 						});
 					}
 				}
@@ -13326,6 +13336,56 @@ class PlayState extends MusicBeatState
 				gethurt();
 		});
 		add(bone);
+	}
+
+	/**
+	 * The actual Undertale bone attack: splits the battle box into
+	 * `laneCount` equal horizontal bands and fires one BoneHazard per band
+	 * simultaneously, EXCEPT `gapCount` random bands left clear -- the
+	 * player has to be sitting in a gap band (or get to one in time) before
+	 * the wall arrives. More lanes and/or fewer gaps = a narrower, harder
+	 * wall to thread; `speed` controls how much reaction time there is.
+	 */
+	function spawnBoneWall(laneCount:Int, gapCount:Int, speed:Float, ?fromLeft:Null<Bool> = null)
+	{
+		if (ball == null || laneCount <= 0)
+			return;
+
+		if (gapCount < 1)
+			gapCount = 1;
+		if (gapCount > laneCount)
+			gapCount = laneCount;
+
+		FlxG.sound.play(Paths.sound('notice', 'sans'), 0.6);
+
+		var goingRight:Bool = (fromLeft != null) ? fromLeft : FlxG.random.bool();
+
+		var isGap:Array<Bool> = [for (i in 0...laneCount) false];
+		var gapsPlaced:Int = 0;
+		while (gapsPlaced < gapCount)
+		{
+			var pick:Int = FlxG.random.int(0, laneCount - 1);
+			if (!isGap[pick])
+			{
+				isGap[pick] = true;
+				gapsPlaced++;
+			}
+		}
+
+		var laneHeight:Float = battleBoundaries.height / laneCount;
+		for (i in 0...laneCount)
+		{
+			if (isGap[i])
+				continue;
+
+			var laneY:Float = battleBoundaries.y + laneHeight * i + laneHeight / 2;
+			var bone:BoneHazard = new BoneHazard(laneY, goingRight, speed, battleBoundaries, ball, function()
+			{
+				if (!PlayStateChangeables.botPlay)
+					gethurt();
+			});
+			add(bone);
+		}
 	}
 
 	function sansBar()
