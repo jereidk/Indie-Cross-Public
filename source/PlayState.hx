@@ -12831,6 +12831,13 @@ class PlayState extends MusicBeatState
 
 		var gay:FlxSprite = new FlxSprite(battle.x - 2450, ball.y - 150);
 		gay.frames = Paths.getSparrowAtlas("Gaster_blasterss", "sans");
+		// Gaster_blasterss.png was downscaled 0.5x to fit under 4096px wide.
+		// gay.height below reads straight off the frame's own (now halved)
+		// height with no setGraphicSize() to self-correct, so compensate the
+		// scale here -- updateHitbox() is needed too since .height/.width
+		// aren't recomputed just from setting .scale.
+		gay.scale.set(2, 2);
+		gay.updateHitbox();
 		gay.animation.addByPrefix('boom', 'fefe instance 1', 27, false);
 		gay.animation.play('boom');
 		gay.antialiasing = FlxG.save.data.highquality;

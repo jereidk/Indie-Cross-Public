@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Devil-2.png" width="3715" height="2267">
+	<SubTexture name="Up instance 10000" x="2799" y="1124" width="916" height="1143" frameX="-12" frameY="-0" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10001" x="2799" y="1124" width="916" height="1143" frameX="-12" frameY="-0" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10002" x="1860" y="1124" width="939" height="1129" frameX="-0" frameY="-14" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10003" x="1860" y="1124" width="939" height="1129" frameX="-0" frameY="-14" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10004" x="1860" y="1124" width="939" height="1129" frameX="-0" frameY="-14" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10005" x="925" y="1120" width="935" height="1128" frameX="-4" frameY="-15" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10006" x="925" y="1120" width="935" height="1128" frameX="-4" frameY="-15" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10007" x="0" y="1112" width="925" height="1127" frameX="-14" frameY="-16" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10008" x="0" y="1112" width="925" height="1127" frameX="-14" frameY="-16" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10009" x="2568" y="0" width="908" height="1124" frameX="-31" frameY="-19" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10010" x="2568" y="0" width="908" height="1124" frameX="-31" frameY="-19" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10011" x="1684" y="0" width="884" height="1120" frameX="-55" frameY="-23" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10012" x="1684" y="0" width="884" height="1120" frameX="-55" frameY="-23" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10013" x="827" y="0" width="857" height="1112" frameX="-82" frameY="-31" frameWidth="943" frameHeight="1143"/>
+	<SubTexture name="Up instance 10014" x="0" y="0" width="827" height="1101" frameX="-112" frameY="-42" frameWidth="943" frameHeight="1143"/>
+</TextureAtlas>

@@ -1228,7 +1228,8 @@ class Character extends FlxSprite
 				playAnim('idle');
 
 			case 'devilFull':
-				frames = Paths.getSparrowAtlas('characters/Devil', 'shared');
+				// Split across 3 pieces (Devil-0..2), was 8192x6101 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Devil-0', 'characters/Devil-1', 'characters/Devil-2'], 'shared');
 				animation.addByPrefix('idle', 'Idle instance 1', 20, false);
 				animation.addByPrefix('singUP', 'Up instance 1', 20, false);
 				animation.addByPrefix('singLEFT', 'Left instance 1', 20, false);
