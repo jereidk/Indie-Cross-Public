@@ -6,6 +6,7 @@ package;
 // out instead of removed so it's easy to restore if a JNI vibrate binding ever gets added back.
 // import android.Hardware;
 import android.flixel.FlxJoyStick;
+import android.AndroidControls;
 #end
 import lime.math.Vector2;
 import offsetMenus.AnimationDebug;
