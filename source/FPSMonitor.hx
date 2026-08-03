@@ -24,7 +24,7 @@ class FPSMonitor extends TextField
 		currentFPS = 0;
 		selectable = false;
 		mouseEnabled = false;
-		defaultTextFormat = new TextFormat("_sans", 12, color);
+		defaultTextFormat = new TextFormat("_sans", 24, color);
 		text = "FPS: ";
 
 		cacheCount = 0;
@@ -38,6 +38,13 @@ class FPSMonitor extends TextField
 			__enterFrame(time - currentTime);
 		});
 		#end
+	}
+
+	public function setSize(size:Float):Void
+	{
+		var currentColor:Int = textColor;
+		defaultTextFormat = new TextFormat("_sans", Std.int(size), currentColor);
+		setTextFormat(defaultTextFormat);
 	}
 
 	@:noCompletion

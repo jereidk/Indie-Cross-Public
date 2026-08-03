@@ -57,6 +57,12 @@ class KadeEngineData
 		if (FlxG.save.data.fpsCap == null)
 			FlxG.save.data.fpsCap = 60;
 
+		// FPSMonitor/MemoryMonitor default to 24px on construction already
+		// (bumped up from the original 12px, unreadably small on a phone
+		// screen); this is only for the adjustable-from-Options case.
+		if (FlxG.save.data.debugDisplaySize == null)
+			FlxG.save.data.debugDisplaySize = 24;
+
 		if (FlxG.save.data.npsDisplay == null)
 			FlxG.save.data.npsDisplay = false;
 
@@ -243,5 +249,6 @@ class KadeEngineData
 		(cast(Lib.current.getChildAt(0), Main)).toggleFPS(FlxG.save.data.fps);
 		(cast(Lib.current.getChildAt(0), Main)).toggleMemCounter(FlxG.save.data.memory);
 		(cast(Lib.current.getChildAt(0), Main)).setFPSCap(FlxG.save.data.fpsCap);
+		(cast(Lib.current.getChildAt(0), Main)).setDebugDisplaySize(FlxG.save.data.debugDisplaySize);
 	}
 }

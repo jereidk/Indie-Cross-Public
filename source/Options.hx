@@ -291,6 +291,24 @@ class ScreenModeOption extends Option
 
 		FunkinRatioScaleMode.resetScaleMode();
 
+		// resetScaleMode() only resizes the game canvas/cameras -- this menu's
+		// own label positions were computed once in create() and never
+		// rechecked, so they'd stay visually wrong (old scale) until the next
+		// full state switch. Mirrors NightmareVision-Android-Support's own
+		// aspect-ratio option (funkin/states/options/MobileSettingsSubState.hx),
+		// which resets and reopens the same screen for the identical reason.
+		if (OptionsMenu.instance != null)
+		{
+			var catIndex = OptionsMenu.instance.options.indexOf(OptionsMenu.instance.currentSelectedCat);
+			if (catIndex != -1)
+			{
+				OptionsMenu.reopenCategory = catIndex;
+				OptionsMenu.reopenRow = OptionsMenu.instance.curSelected;
+			}
+		}
+
+		FlxG.resetState();
+
 		display = updateDisplay();
 		return true;
 	}
@@ -1081,6 +1099,49 @@ class FPSCapOption extends Option
 		return "Current FPS Cap: "
 			+ FlxG.save.data.fpsCap
 			+ (FlxG.save.data.fpsCap == Application.current.window.displayMode.refreshRate ? "Hz (Refresh Rate)" : "");
+	}
+}
+
+class DebugDisplaySizeOption extends Option
+{
+	static inline var MIN_SIZE:Int = 12;
+	static inline var MAX_SIZE:Int = 48;
+	static inline var STEP:Int = 4;
+
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+		acceptValues = true;
+	}
+
+	public override function press():Bool
+	{
+		return false;
+	}
+
+	private override function updateDisplay():String
+	{
+		return "FPS/Memory Counter Size";
+	}
+
+	override function right():Bool
+	{
+		FlxG.save.data.debugDisplaySize = Std.int(Math.min(MAX_SIZE, FlxG.save.data.debugDisplaySize + STEP));
+		(cast(Lib.current.getChildAt(0), Main)).setDebugDisplaySize(FlxG.save.data.debugDisplaySize);
+		return true;
+	}
+
+	override function left():Bool
+	{
+		FlxG.save.data.debugDisplaySize = Std.int(Math.max(MIN_SIZE, FlxG.save.data.debugDisplaySize - STEP));
+		(cast(Lib.current.getChildAt(0), Main)).setDebugDisplaySize(FlxG.save.data.debugDisplaySize);
+		return true;
+	}
+
+	override function getValue():String
+	{
+		return "Current Size: " + FlxG.save.data.debugDisplaySize + "px";
 	}
 }
 

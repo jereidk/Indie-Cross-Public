@@ -175,6 +175,12 @@ class Main extends Sprite
 		memoryMonitor.textColor = color;
 	}
 
+	public function setDebugDisplaySize(size:Float):Void
+	{
+		fpsCounter.setSize(size);
+		memoryMonitor.setSize(size);
+	}
+
 	public function setFPSCap(cap:Float)
 	{
 		Lib.current.stage.frameRate = cap;

@@ -71,6 +71,7 @@ class OptionsMenu extends MusicBeatState
 			new FPSCapOption("Cap your FPS"),
 			new FPSOption("Toggle the FPS Counter"),
 			new MemOption("Toggle the Memory Counter"),
+			new DebugDisplaySizeOption("Change the size of the FPS/Memory counter text."),
 			new RainbowFPSOption("Make the FPS and Memory Counter Rainbow")
 		]),
 		new OptionCategory("Accessibility", [
@@ -92,6 +93,14 @@ class OptionsMenu extends MusicBeatState
 
 	public static var fromFreeplay:Bool = false;
 	public static var returnedfromOptions:Bool = false;
+
+	// Set by an option (e.g. ScreenModeOption) right before FlxG.resetState()
+	// when its own effect needs a full state recreation to actually show up
+	// (this menu's label positions are only computed once in create()).
+	// Consumed once in the freshly recreated create() below so the player
+	// lands back in the same category/row instead of the top-level tab list.
+	public static var reopenCategory:Int = -1;
+	public static var reopenRow:Int = 0;
 
 	var allowTransit:Bool = false;
 
@@ -143,6 +152,29 @@ class OptionsMenu extends MusicBeatState
 		FlxTween.tween(blackBorder, {y: FlxG.height - 18}, 2, {ease: FlxEase.elasticInOut});
 
 		changeSelection(0);
+
+		if (reopenCategory >= 0 && reopenCategory < options.length)
+		{
+			var catIndex = reopenCategory;
+			var rowIndex = reopenRow;
+			reopenCategory = -1;
+			reopenRow = 0;
+
+			currentSelectedCat = options[catIndex];
+			isCat = true;
+			grpControls.clear();
+			for (i in 0...currentSelectedCat.getOptions().length)
+			{
+				var controlLabel:Alphabet = new Alphabet(0, ((FlxMath.remapToRange(i, 0, 1, 0, 1.3) * 120) + (FlxG.height * 0.48)),
+					currentSelectedCat.getOptions()[i].getDisplay(), true, false);
+				controlLabel.isMenuItem = true;
+				controlLabel.targetY = i;
+				grpControls.add(controlLabel);
+			}
+			outOfCatSel = catIndex;
+			curSelected = 0;
+			changeSelection(rowIndex);
+		}
 
 		#if android
 		addVirtualPad(LEFT_FULL, A_B_C);

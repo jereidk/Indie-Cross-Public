@@ -28,11 +28,26 @@ class MemoryMonitor extends TextField
 		x = inX;
 		y = inY;
 		selectable = false;
-		defaultTextFormat = new TextFormat("_sans", 12, inCol);
+		defaultTextFormat = new TextFormat("_sans", 24, inCol);
 
 		addEventListener(Event.ENTER_FRAME, onEnter);
-		width = 150;
-		height = 70;
+		width = 300;
+		height = 140;
+	}
+
+	public function setSize(size:Float):Void
+	{
+		var currentColor:Int = textColor;
+		defaultTextFormat = new TextFormat("_sans", Std.int(size), currentColor);
+		setTextFormat(defaultTextFormat);
+
+		// width/height are a fixed box (not auto-sizing), scaled here from
+		// the same 150x70 @ 12px baseline the constructor used to hardcode,
+		// so 3 lines of text (blank/MEM/MEM peak) don't get clipped at
+		// bigger sizes.
+		var scale:Float = size / 12;
+		width = 150 * scale;
+		height = 70 * scale;
 	}
 
 	private function onEnter(_)
