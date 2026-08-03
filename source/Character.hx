@@ -220,6 +220,14 @@ class Character extends FlxSprite
 				// instance") are unaffected: their frames are just spread across
 				// more than one of the 4 pieces now.
 				frames = Paths.getMultiSparrowAtlas(['characters/NMB-0', 'characters/NMB-1', 'characters/NMB-2', 'characters/NMB-3'], 'shared');
+				// Assigning frames resets width/height from whichever frame the
+				// merged atlas happens to put first, which isn't necessarily the
+				// same frame the original single NMB.png put first (708x652) --
+				// camera-follow math elsewhere assumes that original size via
+				// getMidpoint(), so restore it explicitly instead of leaving
+				// width/height at whatever the split's frame 0 happened to be.
+				width = 708;
+				height = 652;
 				animation.addByPrefix('idle', 'DeathBendy instance 1', 25, true);
 				animation.addByPrefix('singUP', 'Up instance 1', 25, false);
 				animation.addByPrefix('singRIGHT', 'FUCK YOU instance 1', 25, false);
@@ -523,6 +531,10 @@ class Character extends FlxSprite
 			case 'papyrus':
 				// Split across 2 pieces (Papyrus-0..1), was 8192x2883 as one atlas.
 				frames = Paths.getMultiSparrowAtlas(['characters/Papyrus-0', 'characters/Papyrus-1'], 'shared');
+				// See the NMB case above -- restoring the original monolithic
+				// atlas's frame-0 size (443x502) since camera-follow math assumes it.
+				width = 443;
+				height = 502;
 
 				animation.addByPrefix('bruh', 'Bruh instance 1', 24, false);
 				animation.addByPrefix('singUP-alt', 'ISTG instance 1', 24);
@@ -612,6 +624,10 @@ class Character extends FlxSprite
 					'characters/DeathSans002-3',
 					'characters/DeathSans002-4'
 				], 'shared');
+				// See the NMB case above -- restoring the original monolithic
+				// atlas's frame-0 size (604x915) since camera-follow math assumes it.
+				width = 604;
+				height = 915;
 				animation.addByPrefix('idle', 'Nightmare SANS Idle instance 1', 24, true);
 				animation.addByPrefix('singUP', 'UPP instance 1', 24);
 				animation.addByPrefix('singRIGHT', 'Rightt instance 1', 24);
@@ -684,6 +700,13 @@ class Character extends FlxSprite
 			case 'bf':
 				// Split across 2 pieces (BOYFRIEND-0..1), was 8192x4096 as one atlas.
 				frames = Paths.getMultiSparrowAtlas(['characters/BOYFRIEND-0', 'characters/BOYFRIEND-1'], 'shared');
+				// See the NMB case above -- restoring the original monolithic
+				// atlas's frame-0 size (1376x402) since camera-follow math assumes
+				// it. This is the plain BF used in most songs, so a 909px-wide
+				// miss here (467 vs 1376) shifted camera-follow noticeably in
+				// every one of them, not just one specific song.
+				width = 1376;
+				height = 402;
 				animation.addByPrefix('idle', '0Idle', 24, false);
 				animation.addByPrefix('singUP', '0UPPP', 24, false);
 				animation.addByPrefix('singLEFT', '0EERR', 24, false);
@@ -1045,6 +1068,14 @@ class Character extends FlxSprite
 			case 'bfchara':
 				// Split across 2 pieces (Chara-0..1), was 8192x4096 as one atlas.
 				frames = Paths.getMultiSparrowAtlas(['characters/Chara-0', 'characters/Chara-1'], 'shared');
+				// See the NMB case above -- restoring the original monolithic
+				// atlas's frame-0 size (1572x400) since camera-follow math assumes
+				// it. This is the exact bug behind burning-in-hell's camera
+				// drifting too far left: the split's frame 0 (412x376, an idle
+				// pose) is nowhere near as wide as the original's (1572x400, an
+				// attack pose), so getMidpoint().x came out ~580px too far left.
+				width = 1572;
+				height = 400;
 				animation.addByPrefix('idle', '0Idle', 24, false);
 				animation.addByPrefix('singUP', '0UPPP', 24, false);
 				animation.addByPrefix('singLEFT', '0EERR', 24, false);
