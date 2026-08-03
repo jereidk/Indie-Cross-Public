@@ -7,6 +7,7 @@ package;
 // import android.Hardware;
 import android.flixel.FlxJoyStick;
 import android.AndroidControls;
+import flixel.input.touch.FlxTouch;
 #end
 import lime.math.Vector2;
 import offsetMenus.AnimationDebug;
@@ -153,6 +154,8 @@ class PlayState extends MusicBeatState
 
 	#if android
 	var utJoystick:FlxJoyStick;
+	var utStickTouch:FlxTouch;
+	static inline var UT_JOYSTICK_RADIUS:Float = 110;
 	#end
 
 	var animName:String = 'normal';
@@ -6045,18 +6048,55 @@ class PlayState extends MusicBeatState
 			}
 
 				#if android
-				if (utJoystick != null && utJoystick.pressed && utJoystick._amount > 0)
+				if (utJoystick != null && utJoystick.visible)
 				{
-					var moveX:Float = Math.cos(utJoystick._direction) * utJoystick._amount * speed * elapsed;
-					var moveY:Float = Math.sin(utJoystick._direction) * utJoystick._amount * speed * elapsed;
+					if (utStickTouch != null && !utStickTouch.pressed)
+						utStickTouch = null;
 
-					ball.x += moveX;
-					if (!ball.isInside(battleBoundaries))
-						ball.x -= moveX;
+					if (utStickTouch == null)
+					{
+						for (touch in FlxG.touches.list)
+						{
+							if (!touch.pressed)
+								continue;
 
-					ball.y += moveY;
-					if (!ball.isInside(battleBoundaries))
-						ball.y -= moveY;
+							var catchDx:Float = touch.screenX - utJoystick.x;
+							var catchDy:Float = touch.screenY - utJoystick.y;
+							if (catchDx * catchDx + catchDy * catchDy <= UT_JOYSTICK_RADIUS * UT_JOYSTICK_RADIUS)
+							{
+								utStickTouch = touch;
+								break;
+							}
+						}
+					}
+
+					if (utStickTouch != null)
+					{
+						var dx:Float = utStickTouch.screenX - utJoystick.x;
+						var dy:Float = utStickTouch.screenY - utJoystick.y;
+						var dist:Float = Math.sqrt(dx * dx + dy * dy);
+						var amount:Float = Math.min(1, dist / UT_JOYSTICK_RADIUS);
+						var direction:Float = Math.atan2(dy, dx);
+
+						var moveX:Float = Math.cos(direction) * amount * speed * elapsed;
+						var moveY:Float = Math.sin(direction) * amount * speed * elapsed;
+
+						ball.x += moveX;
+						if (!ball.isInside(battleBoundaries))
+							ball.x -= moveX;
+
+						ball.y += moveY;
+						if (!ball.isInside(battleBoundaries))
+							ball.y -= moveY;
+
+						utJoystick.thumb.x = utJoystick.x + Math.cos(direction) * amount * UT_JOYSTICK_RADIUS - utJoystick.thumb.width * 0.5;
+						utJoystick.thumb.y = utJoystick.y + Math.sin(direction) * amount * UT_JOYSTICK_RADIUS - utJoystick.thumb.height * 0.5;
+					}
+					else
+					{
+						utJoystick.thumb.x = utJoystick.x - utJoystick.thumb.width * 0.5;
+						utJoystick.thumb.y = utJoystick.y - utJoystick.thumb.height * 0.5;
+					}
 				}
 				#end
 		}
@@ -12820,11 +12860,22 @@ class PlayState extends MusicBeatState
 	{
 		if (utJoystick == null)
 		{
-			utJoystick = new FlxJoyStick(150, FlxG.height - 220, 110);
+			utJoystick = new FlxJoyStick(150, FlxG.height - 220, UT_JOYSTICK_RADIUS);
 			utJoystick.scrollFactor.set();
 			utJoystick.alpha = 0.0001;
 			if (androidControls != null)
 				utJoystick.cameras = androidControls.cameras;
+
+			// Its own update() does its own FlxG.touches.list tracking (with a
+			// long-standing unresolved TODO in that logic about multi-instance
+			// behavior) and runs via super.update() *after* the utmode movement
+			// block below in this same frame -- reading _amount/_direction from
+			// it here would always be a frame stale regardless. Disabling its
+			// update() and driving the touch tracking, ball movement, and the
+			// thumb sprite's position directly from this class sidesteps both
+			// problems; base/thumb stay as pure visual sprites.
+			utJoystick.active = false;
+
 			add(utJoystick);
 		}
 	}
@@ -12848,7 +12899,6 @@ class PlayState extends MusicBeatState
 			androidControls.active = false;
 
 			utJoystick.visible = true;
-			utJoystick.active = true;
 			FlxTween.cancelTweensOf(utJoystick);
 			FlxTween.tween(utJoystick, {alpha: AndroidControls.getOpacity(true)}, 0.5);
 
@@ -12862,7 +12912,7 @@ class PlayState extends MusicBeatState
 		}
 		else
 		{
-			utJoystick.active = false;
+			utStickTouch = null;
 
 			androidControls.visible = true;
 			androidControls.active = true;
