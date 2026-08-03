@@ -341,7 +341,17 @@ class Paths
 	public static function returnGraphic(key:String, ?library:String, ?gpurender:Bool = false):FlxGraphic
 	{
 		var path:String = getPath('images/$key.png', IMAGE, library);
-		if (OpenFlAssets.exists(path, IMAGE))
+		var pngExists:Bool = OpenFlAssets.exists(path, IMAGE);
+
+		// Some Android sprites ship ASTC-only (no .png at all) to save package
+		// size -- the .astc is the source of truth for those, and the PNG is
+		// only consulted as a fallback/desktop asset when it's actually there.
+		var astcExists:Bool = false;
+		#if (android && cpp)
+		astcExists = mobile.backend.AstcSupport.isSupported && mobile.backend.AstcLoader.exists(path);
+		#end
+
+		if (pngExists || astcExists)
 		{
 			if (!currentTrackedAssets.exists(path))
 			{
@@ -353,8 +363,8 @@ class Paths
 				// (assets/images/foo.png -> assets/images/foo.astc, same dir).
 				// Falls through to the normal PNG path below if ASTC is
 				// unsupported on this device, no .astc sibling exists, or
-				// loading fails for any reason -- the PNG always stays the
-				// source of truth. See mobile.backend.AstcLoader.
+				// loading fails for any reason -- the PNG stays the fallback
+				// whenever it's still shipped. See mobile.backend.AstcLoader.
 				#if (android && cpp)
 				if (mobile.backend.AstcSupport.isSupported)
 				{
@@ -363,8 +373,17 @@ class Paths
 				}
 				#end
 
-				if (bitmap == null)
+				if (bitmap == null && pngExists)
 					bitmap = OpenFlAssets.getBitmapData(path);
+
+				// ASTC failed (or is unsupported here) and there's no PNG to
+				// fall back to -- same "missing asset" placeholder as below,
+				// rather than handing a null bitmap to FlxGraphic.fromBitmapData().
+				if (bitmap == null)
+				{
+					trace('Paths.returnGraphic: missing image "$path" (key="$key", library="${library}") -- returning flixel logo placeholder');
+					return FlxG.bitmap.add('flixel/images/logo/default.png');
+				}
 
 				// Many Android GPUs cap 2D texture size at 4096px (some
 				// older/low-end ones lower); uploading anything past that

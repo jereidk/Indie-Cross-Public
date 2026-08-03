@@ -370,4 +370,24 @@ class AstcLoader
 		if (!pngPath.endsWith('.png')) return null;
 		return pngPath.substr(0, pngPath.length - 4) + '.astc';
 	}
+
+	/**
+	 * Cheap existence check for the .astc sibling of a PNG path -- no
+	 * loading, no GPU upload. Mirrors tryLoad()'s two lookup locations
+	 * (external storage first, then bundled APK assets) so callers can
+	 * decide whether an asset is reachable at all before the PNG itself
+	 * exists, e.g. for ASTC-only sprites shipped with no .png fallback.
+	 */
+	public static function exists(pngPath:String):Bool
+	{
+		#if (android && cpp)
+		var astcPath = deriveAstcPath(pngPath);
+		if (astcPath == null) return false;
+
+		if (sys.FileSystem.exists(astcPath)) return true;
+		return OflAssets.exists(astcPath);
+		#else
+		return false;
+		#end
+	}
 }
