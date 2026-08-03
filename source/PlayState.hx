@@ -6072,6 +6072,17 @@ class PlayState extends MusicBeatState
 				#if android
 				if (utJoystick != null && utJoystick.visible)
 				{
+					// utJoystick renders under androidControls.cameras (camHUD),
+					// which zoom-bumps on every beat hit and eases back down --
+					// almost never sitting at exactly 1. touch.screenX/screenY are
+					// flat game-resolution coordinates with no camera applied, so
+					// comparing them directly against utJoystick.x/y (a world
+					// position seen through that ever-changing zoom) only lined up
+					// by coincidence. getWorldPosition(camera, ...) is the same
+					// conversion FlxButton.hx's own touch hit-testing uses.
+					var joystickCam:FlxCamera = (utJoystick.cameras != null && utJoystick.cameras.length > 0) ? utJoystick.cameras[0] : FlxG.camera;
+					var _utTouchPoint:FlxPoint = FlxPoint.get();
+
 					if (utStickTouch != null && !utStickTouch.pressed)
 						utStickTouch = null;
 
@@ -6082,8 +6093,9 @@ class PlayState extends MusicBeatState
 							if (!touch.pressed)
 								continue;
 
-							var catchDx:Float = touch.screenX - utJoystick.x;
-							var catchDy:Float = touch.screenY - utJoystick.y;
+							touch.getWorldPosition(joystickCam, _utTouchPoint);
+							var catchDx:Float = _utTouchPoint.x - utJoystick.x;
+							var catchDy:Float = _utTouchPoint.y - utJoystick.y;
 							if (catchDx * catchDx + catchDy * catchDy <= UT_JOYSTICK_RADIUS * UT_JOYSTICK_RADIUS)
 							{
 								utStickTouch = touch;
@@ -6094,8 +6106,9 @@ class PlayState extends MusicBeatState
 
 					if (utStickTouch != null)
 					{
-						var dx:Float = utStickTouch.screenX - utJoystick.x;
-						var dy:Float = utStickTouch.screenY - utJoystick.y;
+						utStickTouch.getWorldPosition(joystickCam, _utTouchPoint);
+						var dx:Float = _utTouchPoint.x - utJoystick.x;
+						var dy:Float = _utTouchPoint.y - utJoystick.y;
 						var dist:Float = Math.sqrt(dx * dx + dy * dy);
 
 						utThumbAmount = Math.min(1, dist / UT_JOYSTICK_RADIUS);
@@ -6124,6 +6137,8 @@ class PlayState extends MusicBeatState
 
 					utJoystick.thumb.x = utJoystick.x + Math.cos(utThumbDirection) * utThumbAmount * UT_JOYSTICK_RADIUS - utJoystick.thumb.width * 0.5;
 					utJoystick.thumb.y = utJoystick.y + Math.sin(utThumbDirection) * utThumbAmount * UT_JOYSTICK_RADIUS - utJoystick.thumb.height * 0.5;
+
+					_utTouchPoint.put();
 				}
 				#end
 		}
