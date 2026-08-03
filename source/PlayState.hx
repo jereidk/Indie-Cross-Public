@@ -1860,7 +1860,7 @@ class PlayState extends MusicBeatState
 						var yOffset:Int = 0;
 						if (fuckinAngry)
 						{
-							bfDodge.frames = Paths.getSparrowAtlas('characters/BF-BS-shader', 'shared');
+							bfDodge.frames = Paths.getMultiSparrowAtlas(['characters/BF-BS-shader-0', 'characters/BF-BS-shader-1'], 'shared');
 							add(nightmareSansBgs[1]);
 						}
 						else if (SONG.song.toLowerCase() == 'burning-in-hell')

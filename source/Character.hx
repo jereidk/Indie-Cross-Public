@@ -520,7 +520,8 @@ class Character extends FlxSprite
 			 */
 
 			case 'papyrus':
-				frames = Paths.getSparrowAtlas('characters/Papyrus', 'shared');
+				// Split across 2 pieces (Papyrus-0..1), was 8192x2883 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/Papyrus-0', 'characters/Papyrus-1'], 'shared');
 
 				animation.addByPrefix('bruh', 'Bruh instance 1', 24, false);
 				animation.addByPrefix('singUP-alt', 'ISTG instance 1', 24);
@@ -1095,7 +1096,8 @@ class Character extends FlxSprite
 				flipX = true;
 
 			case 'bfSansNightmare':
-				frames = Paths.getSparrowAtlas('characters/BF-BS-shader', 'shared');
+				// Split across 2 pieces (BF-BS-shader-0..1), was 8192x2435 as one atlas.
+				frames = Paths.getMultiSparrowAtlas(['characters/BF-BS-shader-0', 'characters/BF-BS-shader-1'], 'shared');
 				animation.addByPrefix('idle', 'BF idle dance instance 1', 24, false);
 				animation.addByPrefix('singUP', 'BF NOTE UP instance 1', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT instance 1', 24, false);

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created with FunkyPacker v1.0.0 https://jereidk.github.io/FunkyPacker/
+-->
+<TextureAtlas imagePath="Papyrus-1.png" width="1392" height="597">
+	<SubTexture name="ISTG instance 10000" x="660" y="0" width="413" height="584" frameX="-10" frameY="-0" frameWidth="439" frameHeight="584"/>
+	<SubTexture name="Up instance 10000" x="1073" y="0" width="319" height="597" frameX="-6" frameY="-1" frameWidth="331" frameHeight="598"/>
+	<SubTexture name="Up instance 10001" x="1073" y="0" width="319" height="597" frameX="-6" frameY="-1" frameWidth="331" frameHeight="598"/>
+	<SubTexture name="Up instance 10002" x="329" y="0" width="331" height="573" frameX="-0" frameY="-24" frameWidth="331" frameHeight="598"/>
+	<SubTexture name="Up instance 10003" x="329" y="0" width="331" height="573" frameX="-0" frameY="-24" frameWidth="331" frameHeight="598"/>
+	<SubTexture name="Up instance 10004" x="0" y="0" width="329" height="567" frameX="-2" frameY="-30" frameWidth="331" frameHeight="598"/>
+	<SubTexture name="Up instance 10005" x="0" y="0" width="329" height="567" frameX="-2" frameY="-30" frameWidth="331" frameHeight="598"/>
+</TextureAtlas>
