@@ -1091,6 +1091,10 @@ class PlayState extends MusicBeatState
 								defaultCamZoom = 0.375;
 
 								var bg:FlxSprite = new FlxSprite(0, 0).loadGraphic(Paths.image('SammyS', 'bendy'));
+								// SammyS.png was downscaled 0.5x to fit under 4096px wide; there's no
+								// setGraphicSize() here (just the raw updateHitbox() below), so
+								// compensate directly or this renders at half size.
+								bg.scale.set(2, 2);
 								bg.updateHitbox();
 								bg.screenCenter();
 								// bg.y -= 200;
