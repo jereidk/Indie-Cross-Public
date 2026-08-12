@@ -76,7 +76,7 @@ jobs:
           # not the commits .hxpkg actually pins -- confirmed via CI diag.
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
-          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v8-${{ hashFiles('.hxpkg') }}
 
       # Same rationale as "Prune stale hxcpp compile caches" further down,
       # applied to the OTHER cache that grows unboundedly: every time this
@@ -282,6 +282,16 @@ jobs:
             echo "lime.ndll already present, skipping rebuild."
           else
             echo "lime.ndll missing -- rebuilding from source."
+            # lime keeps its native deps as git submodules (project/lib/*,
+            # including hashlink). hxpkg's git clone does not pull them, and
+            # the NightmareVision import path normally hands us a PREBUILT
+            # lime.ndll so this branch never ran -- the first time it did, it
+            # died on "fatal error: hl.h: No such file or directory" because
+            # project/lib/hashlink was an empty directory. Init them here so
+            # the fallback can actually succeed instead of only working when
+            # it is never needed.
+            git -C .haxelib/lime/git submodule update --init --recursive --depth 1 || \
+              echo "WARNING: lime submodule init failed; rebuild may fail on missing headers."
             haxelib run lime rebuild cpp -release
             if [ ! -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
               echo "ERROR: Missing Lime ndll after rebuild"
@@ -637,18 +647,39 @@ jobs:
 
       # Explicit save steps to replace the deprecated/broken save-always
       # input (see the "Cache Haxe libraries" restore step above). Each
+      # Guards the save below. Saving on if: always() alone is how the
+      # haxelibs cache got POISONED: the key is content-addressed off .hxpkg
+      # only, so a run that failed BEFORE the library tree was complete still
+      # published its half-built tree under the key every later run restores
+      # -- and because the whole NightmareVision import chain is gated on
+      # "cache-hit != true", those later runs then skip the very steps that
+      # would have repaired it. One bad run poisons the key until .hxpkg
+      # changes. lime.ndll is the marker: it is the last thing the import/
+      # rebuild chain produces, so its presence means the tree is usable.
+      - name: Check Haxe library tree is complete
+        id: libcheck
+        if: always()
+        run: |
+          if [ -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
+            echo "complete=true" >> $GITHUB_OUTPUT
+            echo "Library tree looks complete (lime.ndll present) -- safe to cache."
+          else
+            echo "complete=false" >> $GITHUB_OUTPUT
+            echo "Library tree is INCOMPLETE (no lime.ndll) -- refusing to save the haxelibs cache."
+          fi
+
       # runs regardless of job outcome (if: always()) so a run that fails
       # at Compile still keeps whatever it downloaded/built -- actions/cache/
       # save is a no-op (with a warning, not a failure) if the exact key was
       # already saved, so it's safe to attempt unconditionally here.
       - name: Save Haxe libraries cache
-        if: always()
+        if: always() && steps.libcheck.outputs.complete == 'true'
         uses: actions/cache/save@v4
         with:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v8-${{ hashFiles('.hxpkg') }}
 
       - name: Save Gradle cache
         if: always()
@@ -730,7 +761,7 @@ jobs:
           # not the commits .hxpkg actually pins -- confirmed via CI diag.
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
-          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v8-${{ hashFiles('.hxpkg') }}
 
       # Same rationale as "Prune stale hxcpp compile caches" further down,
       # applied to the OTHER cache that grows unboundedly: every time this
@@ -936,6 +967,16 @@ jobs:
             echo "lime.ndll already present, skipping rebuild."
           else
             echo "lime.ndll missing -- rebuilding from source."
+            # lime keeps its native deps as git submodules (project/lib/*,
+            # including hashlink). hxpkg's git clone does not pull them, and
+            # the NightmareVision import path normally hands us a PREBUILT
+            # lime.ndll so this branch never ran -- the first time it did, it
+            # died on "fatal error: hl.h: No such file or directory" because
+            # project/lib/hashlink was an empty directory. Init them here so
+            # the fallback can actually succeed instead of only working when
+            # it is never needed.
+            git -C .haxelib/lime/git submodule update --init --recursive --depth 1 || \
+              echo "WARNING: lime submodule init failed; rebuild may fail on missing headers."
             haxelib run lime rebuild cpp -release
             if [ ! -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
               echo "ERROR: Missing Lime ndll after rebuild"
@@ -1282,18 +1323,39 @@ jobs:
 
       # Explicit save steps to replace the deprecated/broken save-always
       # input (see the "Cache Haxe libraries" restore step above). Each
+      # Guards the save below. Saving on if: always() alone is how the
+      # haxelibs cache got POISONED: the key is content-addressed off .hxpkg
+      # only, so a run that failed BEFORE the library tree was complete still
+      # published its half-built tree under the key every later run restores
+      # -- and because the whole NightmareVision import chain is gated on
+      # "cache-hit != true", those later runs then skip the very steps that
+      # would have repaired it. One bad run poisons the key until .hxpkg
+      # changes. lime.ndll is the marker: it is the last thing the import/
+      # rebuild chain produces, so its presence means the tree is usable.
+      - name: Check Haxe library tree is complete
+        id: libcheck
+        if: always()
+        run: |
+          if [ -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
+            echo "complete=true" >> $GITHUB_OUTPUT
+            echo "Library tree looks complete (lime.ndll present) -- safe to cache."
+          else
+            echo "complete=false" >> $GITHUB_OUTPUT
+            echo "Library tree is INCOMPLETE (no lime.ndll) -- refusing to save the haxelibs cache."
+          fi
+
       # runs regardless of job outcome (if: always()) so a run that fails
       # at Compile still keeps whatever it downloaded/built -- actions/cache/
       # save is a no-op (with a warning, not a failure) if the exact key was
       # already saved, so it's safe to attempt unconditionally here.
       - name: Save Haxe libraries cache
-        if: always()
+        if: always() && steps.libcheck.outputs.complete == 'true'
         uses: actions/cache/save@v4
         with:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v8-${{ hashFiles('.hxpkg') }}
 
       - name: Save Gradle cache
         if: always()
@@ -1375,7 +1437,7 @@ jobs:
           # not the commits .hxpkg actually pins -- confirmed via CI diag.
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
-          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v8-${{ hashFiles('.hxpkg') }}
 
       # Same rationale as "Prune stale hxcpp compile caches" further down,
       # applied to the OTHER cache that grows unboundedly: every time this
@@ -1581,6 +1643,16 @@ jobs:
             echo "lime.ndll already present, skipping rebuild."
           else
             echo "lime.ndll missing -- rebuilding from source."
+            # lime keeps its native deps as git submodules (project/lib/*,
+            # including hashlink). hxpkg's git clone does not pull them, and
+            # the NightmareVision import path normally hands us a PREBUILT
+            # lime.ndll so this branch never ran -- the first time it did, it
+            # died on "fatal error: hl.h: No such file or directory" because
+            # project/lib/hashlink was an empty directory. Init them here so
+            # the fallback can actually succeed instead of only working when
+            # it is never needed.
+            git -C .haxelib/lime/git submodule update --init --recursive --depth 1 || \
+              echo "WARNING: lime submodule init failed; rebuild may fail on missing headers."
             haxelib run lime rebuild cpp -release
             if [ ! -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
               echo "ERROR: Missing Lime ndll after rebuild"
@@ -1927,18 +1999,39 @@ jobs:
 
       # Explicit save steps to replace the deprecated/broken save-always
       # input (see the "Cache Haxe libraries" restore step above). Each
+      # Guards the save below. Saving on if: always() alone is how the
+      # haxelibs cache got POISONED: the key is content-addressed off .hxpkg
+      # only, so a run that failed BEFORE the library tree was complete still
+      # published its half-built tree under the key every later run restores
+      # -- and because the whole NightmareVision import chain is gated on
+      # "cache-hit != true", those later runs then skip the very steps that
+      # would have repaired it. One bad run poisons the key until .hxpkg
+      # changes. lime.ndll is the marker: it is the last thing the import/
+      # rebuild chain produces, so its presence means the tree is usable.
+      - name: Check Haxe library tree is complete
+        id: libcheck
+        if: always()
+        run: |
+          if [ -f .haxelib/lime/git/ndll/Linux64/lime.ndll ]; then
+            echo "complete=true" >> $GITHUB_OUTPUT
+            echo "Library tree looks complete (lime.ndll present) -- safe to cache."
+          else
+            echo "complete=false" >> $GITHUB_OUTPUT
+            echo "Library tree is INCOMPLETE (no lime.ndll) -- refusing to save the haxelibs cache."
+          fi
+
       # runs regardless of job outcome (if: always()) so a run that fails
       # at Compile still keeps whatever it downloaded/built -- actions/cache/
       # save is a no-op (with a warning, not a failure) if the exact key was
       # already saved, so it's safe to attempt unconditionally here.
       - name: Save Haxe libraries cache
-        if: always()
+        if: always() && steps.libcheck.outputs.complete == 'true'
         uses: actions/cache/save@v4
         with:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-v7-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v8-${{ hashFiles('.hxpkg') }}
 
       - name: Save Gradle cache
         if: always()
