@@ -9535,41 +9535,6 @@ class PlayState extends MusicBeatState
 						startCupheadShoot();
 						canheal = false;
 					});
-
-					pushStepEvent(128, function()
-					{
-						dodgeAttackEvent('cuphead');
-					});
-
-					pushStepEvent(340, function()
-					{
-						cupheadChaserMode = true;
-						canheal = false;
-					});
-					pushStepEvent(440, function()
-					{
-						cupheadChaserMode = false;
-					});
-
-					pushStepEvent(620, function()
-					{
-						dodgeAttackEvent('cuphead', 'roundabout');
-					});
-
-					pushStepEvent(950, function()
-					{
-						cupheadChaserMode = true;
-						canheal = false;
-					});
-					pushStepEvent(1150, function()
-					{
-						cupheadChaserMode = false;
-					});
-
-					pushStepEvent(1340, function()
-					{
-						dodgeAttackEvent('cuphead', 'alt');
-					});
 				}
 
 			case 'knockout':
@@ -10493,6 +10458,14 @@ class PlayState extends MusicBeatState
 
 		if ((SONG.song.toLowerCase() == 'despair' && curBeat % 24 == 0) && butchersActive)
 			summonFisher();
+
+		if (SONG.song.toLowerCase() == 'devils-gambit' && curBeat % 48 == 0)
+		{
+			if (dad.animation.curAnim.name != 'attack1')
+			{
+				dodgeAttackEvent('cuphead', 'hadoken');
+			}
+		}
 
 		if (curBeat % 4 == 0)
 		{
