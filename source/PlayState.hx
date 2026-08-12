@@ -288,17 +288,6 @@ class PlayState extends MusicBeatState
 	var speed:Float = 650;
 	var blaster:FlxTypedGroup<FlxSprite>;
 
-	// blastemDirectional()'s own blasters, kept OUT of the `blaster` group on
-	// purpose -- the existing per-frame collision check below (in update(),
-	// `blaster.forEachAlive`) builds its hitbox with an AdvancedRect
-	// approximation that's only valid for near-0-degree (left-fired) beams;
-	// applying it to a 90/180/270-rotated sprite would place the hitbox
-	// somewhere else entirely. This tracks each directional blast's own
-	// beam geometry (world-space origin/angle/length/thickness, fixed at
-	// spawn time) and checks it with a proper world-to-beam-local rotation
-	// instead, correct at any angle.
-	var directionalBlasts:Array<{sprite:FlxSprite, originX:Float, originY:Float, angleDeg:Float, length:Float, thickness:Float}> = [];
-
 	var cannotDie:Bool = false; // helps prevent the game locking up when dying while going into charting state, etc.
 	var transitioningToState = false; // boogaloo
 
@@ -6066,41 +6055,6 @@ class PlayState extends MusicBeatState
 				}
 			});
 
-			// blastemDirectional()'s blasters -- proper world-to-beam-local
-			// rotation check instead of blaster.forEachAlive's left-only
-			// AdvancedRect approximation above (see directionalBlasts' own
-			// doc comment). Iterated backwards so dead entries can be
-			// spliced out in the same pass once their sprite finishes.
-			var dbIndex:Int = directionalBlasts.length - 1;
-			while (dbIndex >= 0)
-			{
-				var db = directionalBlasts[dbIndex];
-				if (db.sprite.alive)
-				{
-					if (db.sprite.alpha == 1 && !PlayStateChangeables.botPlay)
-					{
-						var dbRad:Float = db.angleDeg * Math.PI / 180;
-						var dbCos:Float = Math.cos(dbRad);
-						var dbSin:Float = Math.sin(dbRad);
-						var dbRelX:Float = ball.getMidpoint().x - db.originX;
-						var dbRelY:Float = ball.getMidpoint().y - db.originY;
-						// rotate the ball's position into the beam's own local
-						// space (beam runs along local +X from the origin)
-						var dbLocalX:Float = dbRelX * dbCos + dbRelY * dbSin;
-						var dbLocalY:Float = -dbRelX * dbSin + dbRelY * dbCos;
-						if (dbLocalX >= 0 && dbLocalX <= db.length && Math.abs(dbLocalY) <= db.thickness / 2)
-						{
-							gethurt();
-						}
-					}
-				}
-				else
-				{
-					directionalBlasts.splice(dbIndex, 1);
-				}
-				dbIndex--;
-			}
-
 			var up:Bool = false;
 			var down:Bool = false;
 			var left:Bool = false;
@@ -10011,31 +9965,6 @@ class PlayState extends MusicBeatState
 						{
 							blastem(ball.y);
 						});
-
-						// blastemDirectional()/spawnBoneHazard(): more UT-mode
-						// variety than blastem()'s single always-from-the-left
-						// homing shot, staggered into the gaps between the
-						// steps above so nothing double-fires on the same beat.
-						pushMultStepEvents([410, 668], function()
-						{
-							blastemDirectional('right', ball.y, 0);
-						});
-						pushMultStepEvents([440, 695], function()
-						{
-							blastemDirectional('top', 0, ball.x);
-						});
-						pushMultStepEvents([465, 715], function()
-						{
-							blastemDirectional('bottom', 0, ball.x);
-						});
-						pushStepEvent(740, function()
-						{
-							blastemDirectional('right', ball.y, 0);
-						});
-						pushMultStepEvents([420, 490, 680, 750], function()
-						{
-							spawnBoneHazard();
-						});
 					}
 				}
 
@@ -13209,123 +13138,6 @@ class PlayState extends MusicBeatState
 		{
 			gay.kill();
 		});
-	}
-
-	/**
-	 * Fires a Gaster Blaster from any side of the battle box instead of
-	 * always the same fixed point off to the left like blastem() -- kept
-	 * entirely separate from blastem()/the `blaster` group (see
-	 * directionalBlasts' own doc comment) rather than generalizing
-	 * blastem()'s own angle math, since that math (and the collision check
-	 * in update() that reads it) is only valid for near-0-degree beams.
-	 *
-	 * `atY`/`atX` only matter for the side that reads them (e.g. `atY` for
-	 * 'left'/'right', `atX` for 'top'/'bottom') -- pass ball.y/ball.x, or a
-	 * fixed spot to force a specific lane instead of homing on the ball.
-	 */
-	function blastemDirectional(side:String, atY:Float, atX:Float)
-	{
-		FlxG.sound.play(Paths.sound('readygas', 'sans'));
-
-		var gay:FlxSprite = new FlxSprite();
-		gay.frames = Paths.getSparrowAtlas("Gaster_blasterss", "sans");
-		gay.scale.set(2, 2);
-		gay.updateHitbox();
-		gay.animation.addByPrefix('boom', 'fefe instance 1', 27, false);
-		gay.animation.play('boom');
-		gay.antialiasing = FlxG.save.data.highquality;
-		gay.height = gay.height * 0.8;
-
-		// Fixed hitbox geometry (independent of whatever frame the charge-up
-		// animation happens to be showing) -- 2000px comfortably spans
-		// battleBoundaries' 1516px width/750px height from just outside
-		// either edge, 90px thickness roughly matches the beam's own visual
-		// width once fired.
-		var length:Float = 2000;
-		var thickness:Float = 90;
-		var margin:Float = 300;
-		var angleDeg:Float = 0;
-		var originX:Float = 0;
-		var originY:Float = 0;
-
-		switch (side)
-		{
-			case 'right':
-				originX = battleBoundaries.x + battleBoundaries.width + margin;
-				originY = atY;
-				angleDeg = 180;
-				gay.flipX = true;
-			case 'top':
-				originX = atX;
-				originY = battleBoundaries.y - margin;
-				angleDeg = 90;
-			case 'bottom':
-				originX = atX;
-				originY = battleBoundaries.y + battleBoundaries.height + margin;
-				angleDeg = 270;
-			default: // 'left'
-				originX = battleBoundaries.x - margin;
-				originY = atY;
-				angleDeg = 0;
-		}
-
-		// origin.set(0, height/2) makes (0, height/2) in the sprite's own
-		// unrotated frame -- the muzzle, at the near edge of the beam -- the
-		// pivot Flixel rotates it around, so world-space that point stays
-		// pinned at (originX, originY) regardless of angle. That's what
-		// keeps the update() collision check (which assumes the beam starts
-		// exactly at (originX, originY) and runs along local +X) matching
-		// what's actually drawn.
-		gay.origin.set(0, gay.height / 2);
-		gay.x = originX;
-		gay.y = originY - gay.height / 2;
-		gay.angle = angleDeg;
-
-		add(gay);
-		gay.alpha = 0.999999;
-
-		gay.animation.onFrameChange.add(function(boom, frameNumber:Int, frameIndex:Int)
-		{
-			if (frameNumber == 28)
-			{
-				gay.alpha = 1;
-				FlxG.sound.play(Paths.sound('shootgas', 'sans'));
-				FlxG.camera.shake(0.015, 0.1);
-				camHUD.shake(0.005, 0.1);
-
-				chromVal = 0.01;
-				FlxTween.tween(this, {chromVal: defaultChromVal}, FlxG.random.float(0.05, 0.12));
-			}
-		});
-		gay.animation.onFinish.add(function(boom)
-		{
-			gay.kill();
-		});
-
-		directionalBlasts.push({sprite: gay, originX: originX, originY: originY, angleDeg: angleDeg, length: length, thickness: thickness});
-	}
-
-	/**
-	 * Slides a BoneHazard across the battle box at a random height, entering
-	 * from whichever side isn't passed explicitly. See BoneHazard.hx's own
-	 * doc comment -- original vector art, not copied from Undertale.
-	 */
-	function spawnBoneHazard(?fromLeft:Null<Bool> = null)
-	{
-		if (ball == null)
-			return;
-
-		FlxG.sound.play(Paths.sound('notice', 'sans'), 0.6);
-
-		var goingRight:Bool = (fromLeft != null) ? fromLeft : FlxG.random.bool();
-		var boneY:Float = FlxG.random.float(battleBoundaries.y + 60, battleBoundaries.y + battleBoundaries.height - 60);
-
-		var bone:BoneHazard = new BoneHazard(boneY, goingRight, 620, battleBoundaries, ball, function()
-		{
-			if (!PlayStateChangeables.botPlay)
-				gethurt();
-		});
-		add(bone);
 	}
 
 	function sansBar()
