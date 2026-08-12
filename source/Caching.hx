@@ -57,6 +57,12 @@ class Caching extends MusicBeatState
                 PlayerSettings.init();
 		KadeEngineData.initSave();
 
+		// Deliberately AFTER FlxG.save.bind()/initSave(): PerfLogger's header
+		// records the graphics settings this session actually runs with, and
+		// before those two run FlxG.save.data is entirely null. It reuses the
+		// writable directory GameLogger.init() already resolved above.
+		PerfLogger.init();
+
 		screen = new LoadingScreen();
 		screen.max = 9;
 		add(screen);
