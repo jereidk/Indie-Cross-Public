@@ -104,10 +104,36 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
         run: |
-          set -x
-          RUN_ID=$(gh run list --repo jereidk/NightmareVision-Android-Support \
-            --workflow exportHaxelibForIndieCross.yml --status success --limit 1 \
-            --json databaseId --jq '.[0].databaseId')
+          # Was: take the latest successful run, full stop. That ignores
+          # whether its artifact still EXISTS -- GitHub keeps the run record
+          # long after the artifact is gone. The only export run ever made
+          # (2026-07-27) had retention-days: 3 and expired 2026-07-30, so this
+          # resolved a dead run id on every cold build since: the download
+          # step then failed with "no valid artifacts found to download" and
+          # the job limped on via continue-on-error, having wasted the attempt.
+          # Now it walks recent successful runs and picks the first one whose
+          # haxelib-cache-export artifact is still live, emitting an empty
+          # run-id when none is (which the steps below already treat as
+          # "skip the import", falling back to hxpkg install).
+          set +e
+          REPO=jereidk/NightmareVision-Android-Support
+          RUN_ID=""
+          for candidate in $(gh run list --repo "$REPO" \
+              --workflow exportHaxelibForIndieCross.yml --status success --limit 10 \
+              --json databaseId --jq '.[].databaseId'); do
+            if gh api "/repos/$REPO/actions/runs/$candidate/artifacts" \
+                 --jq '.artifacts[] | select(.name=="haxelib-cache-export" and .expired==false) | .id' \
+                 2>/dev/null | grep -q .; then
+              RUN_ID="$candidate"
+              echo "Using NightmareVision export run $RUN_ID (artifact still live)."
+              break
+            fi
+            echo "Run $candidate has no live haxelib-cache-export artifact; trying an older one."
+          done
+          if [ -z "$RUN_ID" ]; then
+            echo "No NightmareVision export run has a live artifact -- skipping the import tier entirely."
+            echo "(Re-run exportHaxelibForIndieCross.yml over there to restore the fast path.)"
+          fi
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
       # Caches the raw downloaded tarballs (not just the extracted result,
@@ -789,10 +815,36 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
         run: |
-          set -x
-          RUN_ID=$(gh run list --repo jereidk/NightmareVision-Android-Support \
-            --workflow exportHaxelibForIndieCross.yml --status success --limit 1 \
-            --json databaseId --jq '.[0].databaseId')
+          # Was: take the latest successful run, full stop. That ignores
+          # whether its artifact still EXISTS -- GitHub keeps the run record
+          # long after the artifact is gone. The only export run ever made
+          # (2026-07-27) had retention-days: 3 and expired 2026-07-30, so this
+          # resolved a dead run id on every cold build since: the download
+          # step then failed with "no valid artifacts found to download" and
+          # the job limped on via continue-on-error, having wasted the attempt.
+          # Now it walks recent successful runs and picks the first one whose
+          # haxelib-cache-export artifact is still live, emitting an empty
+          # run-id when none is (which the steps below already treat as
+          # "skip the import", falling back to hxpkg install).
+          set +e
+          REPO=jereidk/NightmareVision-Android-Support
+          RUN_ID=""
+          for candidate in $(gh run list --repo "$REPO" \
+              --workflow exportHaxelibForIndieCross.yml --status success --limit 10 \
+              --json databaseId --jq '.[].databaseId'); do
+            if gh api "/repos/$REPO/actions/runs/$candidate/artifacts" \
+                 --jq '.artifacts[] | select(.name=="haxelib-cache-export" and .expired==false) | .id' \
+                 2>/dev/null | grep -q .; then
+              RUN_ID="$candidate"
+              echo "Using NightmareVision export run $RUN_ID (artifact still live)."
+              break
+            fi
+            echo "Run $candidate has no live haxelib-cache-export artifact; trying an older one."
+          done
+          if [ -z "$RUN_ID" ]; then
+            echo "No NightmareVision export run has a live artifact -- skipping the import tier entirely."
+            echo "(Re-run exportHaxelibForIndieCross.yml over there to restore the fast path.)"
+          fi
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
       # Caches the raw downloaded tarballs (not just the extracted result,
@@ -1465,10 +1517,36 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
         run: |
-          set -x
-          RUN_ID=$(gh run list --repo jereidk/NightmareVision-Android-Support \
-            --workflow exportHaxelibForIndieCross.yml --status success --limit 1 \
-            --json databaseId --jq '.[0].databaseId')
+          # Was: take the latest successful run, full stop. That ignores
+          # whether its artifact still EXISTS -- GitHub keeps the run record
+          # long after the artifact is gone. The only export run ever made
+          # (2026-07-27) had retention-days: 3 and expired 2026-07-30, so this
+          # resolved a dead run id on every cold build since: the download
+          # step then failed with "no valid artifacts found to download" and
+          # the job limped on via continue-on-error, having wasted the attempt.
+          # Now it walks recent successful runs and picks the first one whose
+          # haxelib-cache-export artifact is still live, emitting an empty
+          # run-id when none is (which the steps below already treat as
+          # "skip the import", falling back to hxpkg install).
+          set +e
+          REPO=jereidk/NightmareVision-Android-Support
+          RUN_ID=""
+          for candidate in $(gh run list --repo "$REPO" \
+              --workflow exportHaxelibForIndieCross.yml --status success --limit 10 \
+              --json databaseId --jq '.[].databaseId'); do
+            if gh api "/repos/$REPO/actions/runs/$candidate/artifacts" \
+                 --jq '.artifacts[] | select(.name=="haxelib-cache-export" and .expired==false) | .id' \
+                 2>/dev/null | grep -q .; then
+              RUN_ID="$candidate"
+              echo "Using NightmareVision export run $RUN_ID (artifact still live)."
+              break
+            fi
+            echo "Run $candidate has no live haxelib-cache-export artifact; trying an older one."
+          done
+          if [ -z "$RUN_ID" ]; then
+            echo "No NightmareVision export run has a live artifact -- skipping the import tier entirely."
+            echo "(Re-run exportHaxelibForIndieCross.yml over there to restore the fast path.)"
+          fi
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
       # Caches the raw downloaded tarballs (not just the extracted result,
