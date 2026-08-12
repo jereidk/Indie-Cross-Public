@@ -10625,8 +10625,15 @@ class PlayState extends MusicBeatState
 		new FlxTimer().start(0.65, function(tmr:FlxTimer)
 		{
 			nmStairs = false;
-			stairsBG.alpha = 0.0001;
-			stairs.alpha = 0.0001;
+			// layerChars()'s nightmare-run teardown destroys AND nulls
+			// stairsBG/stairs, but this timer was already pending when it ran
+			// -- an unguarded write here crashed with a Null Object Reference
+			// when the song ended mid-transition. Nothing is lost by skipping:
+			// a destroyed sprite has no alpha left to hide.
+			if (stairsBG != null)
+				stairsBG.alpha = 0.0001;
+			if (stairs != null)
+				stairs.alpha = 0.0001;
 			forcesize = true;
 			defaultBrightVal = 0.0;
 			brightSpeed = 0.0;
@@ -10693,8 +10700,15 @@ class PlayState extends MusicBeatState
 				defaultBrightVal = 0.0;
 				brightSpeed = 0.0;
 				brightMagnitude = 0.0;
-				stairsBG.alpha = 1.0;
-				stairs.alpha = 1.0;
+				// Same guard as transrights()' timer above -- and doubly safe
+				// here, since the layerChars() call at the end of this very
+				// branch REBUILDS stairsBG/stairs from scratch anyway (see its
+				// nmStairs == true branch), so this alpha is being written to
+				// an instance that is about to be replaced regardless.
+				if (stairsBG != null)
+					stairsBG.alpha = 1.0;
+				if (stairs != null)
+					stairs.alpha = 1.0;
 
 				remove(boyfriend);
 				boyfriend = new Boyfriend(-160, -220, 'bfChase');
@@ -10704,10 +10718,17 @@ class PlayState extends MusicBeatState
 				dad = new Character(-1080, -220, 'bendyChase');
 				dad.angle = -15;
 
-				FlxTween.cancelTweensOf(stairs);
+				// Same nulled-by-layerChars() exposure as the alpha writes
+				// above -- this one would have crashed a few lines later for
+				// exactly the same reason. layerChars() at the end of this
+				// branch rebuilds `stairs` and re-tweens it anyway.
+				if (stairs != null)
+				{
+					FlxTween.cancelTweensOf(stairs);
+					stairs.y = -620;
+				}
 				FlxTween.cancelTweensOf(dad);
 				FlxTween.cancelTweensOf(boyfriend);
-				stairs.y = -620;
 				dad.y = -320;
 				boyfriend.y = -520;
 				// FlxTween.tween(stairs, {y: 820}, 2.3, {type: LOOPING});
@@ -10724,8 +10745,10 @@ class PlayState extends MusicBeatState
 				brightSpeed = 0.5;
 				brightMagnitude = 0.05;
 
-				stairsBG.alpha = 0.0001;
-				stairs.alpha = 0.0001;
+				if (stairsBG != null)
+					stairsBG.alpha = 0.0001;
+				if (stairs != null)
+					stairs.alpha = 0.0001;
 
 				remove(boyfriend);
 				boyfriend.angle = 0;
