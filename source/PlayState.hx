@@ -4804,17 +4804,20 @@ class PlayState extends MusicBeatState
 				spr.centerOffsets(); // CPU arrows start out slightly off-center
 			});
 
-			if (PlayState.SONG.song.toLowerCase() != 'nightmare-run')
+			// nightmare-run used to be the one song that left this second
+			// strumline visible, fading it in over the real one during the
+			// dark sections -- which is exactly what put two strumlines on
+			// screen at once. It now re-skins the real strumline instead
+			// (setNmStrumSkin), so this set stays hidden here too, like it
+			// already was for every other song.
+			altPlayerStrums.forEach(function(spr:FlxSprite)
 			{
-				altPlayerStrums.forEach(function(spr:FlxSprite)
-				{
-					spr.visible = false;
-				});
-				altCpuStrums.forEach(function(spr:FlxSprite)
-				{
-					spr.visible = false;
-				});
-			}
+				spr.visible = false;
+			});
+			altCpuStrums.forEach(function(spr:FlxSprite)
+			{
+				spr.visible = false;
+			});
 
 			/*if (PlayState.SONG.song.toLowerCase() == 'bad-time'
 					|| PlayState.SONG.song.toLowerCase() == 'devils-gambit'
@@ -10499,6 +10502,93 @@ class PlayState extends MusicBeatState
 
 	var inBlackout:Bool = false;
 
+	var nmDarkStrumFrames:FlxAtlasFrames = null;
+	var nmDarkStrums:Bool = false;
+
+	/**
+	 * Re-skins the EXISTING strumline in place for nightmare-run's dark
+	 * sections, replacing the old approach of fading in the separate
+	 * altStrumLineNotes set that generateAltStaticArrows() builds.
+	 *
+	 * That second set was laid out at its own offset (+52 x, +45 y, and
+	 * without the -10 y nudge the real strums get) and drawn ON TOP of the
+	 * originals rather than replacing them, so during every blackout both
+	 * strumlines were on screen at once -- and the notes, which have always
+	 * targeted the original strums, fell onto the colourful ones sitting
+	 * beside the dark ones. Skinning the real strumline leaves exactly one,
+	 * at the position the notes actually use.
+	 *
+	 * Both atlases were checked to expose an identical frame-name set
+	 * (arrowUP/DOWN/LEFT/RIGHT plus "<dir> press"/"<dir> confirm"), so the
+	 * same prefixes re-register cleanly against either one.
+	 */
+	function setNmStrumSkin(dark:Bool):Void
+	{
+		if (strumLineNotes == null || nmDarkStrums == dark || SONG.song.toLowerCase() != 'nightmare-run')
+			return;
+
+		if (dark && nmDarkStrumFrames == null)
+			nmDarkStrumFrames = Paths.getSparrowAtlas('NOTE_NMassets', 'notes');
+
+		var skin:FlxAtlasFrames = dark ? nmDarkStrumFrames : noteskinSprite;
+		if (skin == null)
+			return;
+
+		nmDarkStrums = dark;
+
+		strumLineNotes.forEach(function(spr:FlxSprite)
+		{
+			var resume:String = (spr.animation.curAnim != null) ? spr.animation.curAnim.name : 'static';
+
+			// The two atlases do NOT share a frame 0 (NOTE_assets starts on
+			// arrowDOWN at 157x154, NOTE_NMassets on "blue tail" at 52x65),
+			// and assigning .frames resets width/height off whatever frame 0
+			// is -- so the usual setGraphicSize(width * Note.noteWidth) the
+			// generators use would size the dark strums off a 52px tail here
+			// and shrink them. Carry the strum's existing scale across the
+			// swap instead; the arrow frames themselves are the same size in
+			// both atlases, so the on-screen size is unchanged by design.
+			var keepScaleX:Float = spr.scale.x;
+			var keepScaleY:Float = spr.scale.y;
+
+			// Assigning .frames also wipes the animation list, so everything
+			// generateStaticArrows() registered has to be re-applied.
+			spr.frames = skin;
+			spr.animation.addByPrefix('green', 'arrowUP');
+			spr.animation.addByPrefix('blue', 'arrowDOWN');
+			spr.animation.addByPrefix('purple', 'arrowLEFT');
+			spr.animation.addByPrefix('red', 'arrowRIGHT');
+
+			switch (spr.ID)
+			{
+				case 0:
+					spr.animation.addByPrefix('static', 'arrowLEFT');
+					spr.animation.addByPrefix('pressed', 'left press', 24, false);
+					spr.animation.addByPrefix('confirm', 'left confirm', 24, false);
+				case 1:
+					spr.animation.addByPrefix('static', 'arrowDOWN');
+					spr.animation.addByPrefix('pressed', 'down press', 24, false);
+					spr.animation.addByPrefix('confirm', 'down confirm', 24, false);
+				case 2:
+					spr.animation.addByPrefix('static', 'arrowUP');
+					spr.animation.addByPrefix('pressed', 'up press', 24, false);
+					spr.animation.addByPrefix('confirm', 'up confirm', 24, false);
+				case 3:
+					spr.animation.addByPrefix('static', 'arrowRIGHT');
+					spr.animation.addByPrefix('pressed', 'right press', 24, false);
+					spr.animation.addByPrefix('confirm', 'right confirm', 24, false);
+			}
+
+			if (spr.animation.getByName(resume) == null)
+				resume = 'static';
+			spr.animation.play(resume, true);
+
+			spr.scale.set(keepScaleX, keepScaleY);
+			spr.updateHitbox();
+			spr.centerOffsets();
+		});
+	}
+
 	function setDarkTunnel()
 	{
 		canPause = false;
@@ -10514,13 +10604,13 @@ class PlayState extends MusicBeatState
 		{
 			inBlackout = true;
 
-			altPlayerStrums.forEach(function(spr:FlxSprite)
+			// Was fading altPlayerStrums/altCpuStrums in on top of the real
+			// strumline; now re-skins the real one instead (see
+			// setNmStrumSkin). Kept on the same ~1s delay the tween had, so
+			// the swap still lands after the screen transition covers it.
+			new FlxTimer().start(1, function(tmr:FlxTimer)
 			{
-				FlxTween.tween(spr, {alpha: 1}, 0.5, {startDelay: 1});
-			});
-			altCpuStrums.forEach(function(spr:FlxSprite)
-			{
-				FlxTween.tween(spr, {alpha: 1}, 0.5, {startDelay: 1});
+				setNmStrumSkin(true);
 			});
 
 			new FlxTimer().start(0.6, function(tmr:FlxTimer)
@@ -10553,13 +10643,9 @@ class PlayState extends MusicBeatState
 		{
 			inBlackout = false;
 
-			altPlayerStrums.forEach(function(spr:FlxSprite)
+			new FlxTimer().start(1, function(tmr:FlxTimer)
 			{
-				FlxTween.tween(spr, {alpha: 0}, 0.5, {startDelay: 1});
-			});
-			altCpuStrums.forEach(function(spr:FlxSprite)
-			{
-				FlxTween.tween(spr, {alpha: 0}, 0.5, {startDelay: 1});
+				setNmStrumSkin(false);
 			});
 
 			new FlxTimer().start(0.6, function(tmr:FlxTimer)
@@ -10604,13 +10690,9 @@ class PlayState extends MusicBeatState
 	function transrights()
 	{
 		bridged = true;
-		altPlayerStrums.forEach(function(spr:FlxSprite)
+		new FlxTimer().start(1, function(tmr:FlxTimer)
 		{
-			FlxTween.tween(spr, {alpha: 1}, 0.5, {startDelay: 1});
-		});
-		altCpuStrums.forEach(function(spr:FlxSprite)
-		{
-			FlxTween.tween(spr, {alpha: 1}, 0.5, {startDelay: 1});
+			setNmStrumSkin(true);
 		});
 		canPause = false;
 		transition.alpha = 1;
