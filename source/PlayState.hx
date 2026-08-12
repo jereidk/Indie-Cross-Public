@@ -517,16 +517,6 @@ class PlayState extends MusicBeatState
 
 	var gameVideos:Array<VideoHandler> = [];
 
-	static function cupheadPewDamage(song:String):Float
-	{
-		return switch (song)
-		{
-			case 'knockout': 0.0475;
-			case 'devils-gambit': 0.075;
-			default: 0.0225; // snake-eyes, technicolor-tussle
-		}
-	}
-
 	override public function create()
 	{
 		super.create();
@@ -699,7 +689,7 @@ class PlayState extends MusicBeatState
 		switch (songLowercase)
 		{
 			case 'snake-eyes' | 'technicolor-tussle' | 'knockout':
-				pewdmg = cupheadPewDamage(songLowercase);
+				pewdmg = 0.0225;
 				chromVal = 0.001;
 				defaultChromVal = 0.001;
 				stageCheck = 'field';
@@ -11204,6 +11194,9 @@ class PlayState extends MusicBeatState
 								}
 							});
 							waitTime = 0.4 + shootWait;
+						case 'chaser':
+							waitTime = 2.2;
+
 						case 'rb_back':
 							waitTime = 0.9;
 							remove(boyfriend);
@@ -11594,8 +11587,11 @@ class PlayState extends MusicBeatState
 
 		switch (songLowercase)
 		{
-			case 'knockout' | 'devils-gambit':
-				pewdmg = cupheadPewDamage(songLowercase);
+			case 'knockout':
+				pewdmg = 0.0475;
+
+			case 'devils-gambit':
+				pewdmg = 0.075;
 
 			case 'technicolor-tussle':
 				cupheadPewThing.x -= 100;
@@ -12239,7 +12235,17 @@ class PlayState extends MusicBeatState
 				});
 				healthChange(0.5);
 				pewhits = 0;
-				pewdmg = cupheadPewDamage(songLowercase);
+				switch (songLowercase)
+				{
+					case 'technicolor-tussle':
+						pewdmg = 0.0225;
+
+					case 'knockout':
+						pewdmg = 0.0475;
+
+					case 'devils-gambit':
+						pewdmg = 0.075;
+				}
 			});
 
 			boyfriend.playAnim('attack');
