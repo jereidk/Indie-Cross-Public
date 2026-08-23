@@ -110,7 +110,25 @@ class VideoHandler
 		// in its place.
 		if (outputTo != null)
 		{
-			video.setGraphicSize(Std.int(outputTo.width), Std.int(outputTo.height));
+			// Size to the placeholder's DRAWN footprint, not its hitbox.
+			// FlxSprite.width/height are the collision box, and freaky-machine's
+			// placeholder does makeGraphic(FlxG.width, FlxG.height) and then
+			// assigns .width/.height a quarter of that. Under the original raw
+			// VlcBitmap implementation those two lines were inert: it did
+			// sprite.loadGraphic(bitmap.bitmapData), and loadGraphic resets
+			// width/height from the new graphic, so the quarter only ever
+			// affected the screenCenter() call sitting between them. Reading
+			// .width here revived that vestigial line and shrank the background
+			// video to a quarter of the screen.
+			//
+			// Falls back to width/height when there is no graphic at all --
+			// sansSprite is a bare `new FlxSprite(0, 0)` with .width/.height
+			// assigned by hand and no makeGraphic, so frameWidth/frameHeight
+			// are 0 there and the hitbox IS the intended footprint.
+			var targetWidth:Float = outputTo.frameWidth > 0 ? outputTo.frameWidth * outputTo.scale.x : outputTo.width;
+			var targetHeight:Float = outputTo.frameHeight > 0 ? outputTo.frameHeight * outputTo.scale.y : outputTo.height;
+
+			video.setGraphicSize(Std.int(targetWidth), Std.int(targetHeight));
 			video.updateHitbox();
 			video.x = outputTo.x;
 			video.y = outputTo.y;
@@ -151,8 +169,25 @@ class VideoHandler
 
 	function onEnterFrame(e:Event):Void
 	{
-		if (video == null)
+		// This listener lives on FlxG.stage, which SURVIVES state switches --
+		// but the video sprite is added to FlxG.state, so switching states
+		// destroys it, and FlxVideoSprite.destroy() nulls its `bitmap`. The
+		// old `video == null` check never caught that: our own reference stays
+		// non-null while the object behind it is dead, so the next line
+		// dereferenced a null bitmap and crashed (reported as
+		// "VideoHandler.hx (line 160) Null Object Reference" on Freaky-Machine).
+		//
+		// A LOOPING video makes this certain rather than incidental:
+		// onEndReached never fires, so onComplete() never runs and never
+		// removes this listener, and PlayState only ever pause()/resume()s the
+		// videos in gameVideos -- kill() is never called on them. So the
+		// listener always outlives the sprite. Detach as soon as it is gone.
+		if (video == null || video.bitmap == null)
+		{
+			FlxG.stage.removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+			video = null;
 			return;
+		}
 
 		if (FlxG.keys.justPressed.ENTER #if android || FlxG.android.justReleased.BACK #end && (allowSkip && video.bitmap.isPlaying))
 			onComplete();
@@ -186,7 +221,10 @@ class VideoHandler
 	public function pause()
 	{
 		#if VIDEOS_ALLOWED
-		if (video != null)
+		// bitmap null-checked for the same reason as onEnterFrame: PlayState
+		// pauses every entry in gameVideos, and one of those sprites may
+		// already have been destroyed by a state switch.
+		if (video != null && video.bitmap != null)
 			video.bitmap.pause();
 		#end
 	}
@@ -194,7 +232,7 @@ class VideoHandler
 	public function resume()
 	{
 		#if VIDEOS_ALLOWED
-		if (video != null)
+		if (video != null && video.bitmap != null)
 			video.bitmap.resume();
 		#end
 	}
