@@ -75,7 +75,25 @@ class Main extends Sprite
 
 		SUtil.check();
 
-		addChild(new FlxGame(0, 0, Caching, 60, 60, true, false));
+		// 1280x720 explicitly, NOT 0x0. Flixel's docs say 0 means "use the
+		// Project.xml size", but FlxGame actually does
+		// `if (gameWidth == 0) gameWidth = FlxG.stage.stageWidth`, and on
+		// mobile <window if="mobile" fullscreen="true"> makes the stage the
+		// DEVICE resolution rather than the 1280x720 declared for the window.
+		//
+		// That value becomes FlxG.initialWidth/Height, which is exactly what
+		// FunkinRatioScaleMode reads as its design resolution -- so on a phone
+		// the "design" aspect ratio silently became the phone's own aspect
+		// ratio, and Screen Mode's "Normal" (fit to 16:9, black bars) had
+		// nothing to letterbox against: it computed the device's ratio, fit to
+		// it, and came out identical to "Wide". Hence Normal/Stretch/Wide all
+		// looking the same on Android while working fine on desktop, where the
+		// stage really is 1280x720.
+		//
+		// ScreenAnchor already hardcodes 1280x720 as the design canvas, so
+		// this also makes FlxG.initialWidth agree with the rest of the code
+		// instead of only agreeing on desktop.
+		addChild(new FlxGame(1280, 720, Caching, 60, 60, true, false));
 		gjToastManager = new GJToastManager();
 		addChild(memoryMonitor);
 		addChild(fpsCounter);
