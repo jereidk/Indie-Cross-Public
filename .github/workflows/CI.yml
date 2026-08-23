@@ -178,6 +178,24 @@ jobs:
           # assets cap at 2GB each and the pair runs ~3GB. Reassemble before
           # extracting; a tarball small enough not to need splitting still
           # arrives as a single .part.000, so this path is the only one.
+          # Two separate checks, because they catch different things and the
+          # consumer cannot assume the publisher got it right:
+          #
+          #  - sha256sum -c only verifies the files its manifest LISTS. An
+          #    EXTRA .part.NNN (a stale asset the publisher failed to prune)
+          #    passes it untouched, and would then be swept into the cat
+          #    below and corrupt the reassembled tarball. So compare the set
+          #    of parts present against the set the manifest names, in both
+          #    directions, first.
+          #  - then the checksums themselves, for the contents.
+          #
+          # Both run in a subshell so the cd cannot leak into the tar -C .
+          # further down, which is relative to the repo checkout.
+          ( cd /tmp/nv-cache-import \
+            && ls ./*.part.* 2>/dev/null | sed 's#^\./##' | sort > /tmp/nv-present.txt \
+            && awk '{print $NF}' SHA256SUMS | sed 's#^\./##' | sort > /tmp/nv-manifest.txt \
+            && diff -u /tmp/nv-manifest.txt /tmp/nv-present.txt ) \
+            || { echo "Downloaded export does not match its manifest (missing or extra parts) -- refusing to import."; exit 1; }
           ( cd /tmp/nv-cache-import && sha256sum -c SHA256SUMS ) \
             || { echo "Export checksums do not match -- refusing to import a corrupt tree."; exit 1; }
           cat /tmp/nv-cache-import/haxelib-root.tar.gz.part.* > /tmp/nv-cache-import/haxelib-root.tar.gz
@@ -895,6 +913,24 @@ jobs:
           # assets cap at 2GB each and the pair runs ~3GB. Reassemble before
           # extracting; a tarball small enough not to need splitting still
           # arrives as a single .part.000, so this path is the only one.
+          # Two separate checks, because they catch different things and the
+          # consumer cannot assume the publisher got it right:
+          #
+          #  - sha256sum -c only verifies the files its manifest LISTS. An
+          #    EXTRA .part.NNN (a stale asset the publisher failed to prune)
+          #    passes it untouched, and would then be swept into the cat
+          #    below and corrupt the reassembled tarball. So compare the set
+          #    of parts present against the set the manifest names, in both
+          #    directions, first.
+          #  - then the checksums themselves, for the contents.
+          #
+          # Both run in a subshell so the cd cannot leak into the tar -C .
+          # further down, which is relative to the repo checkout.
+          ( cd /tmp/nv-cache-import \
+            && ls ./*.part.* 2>/dev/null | sed 's#^\./##' | sort > /tmp/nv-present.txt \
+            && awk '{print $NF}' SHA256SUMS | sed 's#^\./##' | sort > /tmp/nv-manifest.txt \
+            && diff -u /tmp/nv-manifest.txt /tmp/nv-present.txt ) \
+            || { echo "Downloaded export does not match its manifest (missing or extra parts) -- refusing to import."; exit 1; }
           ( cd /tmp/nv-cache-import && sha256sum -c SHA256SUMS ) \
             || { echo "Export checksums do not match -- refusing to import a corrupt tree."; exit 1; }
           cat /tmp/nv-cache-import/haxelib-root.tar.gz.part.* > /tmp/nv-cache-import/haxelib-root.tar.gz
@@ -1603,6 +1639,24 @@ jobs:
           # assets cap at 2GB each and the pair runs ~3GB. Reassemble before
           # extracting; a tarball small enough not to need splitting still
           # arrives as a single .part.000, so this path is the only one.
+          # Two separate checks, because they catch different things and the
+          # consumer cannot assume the publisher got it right:
+          #
+          #  - sha256sum -c only verifies the files its manifest LISTS. An
+          #    EXTRA .part.NNN (a stale asset the publisher failed to prune)
+          #    passes it untouched, and would then be swept into the cat
+          #    below and corrupt the reassembled tarball. So compare the set
+          #    of parts present against the set the manifest names, in both
+          #    directions, first.
+          #  - then the checksums themselves, for the contents.
+          #
+          # Both run in a subshell so the cd cannot leak into the tar -C .
+          # further down, which is relative to the repo checkout.
+          ( cd /tmp/nv-cache-import \
+            && ls ./*.part.* 2>/dev/null | sed 's#^\./##' | sort > /tmp/nv-present.txt \
+            && awk '{print $NF}' SHA256SUMS | sed 's#^\./##' | sort > /tmp/nv-manifest.txt \
+            && diff -u /tmp/nv-manifest.txt /tmp/nv-present.txt ) \
+            || { echo "Downloaded export does not match its manifest (missing or extra parts) -- refusing to import."; exit 1; }
           ( cd /tmp/nv-cache-import && sha256sum -c SHA256SUMS ) \
             || { echo "Export checksums do not match -- refusing to import a corrupt tree."; exit 1; }
           cat /tmp/nv-cache-import/haxelib-root.tar.gz.part.* > /tmp/nv-cache-import/haxelib-root.tar.gz
