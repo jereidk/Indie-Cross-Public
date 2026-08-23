@@ -104,37 +104,30 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
         run: |
-          # Was: take the latest successful run, full stop. That ignores
-          # whether its artifact still EXISTS -- GitHub keeps the run record
-          # long after the artifact is gone. The only export run ever made
-          # (2026-07-27) had retention-days: 3 and expired 2026-07-30, so this
-          # resolved a dead run id on every cold build since: the download
-          # step then failed with "no valid artifacts found to download" and
-          # the job limped on via continue-on-error, having wasted the attempt.
-          # Now it walks recent successful runs and picks the first one whose
-          # haxelib-cache-export artifact is still live, emitting an empty
-          # run-id when none is (which the steps below already treat as
-          # "skip the import", falling back to hxpkg install).
+          # The export is published as a RELEASE now, not a run artifact.
+          # Artifacts expire, and this is only ever consulted on a cold cache
+          # -- i.e. weeks later, once any artifact is long gone. That is
+          # exactly how the previous scheme silently died: the only export run
+          # ever made had retention-days: 3 and its artifact expired
+          # 2026-07-30, so every cold build since resolved a dead run id and
+          # fell through to compiling lime from source.
+          #
+          # A release under a fixed tag has no expiry and needs no hunting:
+          # resolve it by tag, and use its published timestamp as the cache
+          # key so a re-export invalidates the local copy.
           set +e
           REPO=jereidk/NightmareVision-Android-Support
-          RUN_ID=""
-          for candidate in $(gh run list --repo "$REPO" \
-              --workflow exportHaxelibForIndieCross.yml --status success --limit 10 \
-              --json databaseId --jq '.[].databaseId'); do
-            if gh api "/repos/$REPO/actions/runs/$candidate/artifacts" \
-                 --jq '.artifacts[] | select(.name=="haxelib-cache-export" and .expired==false) | .id' \
-                 2>/dev/null | grep -q .; then
-              RUN_ID="$candidate"
-              echo "Using NightmareVision export run $RUN_ID (artifact still live)."
-              break
-            fi
-            echo "Run $candidate has no live haxelib-cache-export artifact; trying an older one."
-          done
-          if [ -z "$RUN_ID" ]; then
-            echo "No NightmareVision export run has a live artifact -- skipping the import tier entirely."
-            echo "(Re-run exportHaxelibForIndieCross.yml over there to restore the fast path.)"
+          TAG=haxelib-cache-export
+          EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/dev/null)
+          if [ -z "$EXPORT_ID" ]; then
+            echo "No '$TAG' release on $REPO -- skipping the import tier."
+            echo "(Run exportHaxelibForIndieCross.yml over there to publish one.)"
+          else
+            echo "Found export release '$TAG' published $EXPORT_ID."
           fi
-          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          # Slashes/colons out of the timestamp so it is a legal cache key.
+          EXPORT_ID=$(echo "$EXPORT_ID" | tr -c 'A-Za-z0-9._-' '-')
+          echo "run-id=$EXPORT_ID" >> "$GITHUB_OUTPUT"
 
       # Caches the raw downloaded tarballs (not just the extracted result,
       # which the "Cache Haxe libraries" step above already covers under a
@@ -170,17 +163,30 @@ jobs:
           echo "imported=false" >> "$GITHUB_OUTPUT"
           RUN_ID="${{ steps.nv-run.outputs.run-id }}"
           if [ -z "$RUN_ID" ]; then
-            echo "No successful export run found on NightmareVision -- falling back to a from-scratch install."
+            echo "No export release available on NightmareVision -- falling back to a from-scratch install."
             exit 0
           fi
           if [ "${{ steps.nv-download-cache.outputs.cache-hit }}" != 'true' ]; then
-            gh run download "$RUN_ID" --repo jereidk/NightmareVision-Android-Support \
-              --name haxelib-cache-export --dir /tmp/nv-cache-import
+            mkdir -p /tmp/nv-cache-import
+            gh release download haxelib-cache-export \
+              --repo jereidk/NightmareVision-Android-Support \
+              --dir /tmp/nv-cache-import --clobber
           else
-            echo "Reusing previously-downloaded NightmareVision export (run $RUN_ID)."
+            echo "Reusing previously-downloaded NightmareVision export ($RUN_ID)."
           fi
+          # The export splits each tarball into 1900MB parts, because release
+          # assets cap at 2GB each and the pair runs ~3GB. Reassemble before
+          # extracting; a tarball small enough not to need splitting still
+          # arrives as a single .part.000, so this path is the only one.
+          ( cd /tmp/nv-cache-import && sha256sum -c SHA256SUMS ) \
+            || { echo "Export checksums do not match -- refusing to import a corrupt tree."; exit 1; }
+          cat /tmp/nv-cache-import/haxelib-root.tar.gz.part.* > /tmp/nv-cache-import/haxelib-root.tar.gz
+          cat /tmp/nv-cache-import/haxelib-project.tar.gz.part.* > /tmp/nv-cache-import/haxelib-project.tar.gz
           tar -xzf /tmp/nv-cache-import/haxelib-root.tar.gz -C "$HOME"
           tar -xzf /tmp/nv-cache-import/haxelib-project.tar.gz -C .
+          # Keep only the parts for the download cache below (the reassembled
+          # copies would double its size for no benefit).
+          rm -f /tmp/nv-cache-import/haxelib-root.tar.gz /tmp/nv-cache-import/haxelib-project.tar.gz
           # haxelib's dev-link registry stores the ABSOLUTE path to each
           # git-linked package's checkout (lime/flixel/flixel-addons/openfl/
           # hxcpp), captured on NightmareVision's own runner
@@ -815,37 +821,30 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
         run: |
-          # Was: take the latest successful run, full stop. That ignores
-          # whether its artifact still EXISTS -- GitHub keeps the run record
-          # long after the artifact is gone. The only export run ever made
-          # (2026-07-27) had retention-days: 3 and expired 2026-07-30, so this
-          # resolved a dead run id on every cold build since: the download
-          # step then failed with "no valid artifacts found to download" and
-          # the job limped on via continue-on-error, having wasted the attempt.
-          # Now it walks recent successful runs and picks the first one whose
-          # haxelib-cache-export artifact is still live, emitting an empty
-          # run-id when none is (which the steps below already treat as
-          # "skip the import", falling back to hxpkg install).
+          # The export is published as a RELEASE now, not a run artifact.
+          # Artifacts expire, and this is only ever consulted on a cold cache
+          # -- i.e. weeks later, once any artifact is long gone. That is
+          # exactly how the previous scheme silently died: the only export run
+          # ever made had retention-days: 3 and its artifact expired
+          # 2026-07-30, so every cold build since resolved a dead run id and
+          # fell through to compiling lime from source.
+          #
+          # A release under a fixed tag has no expiry and needs no hunting:
+          # resolve it by tag, and use its published timestamp as the cache
+          # key so a re-export invalidates the local copy.
           set +e
           REPO=jereidk/NightmareVision-Android-Support
-          RUN_ID=""
-          for candidate in $(gh run list --repo "$REPO" \
-              --workflow exportHaxelibForIndieCross.yml --status success --limit 10 \
-              --json databaseId --jq '.[].databaseId'); do
-            if gh api "/repos/$REPO/actions/runs/$candidate/artifacts" \
-                 --jq '.artifacts[] | select(.name=="haxelib-cache-export" and .expired==false) | .id' \
-                 2>/dev/null | grep -q .; then
-              RUN_ID="$candidate"
-              echo "Using NightmareVision export run $RUN_ID (artifact still live)."
-              break
-            fi
-            echo "Run $candidate has no live haxelib-cache-export artifact; trying an older one."
-          done
-          if [ -z "$RUN_ID" ]; then
-            echo "No NightmareVision export run has a live artifact -- skipping the import tier entirely."
-            echo "(Re-run exportHaxelibForIndieCross.yml over there to restore the fast path.)"
+          TAG=haxelib-cache-export
+          EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/dev/null)
+          if [ -z "$EXPORT_ID" ]; then
+            echo "No '$TAG' release on $REPO -- skipping the import tier."
+            echo "(Run exportHaxelibForIndieCross.yml over there to publish one.)"
+          else
+            echo "Found export release '$TAG' published $EXPORT_ID."
           fi
-          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          # Slashes/colons out of the timestamp so it is a legal cache key.
+          EXPORT_ID=$(echo "$EXPORT_ID" | tr -c 'A-Za-z0-9._-' '-')
+          echo "run-id=$EXPORT_ID" >> "$GITHUB_OUTPUT"
 
       # Caches the raw downloaded tarballs (not just the extracted result,
       # which the "Cache Haxe libraries" step above already covers under a
@@ -881,17 +880,30 @@ jobs:
           echo "imported=false" >> "$GITHUB_OUTPUT"
           RUN_ID="${{ steps.nv-run.outputs.run-id }}"
           if [ -z "$RUN_ID" ]; then
-            echo "No successful export run found on NightmareVision -- falling back to a from-scratch install."
+            echo "No export release available on NightmareVision -- falling back to a from-scratch install."
             exit 0
           fi
           if [ "${{ steps.nv-download-cache.outputs.cache-hit }}" != 'true' ]; then
-            gh run download "$RUN_ID" --repo jereidk/NightmareVision-Android-Support \
-              --name haxelib-cache-export --dir /tmp/nv-cache-import
+            mkdir -p /tmp/nv-cache-import
+            gh release download haxelib-cache-export \
+              --repo jereidk/NightmareVision-Android-Support \
+              --dir /tmp/nv-cache-import --clobber
           else
-            echo "Reusing previously-downloaded NightmareVision export (run $RUN_ID)."
+            echo "Reusing previously-downloaded NightmareVision export ($RUN_ID)."
           fi
+          # The export splits each tarball into 1900MB parts, because release
+          # assets cap at 2GB each and the pair runs ~3GB. Reassemble before
+          # extracting; a tarball small enough not to need splitting still
+          # arrives as a single .part.000, so this path is the only one.
+          ( cd /tmp/nv-cache-import && sha256sum -c SHA256SUMS ) \
+            || { echo "Export checksums do not match -- refusing to import a corrupt tree."; exit 1; }
+          cat /tmp/nv-cache-import/haxelib-root.tar.gz.part.* > /tmp/nv-cache-import/haxelib-root.tar.gz
+          cat /tmp/nv-cache-import/haxelib-project.tar.gz.part.* > /tmp/nv-cache-import/haxelib-project.tar.gz
           tar -xzf /tmp/nv-cache-import/haxelib-root.tar.gz -C "$HOME"
           tar -xzf /tmp/nv-cache-import/haxelib-project.tar.gz -C .
+          # Keep only the parts for the download cache below (the reassembled
+          # copies would double its size for no benefit).
+          rm -f /tmp/nv-cache-import/haxelib-root.tar.gz /tmp/nv-cache-import/haxelib-project.tar.gz
           # haxelib's dev-link registry stores the ABSOLUTE path to each
           # git-linked package's checkout (lime/flixel/flixel-addons/openfl/
           # hxcpp), captured on NightmareVision's own runner
@@ -1517,37 +1529,30 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
         run: |
-          # Was: take the latest successful run, full stop. That ignores
-          # whether its artifact still EXISTS -- GitHub keeps the run record
-          # long after the artifact is gone. The only export run ever made
-          # (2026-07-27) had retention-days: 3 and expired 2026-07-30, so this
-          # resolved a dead run id on every cold build since: the download
-          # step then failed with "no valid artifacts found to download" and
-          # the job limped on via continue-on-error, having wasted the attempt.
-          # Now it walks recent successful runs and picks the first one whose
-          # haxelib-cache-export artifact is still live, emitting an empty
-          # run-id when none is (which the steps below already treat as
-          # "skip the import", falling back to hxpkg install).
+          # The export is published as a RELEASE now, not a run artifact.
+          # Artifacts expire, and this is only ever consulted on a cold cache
+          # -- i.e. weeks later, once any artifact is long gone. That is
+          # exactly how the previous scheme silently died: the only export run
+          # ever made had retention-days: 3 and its artifact expired
+          # 2026-07-30, so every cold build since resolved a dead run id and
+          # fell through to compiling lime from source.
+          #
+          # A release under a fixed tag has no expiry and needs no hunting:
+          # resolve it by tag, and use its published timestamp as the cache
+          # key so a re-export invalidates the local copy.
           set +e
           REPO=jereidk/NightmareVision-Android-Support
-          RUN_ID=""
-          for candidate in $(gh run list --repo "$REPO" \
-              --workflow exportHaxelibForIndieCross.yml --status success --limit 10 \
-              --json databaseId --jq '.[].databaseId'); do
-            if gh api "/repos/$REPO/actions/runs/$candidate/artifacts" \
-                 --jq '.artifacts[] | select(.name=="haxelib-cache-export" and .expired==false) | .id' \
-                 2>/dev/null | grep -q .; then
-              RUN_ID="$candidate"
-              echo "Using NightmareVision export run $RUN_ID (artifact still live)."
-              break
-            fi
-            echo "Run $candidate has no live haxelib-cache-export artifact; trying an older one."
-          done
-          if [ -z "$RUN_ID" ]; then
-            echo "No NightmareVision export run has a live artifact -- skipping the import tier entirely."
-            echo "(Re-run exportHaxelibForIndieCross.yml over there to restore the fast path.)"
+          TAG=haxelib-cache-export
+          EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/dev/null)
+          if [ -z "$EXPORT_ID" ]; then
+            echo "No '$TAG' release on $REPO -- skipping the import tier."
+            echo "(Run exportHaxelibForIndieCross.yml over there to publish one.)"
+          else
+            echo "Found export release '$TAG' published $EXPORT_ID."
           fi
-          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          # Slashes/colons out of the timestamp so it is a legal cache key.
+          EXPORT_ID=$(echo "$EXPORT_ID" | tr -c 'A-Za-z0-9._-' '-')
+          echo "run-id=$EXPORT_ID" >> "$GITHUB_OUTPUT"
 
       # Caches the raw downloaded tarballs (not just the extracted result,
       # which the "Cache Haxe libraries" step above already covers under a
@@ -1583,17 +1588,30 @@ jobs:
           echo "imported=false" >> "$GITHUB_OUTPUT"
           RUN_ID="${{ steps.nv-run.outputs.run-id }}"
           if [ -z "$RUN_ID" ]; then
-            echo "No successful export run found on NightmareVision -- falling back to a from-scratch install."
+            echo "No export release available on NightmareVision -- falling back to a from-scratch install."
             exit 0
           fi
           if [ "${{ steps.nv-download-cache.outputs.cache-hit }}" != 'true' ]; then
-            gh run download "$RUN_ID" --repo jereidk/NightmareVision-Android-Support \
-              --name haxelib-cache-export --dir /tmp/nv-cache-import
+            mkdir -p /tmp/nv-cache-import
+            gh release download haxelib-cache-export \
+              --repo jereidk/NightmareVision-Android-Support \
+              --dir /tmp/nv-cache-import --clobber
           else
-            echo "Reusing previously-downloaded NightmareVision export (run $RUN_ID)."
+            echo "Reusing previously-downloaded NightmareVision export ($RUN_ID)."
           fi
+          # The export splits each tarball into 1900MB parts, because release
+          # assets cap at 2GB each and the pair runs ~3GB. Reassemble before
+          # extracting; a tarball small enough not to need splitting still
+          # arrives as a single .part.000, so this path is the only one.
+          ( cd /tmp/nv-cache-import && sha256sum -c SHA256SUMS ) \
+            || { echo "Export checksums do not match -- refusing to import a corrupt tree."; exit 1; }
+          cat /tmp/nv-cache-import/haxelib-root.tar.gz.part.* > /tmp/nv-cache-import/haxelib-root.tar.gz
+          cat /tmp/nv-cache-import/haxelib-project.tar.gz.part.* > /tmp/nv-cache-import/haxelib-project.tar.gz
           tar -xzf /tmp/nv-cache-import/haxelib-root.tar.gz -C "$HOME"
           tar -xzf /tmp/nv-cache-import/haxelib-project.tar.gz -C .
+          # Keep only the parts for the download cache below (the reassembled
+          # copies would double its size for no benefit).
+          rm -f /tmp/nv-cache-import/haxelib-root.tar.gz /tmp/nv-cache-import/haxelib-project.tar.gz
           # haxelib's dev-link registry stores the ABSOLUTE path to each
           # git-linked package's checkout (lime/flixel/flixel-addons/openfl/
           # hxcpp), captured on NightmareVision's own runner
