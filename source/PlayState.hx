@@ -812,48 +812,7 @@ class PlayState extends MusicBeatState
 					bg.active = false;
 
 					if (!fuckinAngry)
-					{
 						add(bg);
-
-						// hall.png/halldark.png (1280x720 native) were only ever
-						// painted to fill the base 16:9 canvas -- on a Wide-mode
-						// screen (FunkinRatioScaleMode growing FlxG.width), or just
-						// from this stage's own 0.9 camera zoom revealing extra
-						// world space either way, bg's edges run out and leave
-						// black bars on both sides. Unlike ScreenAnchor.coverExpand()
-						// (fine for the plain-color menu backgrounds it's used on),
-						// this art has a repeating column/stained-glass-window
-						// pattern -- scaling it up further would visibly stretch
-						// that pattern, so this tiles extra copies of the same
-						// graphic at the pattern's own repeat period instead
-						// (confirmed ~480px in the native art, for both hall.png
-						// and halldark.png, by comparing each image against
-						// horizontally-shifted copies of itself). Three deep on
-						// each side comfortably covers even 21:9 Wide mode at this
-						// stage's 0.9 zoom; each copy just reuses bg's already
-						// -loaded graphic, no extra memory or new art.
-						var hallRepeat:Float = 480 * bg.scale.x;
-						for (i in 1...4)
-						{
-							var hallExtL:FlxSprite = new FlxSprite(bg.x - hallRepeat * i, bg.y);
-							hallExtL.loadGraphic(bg.graphic);
-							hallExtL.setGraphicSize(Std.int(bg.width), Std.int(bg.height));
-							hallExtL.updateHitbox();
-							hallExtL.antialiasing = bg.antialiasing;
-							hallExtL.scrollFactor.set(1.0, 1.0);
-							hallExtL.active = false;
-							add(hallExtL);
-
-							var hallExtR:FlxSprite = new FlxSprite(bg.x + hallRepeat * i, bg.y);
-							hallExtR.loadGraphic(bg.graphic);
-							hallExtR.setGraphicSize(Std.int(bg.width), Std.int(bg.height));
-							hallExtR.updateHitbox();
-							hallExtR.antialiasing = bg.antialiasing;
-							hallExtR.scrollFactor.set(1.0, 1.0);
-							hallExtR.active = false;
-							add(hallExtR);
-						}
-					}
 
 					if (SONG.song.toLowerCase() == 'final-stretch')
 					{
