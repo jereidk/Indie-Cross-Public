@@ -11240,7 +11240,24 @@ class PlayState extends MusicBeatState
 							shootWait = 0.5;
 							dad.playAnim('attack2', true, false, 0, true, 'idle');
 							special = 'roundabout';
-							dad.animation.onFinish.add(function(attack2)
+							// addOnce, NOT add -- this state block runs once per
+							// roundabout attack, and 'knockout' fires roundabout
+							// TWICE (steps 603 and 912, see the pushMultStepEvents
+							// call above). `add` left the first attack's listener
+							// on dad.animation.onFinish forever, so by the second
+							// attack there were two: when THAT 'attack2' finished,
+							// both fired and each independently scheduled its own
+							// dodgeAttackEvent('cuphead', 'rb_back'). rb_back is
+							// explicitly exempted from the dodge-event re-entrancy
+							// guard a few lines up (`!isDodgeEvent || special ==
+							// 'rb_back'`), so both calls went all the way through --
+							// two overlapping return-shot dodge windows, and their
+							// own separate dietimer/health resolution each, for
+							// what looked like one attack. That is the "raro loop
+							// de daño cada ciertos segundos" despite dodging
+							// correctly: the visible dodge only ever answered one
+							// of the two stacked windows.
+							dad.animation.onFinish.addOnce(function(attack2)
 							{
 								if (SONG.song.toLowerCase() == 'devils-gambit')
 								{
