@@ -154,26 +154,31 @@ class GameLogger
 	}
 
 	/**
-	 * A couple of Flixel-internal FLXLOG warnings are known-benign and, on a
-	 * long session, drown out everything else in game.log:
+	 * One Flixel-internal FLXLOG warning is known-benign and, on a long
+	 * session, drowns out everything else in game.log:
 	 *
 	 *  - "Could not parse frame number of ... in frame named ..." -- Flixel's
 	 *    Sparrow-atlas frame sorter trying (and failing) to number frames
 	 *    whose Adobe Animate export names don't end the way it expects.
 	 *    Purely cosmetic; the frames themselves load and play fine.
-	 *  - "Cannot render a destroyed graphic, the placeholder image will be
-	 *    used instead" -- a leftover sprite from the outgoing state getting
-	 *    one more render call while the next state's fade transition is
-	 *    already covering the screen. Never seen outside a transition.
 	 *
-	 * Both come from the vendored Flixel library itself (not this repo), so
-	 * they can't be fixed at the source -- filtered here instead of writing
+	 * It comes from the vendored Flixel library itself (not this repo), so it
+	 * can't be fixed at the source -- filtered here instead of writing
 	 * thousands of lines that make real errors harder to spot.
+	 *
+	 * "Cannot render a destroyed graphic, the placeholder image will be used
+	 * instead" USED TO BE FILTERED HERE TOO, and should not be. It was added
+	 * on the assumption that it was a leftover sprite from an outgoing state
+	 * catching one last render behind a fade. That was wrong: it is Flixel
+	 * reporting, accurately, that something destroyed a graphic a live sprite
+	 * still points at -- and it was the only visible symptom of FallbackState
+	 * wiping out its own graphics (see the comment in FallbackState.create()).
+	 * Suppressing it hid a real bug in this repo's own code for weeks. It is a
+	 * genuine error and stays in the log.
 	 */
 	static function _isBenignNoise(formatted:String):Bool
 	{
-		return formatted.indexOf('Could not parse frame number') != -1
-			|| formatted.indexOf('Cannot render a destroyed graphic') != -1;
+		return formatted.indexOf('Could not parse frame number') != -1;
 	}
 
 	static function stamp():String

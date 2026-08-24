@@ -50,6 +50,30 @@ class FallbackState extends MusicBeatState
 
 	override function create()
 	{
+		// FIRST, before building anything -- every other state in this codebase
+		// does the same, and this one used to be the lone exception, calling it
+		// at the END of create() instead.
+		//
+		// MusicBeatState.create() opens with Paths.clearStoredMemory() +
+		// clearUnusedMemory(), and clearStoredMemory() walks FlxG.bitmap._cache
+		// and destroy()s every graphic that isn't in currentTrackedAssets --
+		// which includes procedural makeGraphic() output and the bitmaps FlxText
+		// renders itself into. Running it last therefore nuked the graphics this
+		// very state had just finished creating: bg came back as a dead graphic
+		// (the placeholder logo) and so did the ERROR heading and the message.
+		//
+		// "Tap to continue." was the only survivor, and that is the tell.
+		// FlxText builds its graphic lazily -- FlxText.get_width()/get_height()
+		// call regenGraphic(), which renders the bitmap and clears _regen.
+		// error.screenCenter(X) and text.screenCenter(Y) read those getters, so
+		// both had a real graphic by the time the cache was cleared. The hint's
+		// size is never read here, so it still had _regen = true, no graphic to
+		// destroy, and simply rendered itself fresh on the first draw().
+		//
+		// This is the crash screen: it has to survive a broken asset system, so
+		// it cannot be the thing that breaks its own assets.
+		super.create();
+
 		var font:Null<String> = resolveFont();
 
 		var bg = new FlxSprite();
@@ -71,8 +95,6 @@ class FallbackState extends MusicBeatState
 			#if android 'Tap to continue.' #else 'Press Confirm to continue.' #end, 32);
 		hint.setFormat(font, 32, FlxColor.WHITE, CENTER, OUTLINE, FlxColor.BLACK);
 		add(hint);
-
-		super.create();
 	}
 
 	override function update(elapsed:Float)
