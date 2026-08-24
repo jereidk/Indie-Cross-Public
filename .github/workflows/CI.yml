@@ -611,12 +611,39 @@ jobs:
           # directories deep under export/, so a relative path wouldn't
           # reliably resolve from build.gradle.
           SYMBOL_EXTRACT_SCRIPT: ${{ github.workspace }}/.github/scripts/extract-dwarf-symbols.sh
-          # Lime silently switches to assembleRelease/apk/release once
+          # assembleRelease, NOT assembleDebug. This used to force debug --
+          # Lime switches to assembleRelease/apk/release on its own once
           # Project.xml declares a <certificate> (see AndroidHelper.build() /
-          # project.keystore != null), which broke this pipeline's hardcoded
-          # apk/debug verify+upload paths below. Force debug explicitly so
-          # adding the release-signing keystore doesn't change what CI builds.
-          ANDROID_GRADLE_TASK: assembleDebug
+          # project.keystore != null), that broke the hardcoded apk/debug
+          # paths below, and pinning debug was the quick way to unbreak them.
+          #
+          # But that silently undid the entire point of adding the
+          # <certificate>. Lime's Gradle template (templates/android/template/
+          # app/build.gradle) wires the keystore into ONE build type:
+          #
+          #     buildTypes {
+          #         release { signingConfig signingConfigs.release }
+          #     }
+          #
+          # There is no debug { signingConfig } block, so the debug variant
+          # falls back to AGP's default -- ~/.android/debug.keystore, which a
+          # fresh ephemeral runner does not have and therefore GENERATES from
+          # scratch on every single run. Every CI build was signed with a
+          # different throwaway key, so Android refused each new APK over the
+          # previous install with "package conflicts with an existing
+          # package" (INSTALL_FAILED_UPDATE_INCOMPATIBLE) and forced a full
+          # uninstall -- losing save data every time.
+          #
+          # That is a SEPARATE failure from the versionCode one handled by
+          # --meta-build-number below; fixing the version alone never could
+          # have helped, because a signature mismatch is rejected first.
+          #
+          # Set explicitly rather than relying on Lime's implicit switch, and
+          # the apk/debug paths below become apk/release to match.
+          # NightmareVision-Android-Support has always built release for this
+          # exact reason, which is why its APKs update in place and these did
+          # not.
+          ANDROID_GRADLE_TASK: assembleRelease
         run: |
           export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
           mkdir -p "$HXCPP_COMPILE_CACHE"
@@ -647,9 +674,9 @@ jobs:
         if: success()
         run: |
           set -euo pipefail
-          APK=$(find export/release/android/bin/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          APK=$(find export/release/android/bin/app/build/outputs/apk/release -name "*.apk" | head -1)
           if [ -z "$APK" ]; then
-            echo "ERROR: no APK found under export/release/android/bin/app/build/outputs/apk/debug to verify"
+            echo "ERROR: no APK found under export/release/android/bin/app/build/outputs/apk/release to verify"
             exit 1
           fi
           echo "Checking $APK for bundled native symbol files..."
@@ -758,7 +785,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: androidBuild-fat
-          path: export/release/android/bin/app/build/outputs/apk/debug
+          path: export/release/android/bin/app/build/outputs/apk/release
 
   buildAndroidArm64:
     name: Build Android (ARM64)
@@ -1346,12 +1373,39 @@ jobs:
           # directories deep under export/, so a relative path wouldn't
           # reliably resolve from build.gradle.
           SYMBOL_EXTRACT_SCRIPT: ${{ github.workspace }}/.github/scripts/extract-dwarf-symbols.sh
-          # Lime silently switches to assembleRelease/apk/release once
+          # assembleRelease, NOT assembleDebug. This used to force debug --
+          # Lime switches to assembleRelease/apk/release on its own once
           # Project.xml declares a <certificate> (see AndroidHelper.build() /
-          # project.keystore != null), which broke this pipeline's hardcoded
-          # apk/debug verify+upload paths below. Force debug explicitly so
-          # adding the release-signing keystore doesn't change what CI builds.
-          ANDROID_GRADLE_TASK: assembleDebug
+          # project.keystore != null), that broke the hardcoded apk/debug
+          # paths below, and pinning debug was the quick way to unbreak them.
+          #
+          # But that silently undid the entire point of adding the
+          # <certificate>. Lime's Gradle template (templates/android/template/
+          # app/build.gradle) wires the keystore into ONE build type:
+          #
+          #     buildTypes {
+          #         release { signingConfig signingConfigs.release }
+          #     }
+          #
+          # There is no debug { signingConfig } block, so the debug variant
+          # falls back to AGP's default -- ~/.android/debug.keystore, which a
+          # fresh ephemeral runner does not have and therefore GENERATES from
+          # scratch on every single run. Every CI build was signed with a
+          # different throwaway key, so Android refused each new APK over the
+          # previous install with "package conflicts with an existing
+          # package" (INSTALL_FAILED_UPDATE_INCOMPATIBLE) and forced a full
+          # uninstall -- losing save data every time.
+          #
+          # That is a SEPARATE failure from the versionCode one handled by
+          # --meta-build-number below; fixing the version alone never could
+          # have helped, because a signature mismatch is rejected first.
+          #
+          # Set explicitly rather than relying on Lime's implicit switch, and
+          # the apk/debug paths below become apk/release to match.
+          # NightmareVision-Android-Support has always built release for this
+          # exact reason, which is why its APKs update in place and these did
+          # not.
+          ANDROID_GRADLE_TASK: assembleRelease
         run: |
           export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
           mkdir -p "$HXCPP_COMPILE_CACHE"
@@ -1373,9 +1427,9 @@ jobs:
         if: success()
         run: |
           set -euo pipefail
-          APK=$(find export/release/android/bin/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          APK=$(find export/release/android/bin/app/build/outputs/apk/release -name "*.apk" | head -1)
           if [ -z "$APK" ]; then
-            echo "ERROR: no APK found under export/release/android/bin/app/build/outputs/apk/debug to verify"
+            echo "ERROR: no APK found under export/release/android/bin/app/build/outputs/apk/release to verify"
             exit 1
           fi
           echo "Checking $APK for bundled native symbol files..."
@@ -1484,7 +1538,7 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: androidBuild-arm64
-          path: export/release/android/bin/app/build/outputs/apk/debug
+          path: export/release/android/bin/app/build/outputs/apk/release
 
   buildAndroidArm32:
     name: Build Android (ARM32)
@@ -2072,12 +2126,39 @@ jobs:
           # directories deep under export/, so a relative path wouldn't
           # reliably resolve from build.gradle.
           SYMBOL_EXTRACT_SCRIPT: ${{ github.workspace }}/.github/scripts/extract-dwarf-symbols.sh
-          # Lime silently switches to assembleRelease/apk/release once
+          # assembleRelease, NOT assembleDebug. This used to force debug --
+          # Lime switches to assembleRelease/apk/release on its own once
           # Project.xml declares a <certificate> (see AndroidHelper.build() /
-          # project.keystore != null), which broke this pipeline's hardcoded
-          # apk/debug verify+upload paths below. Force debug explicitly so
-          # adding the release-signing keystore doesn't change what CI builds.
-          ANDROID_GRADLE_TASK: assembleDebug
+          # project.keystore != null), that broke the hardcoded apk/debug
+          # paths below, and pinning debug was the quick way to unbreak them.
+          #
+          # But that silently undid the entire point of adding the
+          # <certificate>. Lime's Gradle template (templates/android/template/
+          # app/build.gradle) wires the keystore into ONE build type:
+          #
+          #     buildTypes {
+          #         release { signingConfig signingConfigs.release }
+          #     }
+          #
+          # There is no debug { signingConfig } block, so the debug variant
+          # falls back to AGP's default -- ~/.android/debug.keystore, which a
+          # fresh ephemeral runner does not have and therefore GENERATES from
+          # scratch on every single run. Every CI build was signed with a
+          # different throwaway key, so Android refused each new APK over the
+          # previous install with "package conflicts with an existing
+          # package" (INSTALL_FAILED_UPDATE_INCOMPATIBLE) and forced a full
+          # uninstall -- losing save data every time.
+          #
+          # That is a SEPARATE failure from the versionCode one handled by
+          # --meta-build-number below; fixing the version alone never could
+          # have helped, because a signature mismatch is rejected first.
+          #
+          # Set explicitly rather than relying on Lime's implicit switch, and
+          # the apk/debug paths below become apk/release to match.
+          # NightmareVision-Android-Support has always built release for this
+          # exact reason, which is why its APKs update in place and these did
+          # not.
+          ANDROID_GRADLE_TASK: assembleRelease
         run: |
           export HXCPP_COMPILE_CACHE="$HOME/.hxcpp_cache"
           mkdir -p "$HXCPP_COMPILE_CACHE"
@@ -2099,9 +2180,9 @@ jobs:
         if: success()
         run: |
           set -euo pipefail
-          APK=$(find export/release/android/bin/app/build/outputs/apk/debug -name "*.apk" | head -1)
+          APK=$(find export/release/android/bin/app/build/outputs/apk/release -name "*.apk" | head -1)
           if [ -z "$APK" ]; then
-            echo "ERROR: no APK found under export/release/android/bin/app/build/outputs/apk/debug to verify"
+            echo "ERROR: no APK found under export/release/android/bin/app/build/outputs/apk/release to verify"
             exit 1
           fi
           echo "Checking $APK for bundled native symbol files..."
@@ -2210,4 +2291,4 @@ jobs:
         uses: actions/upload-artifact@v7.0.1
         with:
           name: androidBuild-arm32
-          path: export/release/android/bin/app/build/outputs/apk/debug
+          path: export/release/android/bin/app/build/outputs/apk/release
