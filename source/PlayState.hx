@@ -7906,7 +7906,24 @@ class PlayState extends MusicBeatState
 			var noteDiff:Float = -(daNote.strumTime - Conductor.songPosition);
 			var wife:Float = EtternaFunctions.wife3(-noteDiff, Conductor.timeScale);
 			// boyfriend.playAnim('hey');
-			vocals.volume = 1;
+			// The health<=0 check in update() (well before keyShit() -> ...
+			// -> popUpScore() runs, same frame) can call playerDie() first,
+			// which nulls `vocals` synchronously. persistentUpdate=false and
+			// the GameOverCuphead openSubState() only stop update() from
+			// running on the NEXT frame (FlxState.tryUpdate checks that
+			// before calling update(), not mid-call) -- so the REST of this
+			// already-in-progress update() keeps going, including whatever
+			// note hit was also due to resolve this same frame. That is
+			// exactly the reported crash: dying in a Cuphead song
+			// (curStage 'field'/'devilHall') on the same frame a note also
+			// judged, hitting this line with vocals already null.
+			//
+			// hitGoodNote() -- popUpScore's own caller, a few lines further
+			// down the same call chain -- already guards this exact
+			// statement (`if (vocals != null) vocals.volume = 1;`); this
+			// just brings popUpScore in line with that.
+			if (vocals != null)
+				vocals.volume = 1;
 			var placement:String = Std.string(combo);
 
 			var coolText:FlxText = new FlxText(0, 0, 0, placement, 32);
