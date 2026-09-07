@@ -41,6 +41,22 @@ class FreeplayState extends MusicBeatState
 {
 	var songs:Array<SongMetadata> = [];
 
+	/**
+	 * A save with every secret character unlocked can land on a
+	 * freeplayType tab (nightmares) that addWeek() never populated --
+	 * songs stays []. Every function below that indexes
+	 * songs[curSelected[freeplayType]] has to bail before touching that
+	 * index: on an empty array there is no index 0 to clamp down to (that
+	 * only saves you from OUT-OF-RANGE, not from EMPTY), so the access
+	 * returns null and whatever field is read off it throws Null Object
+	 * Reference. create() calls changeSelection()/changeDiff()/
+	 * changeMechDiff()/checkCustom() unconditionally on load, so this
+	 * crashed on entry (PlayState.instance was still null, i.e. this
+	 * wasn't reachable from inside a song -- Context: "Song: none").
+	 */
+	inline function hasSongs():Bool
+		return songs.length > 0;
+
 	var selector:FlxText;
 
 	static var curSelected:Array<Int> = [0, 0, 0];
@@ -506,8 +522,18 @@ class FreeplayState extends MusicBeatState
 					onComplete: function(twn:FlxTween)
 					{
 						accepted = false;
-						music.loadSound(Paths.inst(songs[curSelected[freeplayType]].songName, false, 'none'));
-						music.play();
+						// `showing` isn't only the Q-key debug alert below --
+						// it's also the real, player-facing secretChars/
+						// shownalerts unlock popup a few hundred lines up in
+						// create(), which any normal save can trigger. That
+						// popup can be dismissed while sitting on an empty
+						// tab, same as everything else this session's
+						// hasSongs() guards cover.
+						if (hasSongs())
+						{
+							music.loadSound(Paths.inst(songs[curSelected[freeplayType]].songName, false, 'none'));
+							music.play();
+						}
 					}
 				});
 			}
@@ -540,16 +566,21 @@ class FreeplayState extends MusicBeatState
 			changeSelection(1);
 		}
 
-		if (FlxG.keys.justPressed.I && FlxG.keys.pressed.CONTROL && MainMenuState.debugTools)
+		if (hasSongs() && FlxG.keys.justPressed.I && FlxG.keys.pressed.CONTROL && MainMenuState.debugTools)
 		{
 			FlxG.switchState(() -> new IconOffsets(songs[curSelected[freeplayType]].songCharacter));
 		}
 
-		if (FlxG.keys.justPressed.SHIFT #if android || virtualPad.buttonC.justPressed #end)
+		if (hasSongs() && (FlxG.keys.justPressed.SHIFT #if android || virtualPad.buttonC.justPressed #end))
 		{
 			// Only allow toggling INTO mechanics mode for a song that actually
 			// has a mechanics panel to show -- toggling out is always allowed,
 			// so a stuck/hidden mode never traps LEFT/RIGHT doing nothing.
+			// hasSongs() above: unlike changeSelection/changeDiff/etc., this
+			// check lives directly in update() rather than a named function,
+			// and the android virtualPad's C button reaches it without any
+			// of debugTools/keyboard gating the other loose update() sites
+			// have -- a normal player idling on an empty tab could hit this.
 			if (mechDiffMode || HelperFunctions.getSongData(songs[curSelected[freeplayType]].songName.toLowerCase(), 'hasmech') != "false")
 			{
 				mechDiffMode = !mechDiffMode;
@@ -741,6 +772,8 @@ class FreeplayState extends MusicBeatState
 
 	function accept()
 	{
+		if (!hasSongs())
+			return;
 		if (!accepted)
 		{
 			accepted = true;
@@ -817,6 +850,8 @@ class FreeplayState extends MusicBeatState
 
 	function changeDiff(change:Int = 0, ?customName:String = '')
 	{
+		if (!hasSongs())
+			return;
 		if (!accepted)
 		{
 			if (customName != '')
@@ -888,6 +923,8 @@ class FreeplayState extends MusicBeatState
 
 	function changeMechDiff(?change:Int = 0)
 	{
+		if (!hasSongs())
+			return;
 		if (!accepted)
 		{
 			mechDiffBG.alpha = 1;
@@ -953,8 +990,17 @@ class FreeplayState extends MusicBeatState
 
 	function changeSelection(change:Int = 0)
 	{
+		if (!hasSongs())
+			return;
 		if (!accepted)
 		{
+			// songs.length > 1 lets a 1-song tab still resync on
+			// create()'s change==0 call while refusing to let UP/DOWN
+			// scroll it anywhere -- but on an EMPTY tab that same
+			// change==0 branch let this straight through to
+			// songs[curSelected[freeplayType]] below with no valid index
+			// at all (the crash this fixes). The hasSongs() bail above
+			// covers that case now, so this condition is unchanged.
 			if (songs.length > 1 || change == 0)
 			{
 				if (change != 0)
@@ -1065,6 +1111,9 @@ class FreeplayState extends MusicBeatState
 	{
 		super.stepHit();
 
+		if (!hasSongs())
+			return;
+
 		if (songs[curSelected[freeplayType]].songName.toLowerCase() == 'imminent-demise')
 		{
 			if (curStep == 470)
@@ -1086,6 +1135,8 @@ class FreeplayState extends MusicBeatState
 
 	function bopOnBeat()
 	{
+		if (!hasSongs())
+			return;
 		if (!selectedSomthin)
 		{
 			FlxG.camera.zoom += 0.015;
@@ -1114,6 +1165,9 @@ class FreeplayState extends MusicBeatState
 
 	function checkCustom()
 	{
+		if (!hasSongs())
+			return;
+
 		switch (songs[curSelected[freeplayType]].songName.toLowerCase())
 		{
 			case 'nightmare-run' | 'final-stretch' | 'burning-in-hell':
