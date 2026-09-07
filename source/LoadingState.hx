@@ -86,9 +86,60 @@ class LoadingState extends MusicBeatState
 		FlxG.camera.fade(FlxG.camera.bgColor, 0.5, true);
 
 		FlxGraphic.defaultPersist = true;
+
+		function finishLoading()
+		{
+			FlxGraphic.defaultPersist = false;
+
+			screen.setLoadingText("Done!");
+			trace("Done caching");
+
+			FlxG.camera.fade(FlxColor.BLACK, 1, false);
+			new FlxTimer().start(1, function(_:FlxTimer)
+			{
+				screen.kill();
+				screen.destroy();
+				loadAndSwitchState(target, false);
+			});
+		}
+
+		#if android
+		// The Thread.create() path below is fine on desktop, but
+		// FlxG.sound.cache()/FlxG.bitmap.add() ultimately decode into GPU
+		// textures, and uploading those from anything but the main GL thread
+		// is unsafe on Android's GLES context model -- presumably why this
+		// used to be skipped outright on android (`#if !android` around the
+		// two loops). Skipping it doesn't avoid the decode work, though, it
+		// just defers it to the first time each asset is actually *used* in
+		// PlayState -- caught in perf.log as synchronous multi-hundred-ms
+		// frame spikes right after a song started (e.g. Freaky-Machine's
+		// Damage0X hit-popups, Devils-Gambit's "Cuphead Hadoken" bullet
+		// sprite -- both already listed in imagesToCache above, just never
+		// actually cached on this platform). Doing the same loops here
+		// instead, synchronously on the main thread, blocks this state
+		// briefly -- but it does so behind this state's own loading
+		// screen/fade, which is exactly what LoadingState is for, instead of
+		// mid-gameplay.
+		screen.setLoadingText("Loading sounds...");
+		for (sound in soundsToCache)
+		{
+			trace("Caching sound " + sound);
+			FlxG.sound.cache(Paths.sound(sound, library));
+			screen.progress += 1;
+		}
+
+		screen.setLoadingText("Loading images...");
+		for (image in imagesToCache)
+		{
+			trace("Caching image " + image);
+			FlxG.bitmap.add(Paths.image(image, library));
+			screen.progress += 1;
+		}
+
+		finishLoading();
+		#else
 		Thread.create(() ->
 		{
-			#if !android
 			screen.setLoadingText("Loading sounds...");
 			for (sound in soundsToCache)
 			{
@@ -104,21 +155,10 @@ class LoadingState extends MusicBeatState
 				FlxG.bitmap.add(Paths.image(image, library));
 				screen.progress += 1;
 			}
-			#end
 
-			FlxGraphic.defaultPersist = false;
-
-			screen.setLoadingText("Done!");
-			trace("Done caching");
-
-			FlxG.camera.fade(FlxColor.BLACK, 1, false);
-			new FlxTimer().start(1, function(_:FlxTimer)
-			{
-				screen.kill();
-				screen.destroy();
-				loadAndSwitchState(target, false);
-			});
+			finishLoading();
 		});
+		#end
 	}
 
 	public static function loadAndSwitchState(target:NextState, stopMusic = false)
