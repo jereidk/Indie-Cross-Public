@@ -99,6 +99,22 @@ class Main extends Sprite
 		addChild(fpsCounter);
 		addChild(gjToastManager);
 
+		// memoryMonitor/fpsCounter are raw OpenFL TextFields added as
+		// siblings of FlxGame above, not children of it -- so they sit in
+		// real stage pixel space and never pick up whatever scale/offset
+		// FunkinRatioScaleMode applies to FlxGame to fit the fixed 1280x720
+		// design canvas onto the device's actual screen (see the comment on
+		// that `new FlxGame(1280, 720, ...)` call above). On any screen
+		// whose native resolution is bigger than 1280x720 -- most Android
+		// phones -- FlxGame ends up scaled up (and possibly offset, for
+		// letterbox centering), while these two stayed pinned to the
+		// literal x=10,y=3 pixel of the physical screen: correct-looking on
+		// desktop, where the stage roughly matches the design canvas, but
+		// drawing at the wrong position and size everywhere else. Mirror
+		// FlxGame's own transform onto both so they track it instead.
+		repositionMonitors();
+		FlxG.signals.gameResized.add(function(w:Int, h:Int) repositionMonitors());
+
 		#if debug
 		// debugging shit
 		FlxG.console.registerObject("Paths", Paths);
@@ -175,6 +191,28 @@ class Main extends Sprite
 			// Bring framerate back when focused
 			FlxG.drawFramerate = 60;
 		}
+	}
+
+	/**
+	 * Mirrors FlxGame's own scale/offset transform onto memoryMonitor/
+	 * fpsCounter -- see the comment where this is first called, in the
+	 * constructor, for why that's needed at all.
+	 */
+	function repositionMonitors():Void
+	{
+		var game = FlxG.game;
+		if (game == null)
+			return;
+
+		fpsCounter.scaleX = game.scaleX;
+		fpsCounter.scaleY = game.scaleY;
+		fpsCounter.x = game.x + 10 * game.scaleX;
+		fpsCounter.y = game.y + 3 * game.scaleY;
+
+		memoryMonitor.scaleX = game.scaleX;
+		memoryMonitor.scaleY = game.scaleY;
+		memoryMonitor.x = game.x + 10 * game.scaleX;
+		memoryMonitor.y = game.y + 3 * game.scaleY;
 	}
 
 	public function toggleFPS(fpsEnabled:Bool):Void
