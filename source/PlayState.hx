@@ -2550,8 +2550,59 @@ class PlayState extends MusicBeatState
 
 		// make da hud elements
 
+		#if android
+		// Hoisted out of the old #if android block further down (that one
+		// used to be the ONLY place this song -> Modes mapping existed) so
+		// dodgeHud/attackHud below can be positioned to match, without
+		// keeping two separate switches on SONG.song in sync by hand.
+		// mechMode is consumed again, unchanged, at the addAndroidControls
+		// call site later in this function.
+		final mechMode:Modes = switch (PlayState.SONG.song.toLowerCase())
+		{
+			case 'whoopee' | 'satanic-funkin' | 'ritual' | 'bad-time': SINGLEDODGE;
+			case 'last-reel' | 'despair': TRIPLE;
+			case 'knockout' | 'devils-gambit' | 'sansational' | 'burning-in-hell': DOUBLE;
+			case 'technicolor-tussle': SINGLEATTACK;
+			default: DEFAULT;
+		}
+		#end
+
 		attackHud = new HudIcon(6, 235, 'attack');
 		dodgeHud = new HudIcon(6, 145 + attackHud.height, 'dodge');
+
+		#if android
+		// Reposition to sit exactly on top of AndroidControls' compact
+		// dodge/attack touch buttons (see FlxHitbox.hx's `new()` -- same
+		// btnW/btnH/rows/row0Y/row1Y math, duplicated here rather than
+		// shared because FlxHitbox has no reference to these HudIcon
+		// instances and vice versa) instead of this fixed desktop-tuned
+		// spot. These icons ARE the button now, not a passive "here's what
+		// SHIFT does" hint sitting next to an invisible band elsewhere on
+		// screen -- moving one without the other silently breaks the tap
+		// target's alignment with what the player actually sees.
+		final bottomAnchored:Bool = FlxG.save.data.mechsInputVariants;
+		final btnH:Float = FlxG.height / 5;
+		final rows:Int = switch (mechMode)
+		{
+			case SINGLEDODGE | SINGLEATTACK: 1;
+			case DOUBLE | TRIPLE: 2;
+			case DEFAULT: 0;
+		}
+		final row0Y:Float = bottomAnchored ? FlxG.height - (btnH * rows) : 0;
+		final row1Y:Float = row0Y + btnH;
+
+		switch (mechMode)
+		{
+			case SINGLEDODGE:
+				dodgeHud.y = row0Y;
+			case SINGLEATTACK:
+				attackHud.y = row0Y;
+			case DOUBLE | TRIPLE:
+				dodgeHud.y = row0Y;
+				attackHud.y = row1Y;
+			case DEFAULT:
+		}
+		#end
 
 		dodgeHud.cameras = [camHUD];
 		attackHud.cameras = [camHUD];
@@ -2572,14 +2623,12 @@ class PlayState extends MusicBeatState
 				attackHud.alpha = 0.0001;
 				dodgeHud.alpha = 0.0001;
 				sansCanAttack = true;
-			case 'whoopee':
+			case 'whoopee' | 'satanic-funkin' | 'bad-time':
 				add(dodgeHud);
 			case 'technicolor-tussle':
 				add(attackHud);
 			case 'knockout' | 'devils-gambit':
 				add(attackHud);
-				add(dodgeHud);
-			case 'satanic-funkin':
 				add(dodgeHud);
 			case 'ritual':
 				add(dodgeHud);
@@ -3050,19 +3099,9 @@ class PlayState extends MusicBeatState
 			iconP2alt.cameras = [camHUD];
 
 		#if android
-		switch (PlayState.SONG.song.toLowerCase())
-		{
-			case 'whoopee' | 'satanic-funkin' | 'ritual' | 'bad-time':
-				addAndroidControls(SINGLEDODGE);
-			case 'last-reel' | 'despair':
-				addAndroidControls(TRIPLE);
-			case 'knockout' | 'devils-gambit' | 'sansational' | 'burning-in-hell':
-				addAndroidControls(DOUBLE);
-			case 'technicolor-tussle':
-				addAndroidControls(SINGLEATTACK);
-			default:
-				addAndroidControls(DEFAULT);
-		}
+		// mechMode computed once, up near dodgeHud/attackHud's creation --
+		// see the comment there.
+		addAndroidControls(mechMode);
 		#end
 
 		startingSong = true;
