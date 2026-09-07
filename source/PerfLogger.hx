@@ -421,7 +421,18 @@ class PerfLogger
 			{
 				s += ' song=' + PlayState.SONG.song + ' step=' + PlayState.instance.curStep;
 				if (PlayState.instance.notes != null)
-					s += ' notes=' + PlayState.instance.notes.countLiving();
+				{
+					// FlxTypedGroup.countLiving() returns -1 specifically to
+					// mean "empty group" (see its own doc comment in the
+					// vendored flixel/group/FlxGroup.hx), not "negative
+					// notes". That's exactly what happens near a song's
+					// ending once every note has been hit/removed --
+					// surfaced as "notes=-1" in the log instead of the "0
+					// left" it actually means. Clamped here since this is
+					// a display value, not the real count used anywhere
+					// else in gameplay logic.
+					s += ' notes=' + Std.int(Math.max(0, PlayState.instance.notes.countLiving()));
+				}
 			}
 		}
 		catch (e:Dynamic) {}
