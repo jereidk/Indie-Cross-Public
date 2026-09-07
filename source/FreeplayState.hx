@@ -1029,10 +1029,25 @@ class FreeplayState extends MusicBeatState
 				intendedScore = Highscore.getScore(songHighscore, curDifficulty);
 				combo = Highscore.getCombo(songHighscore, curDifficulty);
 
-				var poop:String = Highscore.formatSong(songs[curSelected[freeplayType]].songName, curDifficulty);
-
-				HelperFunctions.checkExistingChart(songs[curSelected[freeplayType]].songName, poop);
-
+				// REMOVED: a checkExistingChart() call on every cursor move.
+				// Its only effect is assigning PlayState.SONG (either
+				// Song.loadFromJson(), or createFakeSong() as the fallback --
+				// HelperFunctions.hx:308-420, neither does anything else), and
+				// nothing in this state ever reads PlayState.SONG. Both accept
+				// paths already call it themselves with the live difficulty,
+				// right before switching state (lines ~720 and ~825), so the
+				// value this produced was always overwritten before it could
+				// be used.
+				//
+				// It was not cheap: checkExistingChart() reads the whole chart
+				// JSON with Assets.getText() only to null-check the result
+				// (HelperFunctions.hx:322), then Song.loadFromJson() reads the
+				// SAME file again (Song.hx:61) and parses it in full. Two
+				// reads plus a parse of a several-thousand-note chart,
+				// synchronously, per arrow press -- matching the repeated
+				// `upd=320-525ms` frames with `+20-32MB in one frame` that
+				// perf.log records in FreeplayState, and the heap climbing
+				// from ~194MB to ~395MB while only scrolling the song list.
 				HelperFunctions.getSongData(songs[curSelected[freeplayType]].songName.toLowerCase(), 'bpm');
 				var bullShit:Int = 0;
 
