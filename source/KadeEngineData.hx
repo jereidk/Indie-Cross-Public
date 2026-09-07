@@ -157,6 +157,9 @@ class KadeEngineData
 			#end
 		}
 
+		if (FlxG.save.data.renderScale == null)
+			FlxG.save.data.renderScale = 1.0;
+
 		if (FlxG.save.data.inkshit == null)
 			FlxG.save.data.inkshit = 0;
 

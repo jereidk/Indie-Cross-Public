@@ -274,6 +274,55 @@ class RenderTypes extends Option
 	}
 }
 
+class RenderScaleOption extends Option
+{
+	// Steps, not a free slider -- matches how every other cycling Option in
+	// this file (RenderTypes, ScreenModeOption, ...) works via press(). 1.0
+	// first so the default (KadeEngineData.hx) round-trips through the
+	// exact same value the option would show on a first press.
+	static var steps:Array<Float> = [1.0, 0.85, 0.7, 0.55];
+
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+	}
+
+	public override function press():Bool
+	{
+		var i:Int = steps.indexOf(FlxG.save.data.renderScale);
+		i = (i == -1 || i == steps.length - 1) ? 0 : i + 1;
+		FlxG.save.data.renderScale = steps[i];
+
+		FunkinRatioScaleMode.applyRenderScale(FlxG.save.data.renderScale);
+
+		// Same reasoning as ScreenModeOption right below: applyRenderScale()
+		// reflows the game canvas/cameras through the normal resize signal,
+		// but this menu's own label positions were computed once in
+		// create() and won't get rechecked until the next full state
+		// switch.
+		if (OptionsMenu.instance != null)
+		{
+			var catIndex = OptionsMenu.instance.options.indexOf(OptionsMenu.instance.currentSelectedCat);
+			if (catIndex != -1)
+			{
+				OptionsMenu.reopenCategory = catIndex;
+				OptionsMenu.reopenRow = OptionsMenu.instance.curSelected;
+			}
+		}
+
+		FlxG.resetState();
+
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		return 'Render Scale: ' + Std.int(FlxG.save.data.renderScale * 100) + '%';
+	}
+}
+
 class ScreenModeOption extends Option
 {
 	public function new(desc:String)

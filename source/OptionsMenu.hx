@@ -51,7 +51,8 @@ class OptionsMenu extends MusicBeatState
 		new OptionCategory("Performance", [
 			new Photosensitive("Turn off visual effects that may harm your vision."),
 			new HighQuality("Enable low quality mode for a smoother playing experience."),
-			new RenderTypes("Select the render type, RAM rendering or GPU rendering")
+			new RenderTypes("Select the render type, RAM rendering or GPU rendering"),
+			new RenderScaleOption("Renders the game at a lower internal resolution and upscales it -- lower values trade sharpness for performance.")
 		]),
 		new OptionCategory("Window", [
 			#if !android

@@ -589,7 +589,7 @@ class PerfLogger
 		{
 			h += 'settings  : fpsCap=' + FlxG.save.data.fpsCap + ' highquality=' + FlxG.save.data.highquality + ' screenMode='
 				+ FlxG.save.data.screenMode + ' render=' + FlxG.save.data.render + ' optimize=' + FlxG.save.data.optimize + ' photosensitive='
-				+ FlxG.save.data.photosensitive + '\n';
+				+ FlxG.save.data.photosensitive + ' renderScale=' + FlxG.save.data.renderScale + '\n';
 		}
 		catch (e:Dynamic) {}
 
