@@ -143,7 +143,19 @@ class LoadingState extends MusicBeatState
 		for (sound in soundsToCache)
 		{
 			trace("Caching sound " + sound);
-			FlxG.sound.cache(Paths.sound(sound, library));
+			// NOT FlxG.sound.cache(Paths.sound(...)): SoundFrontEnd.cache()
+			// takes a String asset id, while Paths.sound() returns an
+			// openfl.media.Sound -- that call does not typecheck. It went
+			// unnoticed because it only ever existed inside the `#if !android`
+			// block this code was moved out of, and CI only builds android
+			// (.github/workflows/CI.yml), so it was stripped before the
+			// compiler ever saw it.
+			//
+			// Paths.sound() is also the right call regardless: it does the
+			// caching itself (Paths.returnSound -> currentTrackedSounds.set(
+			// path, OpenFlAssets.getSound(path, cache)) ), same as
+			// Paths.image() does for the image loop below.
+			Paths.sound(sound, library);
 			screen.progress += 1;
 		}
 
