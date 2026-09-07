@@ -407,7 +407,23 @@ class AlphaCharacter extends FlxSprite
 
 	public static var numbers:String = "1234567890";
 
-	public static var symbols:String = "|~#$%()*+-:;<=>@[]^_.,'!?";
+	// Trimmed to the characters assets/preload/images/alphabet.xml actually
+	// has "bold" frames for -- confirmed by grepping every "bold*" name in
+	// that atlas. The original list ("|~#$%()*+-:;<=>@[]^_.,'!?") claimed
+	// 14 more (|~#$%:;=@[]^_,) that have NO matching art at all: any of
+	// them being typed (the secret-code entry on Freeplay is the one
+	// keyboard-driven path a player can reach) got treated as `isSymbol`
+	// here, so createBoldSymbol() dutifully tried and failed to find a
+	// frame, spamming "Could not create animation" / "No animation
+	// called" (FLXAnimationController.hx:533/594) -- reported from a
+	// user's game.log after typing ':' and '%'. The sprite itself still
+	// got created either way, just blank (no frame to draw), so this
+	// isn't a visual regression: dropping these from `symbols` makes them
+	// fall through to the same "unrecognized character, skip it
+	// entirely" path addText() already uses for anything not in alphabet/
+	// numbers/symbols (e.g. any random Unicode character) -- same
+	// (lack of) visible result, without the log spam.
+	public static var symbols:String = "()*+-<>.'!?";
 
 	public var row:Int = 0;
 
