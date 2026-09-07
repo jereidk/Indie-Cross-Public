@@ -194,9 +194,23 @@ class Main extends Sprite
 	}
 
 	/**
-	 * Mirrors FlxGame's own scale/offset transform onto memoryMonitor/
+	 * Mirrors the game's real device-fit scale/offset onto memoryMonitor/
 	 * fpsCounter -- see the comment where this is first called, in the
 	 * constructor, for why that's needed at all.
+	 *
+	 * NOT FlxG.game.scaleX/scaleY/x/y: FlxG.game (the FlxGame Sprite itself)
+	 * is never actually scaled by Flixel's scale-mode machinery -- confirmed
+	 * by reading flixel/system/scaleModes/BaseScaleMode.hx and FlxCamera.hx
+	 * (FunkinCrew's fork, pinned in .hxpkg): updateScaleOffset() only sets
+	 * FlxG.game.x/y (via updateGamePosition()) for letterbox centering, and
+	 * the actual device-fit SCALE (BaseScaleMode.scale, `gameSize / FlxG.
+	 * width/height`) is applied per-camera instead, straight onto each
+	 * FlxCamera's own flashSprite/canvas (`totalScaleX = scaleX *
+	 * FlxG.scaleMode.scale.x`, FlxCamera.hx:1819). FlxG.game.scaleX/scaleY
+	 * therefore always reads 1 -- an earlier version of this function copied
+	 * it anyway, which silently made the scale half of this fix a no-op
+	 * (position tracked correctly, size never did). FlxG.scaleMode.scale is
+	 * the real, public value every camera actually applies.
 	 */
 	function repositionMonitors():Void
 	{
@@ -204,15 +218,18 @@ class Main extends Sprite
 		if (game == null)
 			return;
 
-		fpsCounter.scaleX = game.scaleX;
-		fpsCounter.scaleY = game.scaleY;
-		fpsCounter.x = game.x + 10 * game.scaleX;
-		fpsCounter.y = game.y + 3 * game.scaleY;
+		var scaleX = FlxG.scaleMode.scale.x;
+		var scaleY = FlxG.scaleMode.scale.y;
 
-		memoryMonitor.scaleX = game.scaleX;
-		memoryMonitor.scaleY = game.scaleY;
-		memoryMonitor.x = game.x + 10 * game.scaleX;
-		memoryMonitor.y = game.y + 3 * game.scaleY;
+		fpsCounter.scaleX = scaleX;
+		fpsCounter.scaleY = scaleY;
+		fpsCounter.x = game.x + 10 * scaleX;
+		fpsCounter.y = game.y + 3 * scaleY;
+
+		memoryMonitor.scaleX = scaleX;
+		memoryMonitor.scaleY = scaleY;
+		memoryMonitor.x = game.x + 10 * scaleX;
+		memoryMonitor.y = game.y + 3 * scaleY;
 	}
 
 	public function toggleFPS(fpsEnabled:Bool):Void
