@@ -240,14 +240,30 @@ class FunkinRatioScaleMode extends RatioScaleMode
 	 */
 	public static function applyRenderScale(scale:Float):Void
 	{
+		// window.width/height are already in "points" -- the SAME convention
+		// stageWidth/stageHeight use in the unmodified (__logicalWidth == 0)
+		// case, per Stage.hx:3677 (`stageWidth = Math.round(windowWidth /
+		// window.scale)`, and windowWidth is itself `window.width *
+		// window.scale` -- window.scale cancels out, leaving window.width).
+		// Do NOT multiply by window.scale here: Context3D.configureBackBuffer()
+		// (called right after this with wantsBestResolution=true, Stage.hx's
+		// own configureBackBuffer calls) does that multiplication ITSELF
+		// (Context3D.hx:601-605) to turn "points" back into physical pixels
+		// for the backbuffer. An earlier version of this function multiplied
+		// by window.scale here too, double-applying it -- harmless only on a
+		// device where window.scale happens to be exactly 1, wrong (and
+		// silently defeating the whole point of a lower Render Scale) on any
+		// device where it isn't, e.g. anything Lime's own HiDPI detection
+		// reports as scaled -- Project.xml already opts into that detection
+		// (`<window unless="mac" allow-high-dpi="true"/>`).
 		var window = FlxG.stage.window;
-		var nativeWidth:Int = Std.int(window.width * window.scale);
-		var nativeHeight:Int = Std.int(window.height * window.scale);
+		var nativeWidth:Int = window.width;
+		var nativeHeight:Int = window.height;
 
 		FlxG.stage.scaleMode = StageScaleMode.EXACT_FIT;
 
 		@:privateAccess
-		FlxG.stage.__setLogicalSize(Std.int(nativeWidth * scale), Std.int(nativeHeight * scale));
+		FlxG.stage.__setLogicalSize(Math.round(nativeWidth * scale), Math.round(nativeHeight * scale));
 	}
 
 	public function resetSize()
