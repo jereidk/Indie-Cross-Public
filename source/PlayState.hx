@@ -7506,6 +7506,19 @@ class PlayState extends MusicBeatState
 		canPause = false;
 		FlxG.sound.music.volume = 0;
 		FlxG.sound.music.pause();
+		// FlxG.sound.music.onComplete was set (a few hundred lines up, when
+		// this song started) to a closure over THIS PlayState instance --
+		// pause() tears down the current SoundChannel/listener but leaves
+		// that property itself sitting there. If FlxG.sound.music (a
+		// single object shared across the whole app, not per-PlayState) is
+		// ever played again later without another PlayState reassigning
+		// onComplete first, whatever that later playback naturally
+		// completes as would fire THIS stale closure against an instance
+		// Flixel may already be tearing down -- observed as a runaway loop
+		// of state creation (game.log: ~175 "transIn" traces in 12s,
+		// immediately followed by the app restarting) right after a song
+		// ended. Clearing it here is the one-shot job finishing.
+		FlxG.sound.music.onComplete = null;
 
 		if (vocals != null)
 		{
@@ -7802,6 +7815,17 @@ class PlayState extends MusicBeatState
 		Conductor.songPosition = FlxG.sound.music.length;
 
 		FlxG.sound.music.stop();
+		// Same reasoning as partyFinale()'s own onComplete clear a bit
+		// further up in this file: FlxG.sound.music.onComplete was set to
+		// a closure over THIS PlayState instance when the song started,
+		// and stop() removes the SoundChannel/listener but not this
+		// property itself. Left set, a LATER, unrelated playback of the
+		// same shared FlxG.sound.music (menus, the next song, anything)
+		// would fire this stale closure against an instance that may
+		// already be torn down -- the runaway state-creation loop this
+		// fixes (game.log showed ~175 "transIn" traces in 12s right after
+		// a song ended, immediately followed by the app restarting).
+		FlxG.sound.music.onComplete = null;
 
 		if (vocals != null)
 		{
