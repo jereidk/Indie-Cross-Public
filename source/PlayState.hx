@@ -1182,13 +1182,29 @@ class PlayState extends MusicBeatState
 								bg.active = false;
 								add(bg);
 
+								// makeGraphic(FlxG.width, FlxG.height) + add() at the
+								// default (0,0) is the SAME pattern cutsceneSpr uses at
+								// both its other call sites in this file (lines ~3552,
+								// ~7614) -- a full-screen placeholder needs nothing else.
+								//
+								// The .width/.height shrink + screenCenter() + manual
+								// -600/-250 offset that used to sit here were leftover
+								// from the old raw VlcBitmap video backend: back then
+								// sprite.loadGraphic(bitmap.bitmapData) reset width/height
+								// from the loaded video itself, so the shrink only ever
+								// affected screenCenter()'s math, positioning this sprite
+								// as if it were a small window, then quietly resizing back
+								// once the video loaded. VideoHandler.hx's hxvlc-based
+								// onVideoReady() now sizes the actual video off
+								// outputTo.frameWidth/frameHeight (this sprite's REAL,
+								// full-screen makeGraphic size, unaffected by the old
+								// .width/.height shrink) instead of outputTo.width/height
+								// -- so the video already renders full-screen, but was
+								// still being POSITIONED by that leftover small-window
+								// math, landing far outside where a full-screen video
+								// belongs (reported: "no está cuadrado con el fondo").
 								freakyMachineVideoSpr = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.WHITE);
-								freakyMachineVideoSpr.width = FlxG.width / 4;
-								freakyMachineVideoSpr.height = FlxG.height / 4;
 								add(freakyMachineVideoSpr);
-								freakyMachineVideoSpr.screenCenter();
-								freakyMachineVideoSpr.x -= 600;
-								freakyMachineVideoSpr.y -= 250;
 								freakyMachineVideoSpr.blend = ADD;
 								freakyMachineVideoSpr.alpha = 0.0001;
 
@@ -12926,6 +12942,36 @@ class PlayState extends MusicBeatState
 				camMovement.cancel();
 				camFollow.x = battle.x + (battle.width / 2);
 				camFollow.y = bfPos[1];
+
+				// Reported: opponent-focused songs (burning-in-hell's UT
+				// section near the end is the clean repro, but any song
+				// with this Sans heart-dodge minigame has the same issue)
+				// have the camera "interrupted" and jump to bf's position.
+				//
+				// This branch hard-sets camFollow to a battle-center/bf-Y
+				// spot for the whole ball (UT dodge) minigame WITHOUT
+				// updating camFocus -- so camFocus stays frozen at
+				// whatever it was the instant before the minigame started,
+				// which is often 'dad'. Once the minigame ends and ball
+				// goes null again, the `else` branch below only re-tweens
+				// the camera when `camFocus != <target>` -- so if the
+				// chart's next section also wants 'dad' focus, that check
+				// reads camFocus=='dad' (never having changed) and
+				// concludes nothing needs to happen, even though the
+				// camera is actually still sitting at this branch's
+				// battle-center/bf-Y position, not dad's. The desync then
+				// sits invisible until whatever section NEXT asks for
+				// 'bf' focus (common near a song's climax/ending) finally
+				// triggers a real tween, which is the visible "camera
+				// bugs out and snaps to bf" moment being reported.
+				//
+				// Setting camFocus here to match what this branch actually
+				// points the camera at (closest to 'bf' on the Y axis, and
+				// distinct from whatever 'dad'/'player3' focus was live
+				// before the minigame) makes the post-minigame check below
+				// correctly detect the mismatch and re-sync for real,
+				// instead of skipping it.
+				camFocus = 'bf';
 			}
 			else
 			{
