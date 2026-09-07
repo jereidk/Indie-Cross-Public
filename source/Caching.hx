@@ -57,14 +57,6 @@ class Caching extends MusicBeatState
                 PlayerSettings.init();
 		KadeEngineData.initSave();
 
-		// Applies the saved Render Scale as early as possible -- right after
-		// the save that holds it (FlxG.save.data.renderScale) becomes
-		// available, before any asset/state loads against whatever
-		// resolution the GPU backbuffer ends up at. See
-		// FunkinRatioScaleMode.applyRenderScale()'s own doc comment for how
-		// this actually works.
-		FunkinRatioScaleMode.applyRenderScale(FlxG.save.data.renderScale);
-
 		// Deliberately AFTER FlxG.save.bind()/initSave(): PerfLogger's header
 		// records the graphics settings this session actually runs with, and
 		// before those two run FlxG.save.data is entirely null. It reuses the

@@ -3,7 +3,6 @@ package;
 import flixel.FlxG;
 import flixel.system.scaleModes.RatioScaleMode;
 import flixel.math.FlxPoint;
-import openfl.display.StageScaleMode;
 
 #if mobile
 import mobile.backend.ScreenUtil;
@@ -192,78 +191,6 @@ class FunkinRatioScaleMode extends RatioScaleMode
 			FlxG.width = finalWidth;
 			FlxG.height = finalHeight;
 		}
-	}
-
-	/**
-	 * "Render Scale" (Options -> Performance). Shrinks the actual GPU
-	 * backbuffer instead of just how big the game LOOKS -- everything below
-	 * this class already reacts to `stage.stageWidth`/`stageHeight`
-	 * changing (FlxGame.onResize reads them straight off FlxG.stage, feeds
-	 * them into updateGameSize() above, and every FlxCamera recomputes its
-	 * own totalScaleX/Y from FlxG.scaleMode.scale right after), so the only
-	 * missing piece is making `stage.stageWidth`/`stageHeight` actually BE
-	 * smaller than the device's real pixel size instead of always matching
-	 * it 1:1.
-	 *
-	 * That's `Stage.__logicalWidth`/`__logicalHeight` (OpenFL's old Flash-
-	 * style `Stage.scaleMode` machinery, confirmed by reading FunkinCrew's
-	 * openfl fork at the exact commit this project pins in .hxpkg): normally
-	 * 0 here (nothing else in this codebase ever touches them), which routes
-	 * `Stage.__resize()` straight to `stageWidth = windowWidth` -- the raw
-	 * device size -- and THAT is what `context3D.configureBackBuffer()`
-	 * allocates the GPU's actual render target at (Stage.hx:1382-1384,
-	 * 3721-3723). Giving `__logicalWidth`/`__logicalHeight` a real value
-	 * takes the other branch instead: `stageWidth = __logicalWidth`, so the
-	 * backbuffer -- and therefore every sprite/note/shader's real per-pixel
-	 * GPU cost -- shrinks with it, while `stage.scaleMode = EXACT_FIT` makes
-	 * OpenFL upscale that smaller backbuffer back up to fill the real
-	 * screen when presenting (one cheap GPU blit, not a second letterbox
-	 * pass -- width and height are scaled by the exact same factor below, so
-	 * the logical canvas keeps the device's real aspect ratio and EXACT_FIT
-	 * reduces to a uniform stretch; this class's own updateGameSize() above
-	 * still does 100% of the actual Normal/Wide/Stretch letterbox math, now
-	 * just against a proportionally smaller Width/Height).
-	 *
-	 * `__setLogicalSize` is `@:noCompletion private` -- no public OpenFL API
-	 * exposes this Flash-era mechanism directly -- but this file already
-	 * reaches into Flixel/OpenFL internals the same way a few lines down
-	 * (the `@:privateAccess` block in updateGameSize() above), so this
-	 * follows the same established pattern rather than vendoring a patched
-	 * copy of Stage.hx just for one call.
-	 *
-	 * Reads the device's TRUE physical size from `FlxG.stage.window` (Lime's
-	 * own Window, `width`/`height`/`scale`) rather than `FlxG.stage.
-	 * stageWidth`/`stageHeight` -- once this function has run once, THOSE
-	 * already reflect whatever smaller logical size the last call picked,
-	 * so reading them back here would compound the scale on every call
-	 * instead of always computing fresh from the real screen.
-	 */
-	public static function applyRenderScale(scale:Float):Void
-	{
-		// window.width/height are already in "points" -- the SAME convention
-		// stageWidth/stageHeight use in the unmodified (__logicalWidth == 0)
-		// case, per Stage.hx:3677 (`stageWidth = Math.round(windowWidth /
-		// window.scale)`, and windowWidth is itself `window.width *
-		// window.scale` -- window.scale cancels out, leaving window.width).
-		// Do NOT multiply by window.scale here: Context3D.configureBackBuffer()
-		// (called right after this with wantsBestResolution=true, Stage.hx's
-		// own configureBackBuffer calls) does that multiplication ITSELF
-		// (Context3D.hx:601-605) to turn "points" back into physical pixels
-		// for the backbuffer. An earlier version of this function multiplied
-		// by window.scale here too, double-applying it -- harmless only on a
-		// device where window.scale happens to be exactly 1, wrong (and
-		// silently defeating the whole point of a lower Render Scale) on any
-		// device where it isn't, e.g. anything Lime's own HiDPI detection
-		// reports as scaled -- Project.xml already opts into that detection
-		// (`<window unless="mac" allow-high-dpi="true"/>`).
-		var window = FlxG.stage.window;
-		var nativeWidth:Int = window.width;
-		var nativeHeight:Int = window.height;
-
-		FlxG.stage.scaleMode = StageScaleMode.EXACT_FIT;
-
-		@:privateAccess
-		FlxG.stage.__setLogicalSize(Math.round(nativeWidth * scale), Math.round(nativeHeight * scale));
 	}
 
 	public function resetSize()
