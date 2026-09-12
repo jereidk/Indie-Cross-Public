@@ -10762,15 +10762,63 @@ class PlayState extends MusicBeatState
 		new FlxTimer().start(0.65, function(tmr:FlxTimer)
 		{
 			nmStairs = false;
-			// layerChars()'s nightmare-run teardown destroys AND nulls
-			// stairsBG/stairs, but this timer was already pending when it ran
-			// -- an unguarded write here crashed with a Null Object Reference
-			// when the song ended mid-transition. Nothing is lost by skipping:
-			// a destroyed sprite has no alpha left to hide.
+
+			// transrights() ends the stairs segment directly instead of going
+			// through setnmStairs()'s own nmStairs==true -> false toggle --
+			// setnmStairs() is only ever called ONCE for this song (step 768,
+			// turning stairs mode ON; see the pushStepEvent calls in
+			// create()'s 'nightmare-run' case), so its else-branch (the one
+			// that calls layerChars() to tear stairsGrp back down) never
+			// runs. This code has to replicate that same teardown itself --
+			// it previously only faded stairsBG/stairs and left everything
+			// else in stairsGrp alone, which meant boyfriend/dad's
+			// stairs-running instances (added to stairsGrp, zoomed down and
+			// angled, LOOPING-tweened up the stairs by setnmStairs()'s
+			// nmStairs==true branch) were never killed: they just kept
+			// looping in place, fully visible, for the rest of the song --
+			// the "sprite combinado de bf y bendy que persiste" bug.
+			//
+			// Mirrors layerChars()'s `!nmStairs` branch exactly (including
+			// its own null-guards, needed for the same reason noted below).
+			if (stairsGrp != null)
+			{
+				for (member in stairsGrp)
+					member.kill();
+			}
+
+			// stairsBG/stairsChainL/stairsChainR/stairs get rebuilt from
+			// scratch every time nmStairs flips back on -- kill() alone
+			// (above) leaves the old instances (and their loaded graphics/
+			// tween) dead-but-resident in stairsGrp instead of actually
+			// freeing them. Null-guarded: this timer was already pending
+			// when the song ended mid-transition, and by then layerChars()
+			// may have already destroyed AND nulled these from elsewhere --
+			// an unguarded write here crashed with a Null Object Reference.
 			if (stairsBG != null)
-				stairsBG.alpha = 0.0001;
+			{
+				stairsGrp.remove(stairsBG, true);
+				stairsBG.destroy();
+				stairsBG = null;
+			}
+			if (stairsChainL != null)
+			{
+				stairsGrp.remove(stairsChainL, true);
+				stairsChainL.destroy();
+				stairsChainL = null;
+			}
+			if (stairsChainR != null)
+			{
+				stairsGrp.remove(stairsChainR, true);
+				stairsChainR.destroy();
+				stairsChainR = null;
+			}
 			if (stairs != null)
-				stairs.alpha = 0.0001;
+			{
+				FlxTween.cancelTweensOf(stairs);
+				stairsGrp.remove(stairs, true);
+				stairs.destroy();
+				stairs = null;
+			}
 			forcesize = true;
 			defaultBrightVal = 0.0;
 			brightSpeed = 0.0;

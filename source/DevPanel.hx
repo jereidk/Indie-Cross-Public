@@ -535,12 +535,34 @@ class DevPanel extends FlxSpriteGroup
 		{
 			case 0: // Unlock Everything -- same fields MainMenuState's own
 				// CTRL+P debug shortcut sets (freeplay songs, both week-beat
-				// difficulties, genocide/pacifist story flags).
+				// difficulties, genocide/pacifist story flags), PLUS
+				// secretChars/shownalerts (see below) that shortcut also
+				// skips.
 				FlxG.save.data.freeplaylocked = [false, false, false];
 				FlxG.save.data.weeksbeat = [true, true, true];
 				FlxG.save.data.weeksbeatonhard = [true, true, true];
 				FlxG.save.data.hasgenocided = true;
 				FlxG.save.data.haspacifisted = true;
+
+				// The Nightmare freeplay tab (freeplayType 2 in
+				// FreeplayState.hx) gates each song on
+				// `weeksbeatonhard[i] && shownalerts[i]`, not
+				// weeksbeatonhard alone -- weeksbeatonhard[i] being true
+				// just means hard mode was cleared, shownalerts[i] is what
+				// actually means "the Nightmare unlock alert for that
+				// character has already played". shownalerts only ever
+				// flips true from MainMenuState's own reveal check
+				// (secretChars[..] all false -> show the alert once ->
+				// shownalerts[i] = true), which requires secretChars to
+				// have been earned through real play first. Setting
+				// weeksbeatonhard=true above without also driving these two
+				// through the same "already happened" state left Nightmare
+				// permanently empty in Freeplay -- the debugTools `||`
+				// bypass on that same condition (FreeplayState.hx:205-215)
+				// hid this unless Debug Tools was separately toggled too.
+				FlxG.save.data.secretChars = [false, false, false, false, false, false, false, false];
+				FlxG.save.data.shownalerts = [true, true, true];
+
 				FlxG.save.flush();
 				FlxG.sound.play(Paths.sound('confirmMenu'), 0.8);
 
