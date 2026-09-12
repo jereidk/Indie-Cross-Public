@@ -181,7 +181,8 @@ jobs:
             mkdir -p /tmp/nv-cache-import
             gh release download haxelib-cache-export \
               --repo jereidk/NightmareVision-Android-Support \
-              --dir /tmp/nv-cache-import --clobber
+              --dir /tmp/nv-cache-import --clobber \
+              || { echo "Could not download the NightmareVision cache export (expired/invalid NIGHTMAREVISION_CACHE_TOKEN, or the release is gone) -- falling back to a from-scratch install. This is expected to be slower, not broken."; exit 1; }
           else
             echo "Reusing previously-downloaded NightmareVision export ($RUN_ID)."
           fi
@@ -954,7 +955,8 @@ jobs:
             mkdir -p /tmp/nv-cache-import
             gh release download haxelib-cache-export \
               --repo jereidk/NightmareVision-Android-Support \
-              --dir /tmp/nv-cache-import --clobber
+              --dir /tmp/nv-cache-import --clobber \
+              || { echo "Could not download the NightmareVision cache export (expired/invalid NIGHTMAREVISION_CACHE_TOKEN, or the release is gone) -- falling back to a from-scratch install. This is expected to be slower, not broken."; exit 1; }
           else
             echo "Reusing previously-downloaded NightmareVision export ($RUN_ID)."
           fi
@@ -1718,7 +1720,8 @@ jobs:
             mkdir -p /tmp/nv-cache-import
             gh release download haxelib-cache-export \
               --repo jereidk/NightmareVision-Android-Support \
-              --dir /tmp/nv-cache-import --clobber
+              --dir /tmp/nv-cache-import --clobber \
+              || { echo "Could not download the NightmareVision cache export (expired/invalid NIGHTMAREVISION_CACHE_TOKEN, or the release is gone) -- falling back to a from-scratch install. This is expected to be slower, not broken."; exit 1; }
           else
             echo "Reusing previously-downloaded NightmareVision export ($RUN_ID)."
           fi
