@@ -102,7 +102,7 @@ jobs:
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           # The export is published as a RELEASE now, not a run artifact.
           # Artifacts expire, and this is only ever consulted on a cold cache
@@ -119,25 +119,33 @@ jobs:
           REPO=jereidk/NightmareVision-Android-Support
           TAG=haxelib-cache-export
 
-          # Confirms NIGHTMAREVISION_CACHE_TOKEN itself is a valid, usable
-          # credential BEFORE anything blames the release/repo for a lookup
-          # failure -- gh auth status hits token verification directly and
-          # names why a token is rejected (expired, revoked, wrong repo
-          # access), a distinction the generic "no release found" fallback
-          # below can't make on its own.
-          echo "--- gh auth status (is NIGHTMAREVISION_CACHE_TOKEN itself valid?) ---"
+          # jereidk/NightmareVision-Android-Support is public, and so is this
+          # release -- confirmed directly (an unauthenticated curl to both
+          # the repo and this release's tags endpoint returns 200, no token
+          # needed at all). A NIGHTMAREVISION_CACHE_TOKEN secret used to be
+          # required here and repeatedly caused exactly this failure mode:
+          # `gh` sees GH_TOKEN is SET and authenticates with it explicitly
+          # rather than falling back to anonymous access, so any mistake in
+          # that secret (expired, revoked, or -- what actually kept
+          # happening -- simply saved wrong; `gh auth status` reported
+          # "The token in GH_TOKEN is invalid" even right after a careful
+          # re-paste) turned an otherwise-trivial public read into a 401,
+          # every single time. Using the ambient github.token instead needs
+          # no repo secret to exist or ever be maintained: it's always
+          # present and valid for the life of the job, and a valid token
+          # from anywhere is accepted for reading public resources on any
+          # repo, not just this one.
+          echo "--- gh auth status (sanity check -- github.token should always be valid) ---"
           gh auth status 2>&1
 
           # NOT 2>/dev/null: that discarded gh's own error text entirely, so
           # a real auth/permission failure printed the exact same "no
           # release found" message as the release genuinely not existing --
-          # indistinguishable, and exactly what happened here (confirmed:
-          # NIGHTMAREVISION_CACHE_TOKEN was already updated to a token
-          # verified independently to have release-read access on that repo,
-          # yet this step still reported "no release found" with zero
-          # diagnostic to explain why). Captured to a file instead of left
-          # inline so it only prints inside the `if` block below, alongside
-          # the message it actually explains.
+          # indistinguishable, which is how the NIGHTMAREVISION_CACHE_TOKEN
+          # failures above went unexplained for as long as they did.
+          # Captured to a file instead of left inline so it only prints
+          # inside the `if` block below, alongside the message it actually
+          # explains.
           EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/tmp/gh-view-err.log)
           if [ -z "$EXPORT_ID" ]; then
             echo "No '$TAG' release on $REPO -- skipping the import tier."
@@ -181,16 +189,16 @@ jobs:
       # Best-effort: pulls NightmareVision-Android-Support's already-warm
       # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
       # below) instead of compiling lime/hxcpp/flixel/openfl from source.
-      # Silently no-ops (continue-on-error) if NIGHTMAREVISION_CACHE_TOKEN
-      # isn't set or the export workflow has no successful run -- id/output
-      # lets the next two steps pick the right path instead of always
-      # running hxpkg's own batch installer (see why below).
+      # Silently no-ops (continue-on-error) if the export workflow has no
+      # successful run -- id/output lets the next two steps pick the right
+      # path instead of always running hxpkg's own batch installer (see why
+      # below).
       - name: Import NightmareVision haxelib/Lime cache
         id: nv-import
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -x
           echo "imported=false" >> "$GITHUB_OUTPUT"
@@ -204,7 +212,7 @@ jobs:
             gh release download haxelib-cache-export \
               --repo jereidk/NightmareVision-Android-Support \
               --dir /tmp/nv-cache-import --clobber \
-              || { echo "Could not download the NightmareVision cache export (expired/invalid NIGHTMAREVISION_CACHE_TOKEN, or the release is gone) -- falling back to a from-scratch install. This is expected to be slower, not broken."; exit 1; }
+              || { echo "Could not download the NightmareVision cache export (the release/assets may be gone, or a transient GitHub API issue) -- falling back to a from-scratch install. This is expected to be slower, not broken."; exit 1; }
           else
             echo "Reusing previously-downloaded NightmareVision export ($RUN_ID)."
           fi
@@ -898,7 +906,7 @@ jobs:
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           # The export is published as a RELEASE now, not a run artifact.
           # Artifacts expire, and this is only ever consulted on a cold cache
@@ -915,25 +923,33 @@ jobs:
           REPO=jereidk/NightmareVision-Android-Support
           TAG=haxelib-cache-export
 
-          # Confirms NIGHTMAREVISION_CACHE_TOKEN itself is a valid, usable
-          # credential BEFORE anything blames the release/repo for a lookup
-          # failure -- gh auth status hits token verification directly and
-          # names why a token is rejected (expired, revoked, wrong repo
-          # access), a distinction the generic "no release found" fallback
-          # below can't make on its own.
-          echo "--- gh auth status (is NIGHTMAREVISION_CACHE_TOKEN itself valid?) ---"
+          # jereidk/NightmareVision-Android-Support is public, and so is this
+          # release -- confirmed directly (an unauthenticated curl to both
+          # the repo and this release's tags endpoint returns 200, no token
+          # needed at all). A NIGHTMAREVISION_CACHE_TOKEN secret used to be
+          # required here and repeatedly caused exactly this failure mode:
+          # `gh` sees GH_TOKEN is SET and authenticates with it explicitly
+          # rather than falling back to anonymous access, so any mistake in
+          # that secret (expired, revoked, or -- what actually kept
+          # happening -- simply saved wrong; `gh auth status` reported
+          # "The token in GH_TOKEN is invalid" even right after a careful
+          # re-paste) turned an otherwise-trivial public read into a 401,
+          # every single time. Using the ambient github.token instead needs
+          # no repo secret to exist or ever be maintained: it's always
+          # present and valid for the life of the job, and a valid token
+          # from anywhere is accepted for reading public resources on any
+          # repo, not just this one.
+          echo "--- gh auth status (sanity check -- github.token should always be valid) ---"
           gh auth status 2>&1
 
           # NOT 2>/dev/null: that discarded gh's own error text entirely, so
           # a real auth/permission failure printed the exact same "no
           # release found" message as the release genuinely not existing --
-          # indistinguishable, and exactly what happened here (confirmed:
-          # NIGHTMAREVISION_CACHE_TOKEN was already updated to a token
-          # verified independently to have release-read access on that repo,
-          # yet this step still reported "no release found" with zero
-          # diagnostic to explain why). Captured to a file instead of left
-          # inline so it only prints inside the `if` block below, alongside
-          # the message it actually explains.
+          # indistinguishable, which is how the NIGHTMAREVISION_CACHE_TOKEN
+          # failures above went unexplained for as long as they did.
+          # Captured to a file instead of left inline so it only prints
+          # inside the `if` block below, alongside the message it actually
+          # explains.
           EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/tmp/gh-view-err.log)
           if [ -z "$EXPORT_ID" ]; then
             echo "No '$TAG' release on $REPO -- skipping the import tier."
@@ -977,16 +993,16 @@ jobs:
       # Best-effort: pulls NightmareVision-Android-Support's already-warm
       # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
       # below) instead of compiling lime/hxcpp/flixel/openfl from source.
-      # Silently no-ops (continue-on-error) if NIGHTMAREVISION_CACHE_TOKEN
-      # isn't set or the export workflow has no successful run -- id/output
-      # lets the next two steps pick the right path instead of always
-      # running hxpkg's own batch installer (see why below).
+      # Silently no-ops (continue-on-error) if the export workflow has no
+      # successful run -- id/output lets the next two steps pick the right
+      # path instead of always running hxpkg's own batch installer (see why
+      # below).
       - name: Import NightmareVision haxelib/Lime cache
         id: nv-import
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -x
           echo "imported=false" >> "$GITHUB_OUTPUT"
@@ -1000,7 +1016,7 @@ jobs:
             gh release download haxelib-cache-export \
               --repo jereidk/NightmareVision-Android-Support \
               --dir /tmp/nv-cache-import --clobber \
-              || { echo "Could not download the NightmareVision cache export (expired/invalid NIGHTMAREVISION_CACHE_TOKEN, or the release is gone) -- falling back to a from-scratch install. This is expected to be slower, not broken."; exit 1; }
+              || { echo "Could not download the NightmareVision cache export (the release/assets may be gone, or a transient GitHub API issue) -- falling back to a from-scratch install. This is expected to be slower, not broken."; exit 1; }
           else
             echo "Reusing previously-downloaded NightmareVision export ($RUN_ID)."
           fi
@@ -1685,7 +1701,7 @@ jobs:
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           # The export is published as a RELEASE now, not a run artifact.
           # Artifacts expire, and this is only ever consulted on a cold cache
@@ -1702,25 +1718,33 @@ jobs:
           REPO=jereidk/NightmareVision-Android-Support
           TAG=haxelib-cache-export
 
-          # Confirms NIGHTMAREVISION_CACHE_TOKEN itself is a valid, usable
-          # credential BEFORE anything blames the release/repo for a lookup
-          # failure -- gh auth status hits token verification directly and
-          # names why a token is rejected (expired, revoked, wrong repo
-          # access), a distinction the generic "no release found" fallback
-          # below can't make on its own.
-          echo "--- gh auth status (is NIGHTMAREVISION_CACHE_TOKEN itself valid?) ---"
+          # jereidk/NightmareVision-Android-Support is public, and so is this
+          # release -- confirmed directly (an unauthenticated curl to both
+          # the repo and this release's tags endpoint returns 200, no token
+          # needed at all). A NIGHTMAREVISION_CACHE_TOKEN secret used to be
+          # required here and repeatedly caused exactly this failure mode:
+          # `gh` sees GH_TOKEN is SET and authenticates with it explicitly
+          # rather than falling back to anonymous access, so any mistake in
+          # that secret (expired, revoked, or -- what actually kept
+          # happening -- simply saved wrong; `gh auth status` reported
+          # "The token in GH_TOKEN is invalid" even right after a careful
+          # re-paste) turned an otherwise-trivial public read into a 401,
+          # every single time. Using the ambient github.token instead needs
+          # no repo secret to exist or ever be maintained: it's always
+          # present and valid for the life of the job, and a valid token
+          # from anywhere is accepted for reading public resources on any
+          # repo, not just this one.
+          echo "--- gh auth status (sanity check -- github.token should always be valid) ---"
           gh auth status 2>&1
 
           # NOT 2>/dev/null: that discarded gh's own error text entirely, so
           # a real auth/permission failure printed the exact same "no
           # release found" message as the release genuinely not existing --
-          # indistinguishable, and exactly what happened here (confirmed:
-          # NIGHTMAREVISION_CACHE_TOKEN was already updated to a token
-          # verified independently to have release-read access on that repo,
-          # yet this step still reported "no release found" with zero
-          # diagnostic to explain why). Captured to a file instead of left
-          # inline so it only prints inside the `if` block below, alongside
-          # the message it actually explains.
+          # indistinguishable, which is how the NIGHTMAREVISION_CACHE_TOKEN
+          # failures above went unexplained for as long as they did.
+          # Captured to a file instead of left inline so it only prints
+          # inside the `if` block below, alongside the message it actually
+          # explains.
           EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/tmp/gh-view-err.log)
           if [ -z "$EXPORT_ID" ]; then
             echo "No '$TAG' release on $REPO -- skipping the import tier."
@@ -1764,16 +1788,16 @@ jobs:
       # Best-effort: pulls NightmareVision-Android-Support's already-warm
       # haxelib/Lime cache (same FunkinCrew fork commits pinned in .hxpkg
       # below) instead of compiling lime/hxcpp/flixel/openfl from source.
-      # Silently no-ops (continue-on-error) if NIGHTMAREVISION_CACHE_TOKEN
-      # isn't set or the export workflow has no successful run -- id/output
-      # lets the next two steps pick the right path instead of always
-      # running hxpkg's own batch installer (see why below).
+      # Silently no-ops (continue-on-error) if the export workflow has no
+      # successful run -- id/output lets the next two steps pick the right
+      # path instead of always running hxpkg's own batch installer (see why
+      # below).
       - name: Import NightmareVision haxelib/Lime cache
         id: nv-import
         if: steps.haxelibs-cache.outputs.cache-hit != 'true'
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.NIGHTMAREVISION_CACHE_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -x
           echo "imported=false" >> "$GITHUB_OUTPUT"
@@ -1787,7 +1811,7 @@ jobs:
             gh release download haxelib-cache-export \
               --repo jereidk/NightmareVision-Android-Support \
               --dir /tmp/nv-cache-import --clobber \
-              || { echo "Could not download the NightmareVision cache export (expired/invalid NIGHTMAREVISION_CACHE_TOKEN, or the release is gone) -- falling back to a from-scratch install. This is expected to be slower, not broken."; exit 1; }
+              || { echo "Could not download the NightmareVision cache export (the release/assets may be gone, or a transient GitHub API issue) -- falling back to a from-scratch install. This is expected to be slower, not broken."; exit 1; }
           else
             echo "Reusing previously-downloaded NightmareVision export ($RUN_ID)."
           fi
