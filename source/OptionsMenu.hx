@@ -22,9 +22,6 @@ class OptionsMenu extends MusicBeatState
 	public var options:Array<OptionCategory> = [
 		new OptionCategory("Gameplay", [
 			new DFJKOption(),
-			#if android
-			new MechsInputVariants("Variants of inputs for mechanics."),
-			#end
 			new DownscrollOption("Change the layout of the strumline."),
 			new GhostTapOption("Ghost Tapping is when you tap a direction and it doesn't give you a miss."),
 			new BotPlay("Showcase your charts and mods with autoplay."),
@@ -40,13 +37,7 @@ class OptionsMenu extends MusicBeatState
 			new CamZoomOption("Toggle the camera zoom in-game."),
 			new AccuracyOption("Display accuracy information."),
 			new NPSDisplayOption("Shows your current Notes Per Second."),
-			#if android
-			new ShowMS("Show the MS count for each note press"),
-			new GradientHitboxes("Should hitboxes have gradient colors or no"),
-			new HitboxesAlpha("Hitboxes Opacity or contrast whatever.")
-			#else
 			new ShowMS("Show the MS count for each note press")
-			#end
 		]),
 		new OptionCategory("Performance", [
 			new Photosensitive("Turn off visual effects that may harm your vision."),
@@ -56,13 +47,6 @@ class OptionsMenu extends MusicBeatState
 		new OptionCategory("Window", [
 			#if !android
 			new Resolution("Change the game's resolution, press ENTER to apply"),
-			#end
-			#if android
-			// FunkinRatioScaleMode's Wide/Stretch logic is #if mobile-gated
-			// internally (matches NightmareVision-Android-Support's own
-			// option, similarly restricted) -- exposing this on desktop
-			// would just be a silent no-op there.
-			new ScreenModeOption("How the game fills the screen. Normal keeps 16:9 with black bars, Wide shows more background on wide screens with no distortion, Stretch fills the screen exactly (may distort)."),
 			#end
 			new Gamma("Change the gamma value of the app."),
 			new Brightness("Change the brightness value of the app."),
@@ -74,6 +58,24 @@ class OptionsMenu extends MusicBeatState
 			new DebugDisplaySizeOption("Change the size of the FPS/Memory counter text."),
 			new RainbowFPSOption("Make the FPS and Memory Counter Rainbow")
 		]),
+		#if android
+		// Every option here is android-only (was previously scattered across
+		// Gameplay/Appearance/Window, each wrapped in its own #if android) --
+		// pulled into one dedicated category, same idea as NightmareVision-
+		// Android-Support's own MobileSettingsSubState, so mobile-specific
+		// settings have a home that doesn't crowd the shared desktop/android
+		// categories above as more of them get added.
+		new OptionCategory("Mobile", [
+			new MechsInputVariants("Variants of inputs for mechanics."),
+			// FunkinRatioScaleMode's Wide/Stretch logic is #if mobile-gated
+			// internally (matches NightmareVision-Android-Support's own
+			// option, similarly restricted) -- exposing this on desktop
+			// would just be a silent no-op there.
+			new ScreenModeOption("How the game fills the screen. Normal keeps 16:9 with black bars, Wide shows more background on wide screens with no distortion, Stretch fills the screen exactly (may distort)."),
+			new GradientHitboxes("Should hitboxes have gradient colors or no"),
+			new HitboxesAlpha("Hitboxes Opacity or contrast whatever.")
+		]),
+		#end
 		new OptionCategory("Accessibility", [
 			new ShowSubtitles("Show subtitles during cutscenes."),
 			new Colorblind("") // new LogInGJ("Log into gamejolt for achievements & perks"),
