@@ -126,7 +126,18 @@ jobs:
             echo "Found export release '$TAG' published $EXPORT_ID."
           fi
           # Slashes/colons out of the timestamp so it is a legal cache key.
-          EXPORT_ID=$(echo "$EXPORT_ID" | tr -c 'A-Za-z0-9._-' '-')
+          # printf, NOT echo: echo "" still emits a newline, which tr then
+          # converts to a literal '-' (not empty) below -- that turned an
+          # empty EXPORT_ID (no release found, expected/common case) into
+          # the STRING '-', which is != '' and therefore looked truthy to
+          # every later step gated on `steps.nv-run.outputs.run-id != ''`.
+          # Confirmed live: those steps ran anyway with a nonsense
+          # 'nv-cache-export--' cache key and a real (failed, 401) gh
+          # release download attempt, even though this branch had already
+          # printed 'No ... release ... skipping the import tier.' just
+          # above. printf '%s' emits nothing at all for an empty string, so
+          # tr now correctly passes an empty EXPORT_ID through as empty.
+          EXPORT_ID=$(printf '%s' "$EXPORT_ID" | tr -c 'A-Za-z0-9._-' '-')
           echo "run-id=$EXPORT_ID" >> "$GITHUB_OUTPUT"
 
       # Caches the raw downloaded tarballs (not just the extracted result,
@@ -888,7 +899,18 @@ jobs:
             echo "Found export release '$TAG' published $EXPORT_ID."
           fi
           # Slashes/colons out of the timestamp so it is a legal cache key.
-          EXPORT_ID=$(echo "$EXPORT_ID" | tr -c 'A-Za-z0-9._-' '-')
+          # printf, NOT echo: echo "" still emits a newline, which tr then
+          # converts to a literal '-' (not empty) below -- that turned an
+          # empty EXPORT_ID (no release found, expected/common case) into
+          # the STRING '-', which is != '' and therefore looked truthy to
+          # every later step gated on `steps.nv-run.outputs.run-id != ''`.
+          # Confirmed live: those steps ran anyway with a nonsense
+          # 'nv-cache-export--' cache key and a real (failed, 401) gh
+          # release download attempt, even though this branch had already
+          # printed 'No ... release ... skipping the import tier.' just
+          # above. printf '%s' emits nothing at all for an empty string, so
+          # tr now correctly passes an empty EXPORT_ID through as empty.
+          EXPORT_ID=$(printf '%s' "$EXPORT_ID" | tr -c 'A-Za-z0-9._-' '-')
           echo "run-id=$EXPORT_ID" >> "$GITHUB_OUTPUT"
 
       # Caches the raw downloaded tarballs (not just the extracted result,
@@ -1641,7 +1663,18 @@ jobs:
             echo "Found export release '$TAG' published $EXPORT_ID."
           fi
           # Slashes/colons out of the timestamp so it is a legal cache key.
-          EXPORT_ID=$(echo "$EXPORT_ID" | tr -c 'A-Za-z0-9._-' '-')
+          # printf, NOT echo: echo "" still emits a newline, which tr then
+          # converts to a literal '-' (not empty) below -- that turned an
+          # empty EXPORT_ID (no release found, expected/common case) into
+          # the STRING '-', which is != '' and therefore looked truthy to
+          # every later step gated on `steps.nv-run.outputs.run-id != ''`.
+          # Confirmed live: those steps ran anyway with a nonsense
+          # 'nv-cache-export--' cache key and a real (failed, 401) gh
+          # release download attempt, even though this branch had already
+          # printed 'No ... release ... skipping the import tier.' just
+          # above. printf '%s' emits nothing at all for an empty string, so
+          # tr now correctly passes an empty EXPORT_ID through as empty.
+          EXPORT_ID=$(printf '%s' "$EXPORT_ID" | tr -c 'A-Za-z0-9._-' '-')
           echo "run-id=$EXPORT_ID" >> "$GITHUB_OUTPUT"
 
       # Caches the raw downloaded tarballs (not just the extracted result,
