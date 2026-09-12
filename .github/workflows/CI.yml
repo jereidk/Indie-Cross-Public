@@ -118,10 +118,32 @@ jobs:
           set +e
           REPO=jereidk/NightmareVision-Android-Support
           TAG=haxelib-cache-export
-          EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/dev/null)
+
+          # Confirms NIGHTMAREVISION_CACHE_TOKEN itself is a valid, usable
+          # credential BEFORE anything blames the release/repo for a lookup
+          # failure -- gh auth status hits token verification directly and
+          # names why a token is rejected (expired, revoked, wrong repo
+          # access), a distinction the generic "no release found" fallback
+          # below can't make on its own.
+          echo "--- gh auth status (is NIGHTMAREVISION_CACHE_TOKEN itself valid?) ---"
+          gh auth status 2>&1
+
+          # NOT 2>/dev/null: that discarded gh's own error text entirely, so
+          # a real auth/permission failure printed the exact same "no
+          # release found" message as the release genuinely not existing --
+          # indistinguishable, and exactly what happened here (confirmed:
+          # NIGHTMAREVISION_CACHE_TOKEN was already updated to a token
+          # verified independently to have release-read access on that repo,
+          # yet this step still reported "no release found" with zero
+          # diagnostic to explain why). Captured to a file instead of left
+          # inline so it only prints inside the `if` block below, alongside
+          # the message it actually explains.
+          EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/tmp/gh-view-err.log)
           if [ -z "$EXPORT_ID" ]; then
             echo "No '$TAG' release on $REPO -- skipping the import tier."
             echo "(Run exportHaxelibForIndieCross.yml over there to publish one.)"
+            echo "--- gh release view's own error (the actual reason, not guessed) ---"
+            cat /tmp/gh-view-err.log
           else
             echo "Found export release '$TAG' published $EXPORT_ID."
           fi
@@ -892,10 +914,32 @@ jobs:
           set +e
           REPO=jereidk/NightmareVision-Android-Support
           TAG=haxelib-cache-export
-          EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/dev/null)
+
+          # Confirms NIGHTMAREVISION_CACHE_TOKEN itself is a valid, usable
+          # credential BEFORE anything blames the release/repo for a lookup
+          # failure -- gh auth status hits token verification directly and
+          # names why a token is rejected (expired, revoked, wrong repo
+          # access), a distinction the generic "no release found" fallback
+          # below can't make on its own.
+          echo "--- gh auth status (is NIGHTMAREVISION_CACHE_TOKEN itself valid?) ---"
+          gh auth status 2>&1
+
+          # NOT 2>/dev/null: that discarded gh's own error text entirely, so
+          # a real auth/permission failure printed the exact same "no
+          # release found" message as the release genuinely not existing --
+          # indistinguishable, and exactly what happened here (confirmed:
+          # NIGHTMAREVISION_CACHE_TOKEN was already updated to a token
+          # verified independently to have release-read access on that repo,
+          # yet this step still reported "no release found" with zero
+          # diagnostic to explain why). Captured to a file instead of left
+          # inline so it only prints inside the `if` block below, alongside
+          # the message it actually explains.
+          EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/tmp/gh-view-err.log)
           if [ -z "$EXPORT_ID" ]; then
             echo "No '$TAG' release on $REPO -- skipping the import tier."
             echo "(Run exportHaxelibForIndieCross.yml over there to publish one.)"
+            echo "--- gh release view's own error (the actual reason, not guessed) ---"
+            cat /tmp/gh-view-err.log
           else
             echo "Found export release '$TAG' published $EXPORT_ID."
           fi
@@ -1657,10 +1701,32 @@ jobs:
           set +e
           REPO=jereidk/NightmareVision-Android-Support
           TAG=haxelib-cache-export
-          EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/dev/null)
+
+          # Confirms NIGHTMAREVISION_CACHE_TOKEN itself is a valid, usable
+          # credential BEFORE anything blames the release/repo for a lookup
+          # failure -- gh auth status hits token verification directly and
+          # names why a token is rejected (expired, revoked, wrong repo
+          # access), a distinction the generic "no release found" fallback
+          # below can't make on its own.
+          echo "--- gh auth status (is NIGHTMAREVISION_CACHE_TOKEN itself valid?) ---"
+          gh auth status 2>&1
+
+          # NOT 2>/dev/null: that discarded gh's own error text entirely, so
+          # a real auth/permission failure printed the exact same "no
+          # release found" message as the release genuinely not existing --
+          # indistinguishable, and exactly what happened here (confirmed:
+          # NIGHTMAREVISION_CACHE_TOKEN was already updated to a token
+          # verified independently to have release-read access on that repo,
+          # yet this step still reported "no release found" with zero
+          # diagnostic to explain why). Captured to a file instead of left
+          # inline so it only prints inside the `if` block below, alongside
+          # the message it actually explains.
+          EXPORT_ID=$(gh release view "$TAG" --repo "$REPO" --json publishedAt --jq '.publishedAt' 2>/tmp/gh-view-err.log)
           if [ -z "$EXPORT_ID" ]; then
             echo "No '$TAG' release on $REPO -- skipping the import tier."
             echo "(Run exportHaxelibForIndieCross.yml over there to publish one.)"
+            echo "--- gh release view's own error (the actual reason, not guessed) ---"
+            cat /tmp/gh-view-err.log
           else
             echo "Found export release '$TAG' published $EXPORT_ID."
           fi
