@@ -76,7 +76,7 @@ jobs:
           # not the commits .hxpkg actually pins -- confirmed via CI diag.
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
-          key: haxelibs-android-port-v9-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v1-${{ hashFiles('.hxpkg') }}
 
       # Same rationale as "Prune stale hxcpp compile caches" further down,
       # applied to the OTHER cache that grows unboundedly: every time this
@@ -790,7 +790,7 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-v9-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v1-${{ hashFiles('.hxpkg') }}
 
       - name: Save Gradle cache
         if: always()
@@ -872,7 +872,7 @@ jobs:
           # not the commits .hxpkg actually pins -- confirmed via CI diag.
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
-          key: haxelibs-android-port-v9-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v1-${{ hashFiles('.hxpkg') }}
 
       # Same rationale as "Prune stale hxcpp compile caches" further down,
       # applied to the OTHER cache that grows unboundedly: every time this
@@ -1577,7 +1577,7 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-v9-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v1-${{ hashFiles('.hxpkg') }}
 
       - name: Save Gradle cache
         if: always()
@@ -1659,7 +1659,7 @@ jobs:
           # not the commits .hxpkg actually pins -- confirmed via CI diag.
           # One more clean miss so the new reconcile-to-pin step below
           # actually runs instead of restoring that stale state.
-          key: haxelibs-android-port-v9-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v1-${{ hashFiles('.hxpkg') }}
 
       # Same rationale as "Prune stale hxcpp compile caches" further down,
       # applied to the OTHER cache that grows unboundedly: every time this
@@ -2364,7 +2364,7 @@ jobs:
           path: |
             ~/haxelib
             .haxelib
-          key: haxelibs-android-port-v9-${{ hashFiles('.hxpkg') }}
+          key: haxelibs-android-port-v1-${{ hashFiles('.hxpkg') }}
 
       - name: Save Gradle cache
         if: always()
