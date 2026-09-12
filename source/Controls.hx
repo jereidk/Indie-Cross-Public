@@ -287,6 +287,18 @@ class Controls extends FlxActionSet
 				inline forEachBound(Control.LEFT, (action, state) -> addbutton(action, Hitbox.buttonLeft, state));
 				inline forEachBound(Control.RIGHT, (action, state) -> addbutton(action, Hitbox.buttonRight, state));
 				inline forEachBound(Control.DODGE, (action, state) -> addbutton(action, Hitbox.buttonDodge, state));
+			case NOTETAP:
+				// Same 4 bindings as DEFAULT -- Hitbox.buttonUp/Down/Left/Right
+				// are the exact same fields either way, just driven by
+				// android.flixel.NoteTapInput instead of a real touch
+				// overlapping them (FlxHitbox.hx's NOTETAP case sets them
+				// invisible for that reason). No DODGE/ATTACK binding: Note
+				// Tap only ever gets selected for songs without a mechanic in
+				// the first place (see PlayState.hx's hitbox-mode choice).
+				inline forEachBound(Control.UP, (action, state) -> addbutton(action, Hitbox.buttonUp, state));
+				inline forEachBound(Control.DOWN, (action, state) -> addbutton(action, Hitbox.buttonDown, state));
+				inline forEachBound(Control.LEFT, (action, state) -> addbutton(action, Hitbox.buttonLeft, state));
+				inline forEachBound(Control.RIGHT, (action, state) -> addbutton(action, Hitbox.buttonRight, state));
 		}
 	}
 

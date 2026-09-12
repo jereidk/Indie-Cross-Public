@@ -67,6 +67,8 @@ class OptionsMenu extends MusicBeatState
 		// categories above as more of them get added.
 		new OptionCategory("Mobile", [
 			new MechsInputVariants("Variants of inputs for mechanics."),
+			new NoteLayoutOption("Normal: classic side-by-side strumline. VSlice: your notes centered and split into two hand groups, the opponent's shrunk into a corner."),
+			new NoteTapOption("Tap the falling note itself instead of a fixed on-screen zone. Requires Note Layout: VSlice, and only applies to songs without a dodge/attack mechanic."),
 			// FunkinRatioScaleMode's Wide/Stretch logic is #if mobile-gated
 			// internally (matches NightmareVision-Android-Support's own
 			// option, similarly restricted) -- exposing this on desktop

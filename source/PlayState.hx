@@ -153,6 +153,11 @@ class PlayState extends MusicBeatState
 	var cangethurt:Bool = true;
 
 	#if android
+	// Non-null only when Note Tap gameplay input is actually active this
+	// song (see the addAndroidControls() call site) -- Note Tap only
+	// applies to songs with no dodge/attack mechanic of their own.
+	var noteTapInput:android.flixel.NoteTapInput;
+
 	var utJoystick:SimpleJoystick;
 	var utStickTouch:FlxTouch;
 	// Visual-only: how far off-center and in which direction the thumb is
@@ -2602,7 +2607,7 @@ class PlayState extends MusicBeatState
 		{
 			case SINGLEDODGE | SINGLEATTACK: 1;
 			case DOUBLE | TRIPLE: 2;
-			case DEFAULT: 0;
+			case DEFAULT | NOTETAP: 0;
 		}
 		final row0Y:Float = bottomAnchored ? FlxG.height - (btnH * rows) : 0;
 		final row1Y:Float = row0Y + btnH;
@@ -2616,7 +2621,7 @@ class PlayState extends MusicBeatState
 			case DOUBLE | TRIPLE:
 				dodgeHud.y = row0Y;
 				attackHud.y = row1Y;
-			case DEFAULT:
+			case DEFAULT | NOTETAP:
 		}
 		#end
 
@@ -3116,8 +3121,21 @@ class PlayState extends MusicBeatState
 
 		#if android
 		// mechMode computed once, up near dodgeHud/attackHud's creation --
-		// see the comment there.
-		addAndroidControls(mechMode);
+		// see the comment there. Note Tap only replaces it for songs with no
+		// mechanic of their own (mechMode == DEFAULT) -- this port doesn't
+		// implement combining a tap-the-note input mode with a dodge/attack
+		// corner button, so mechanic songs keep using the ordinary Hitbox
+		// for that song's mechanic regardless of this preference.
+		final useNoteTap:Bool = mechMode == DEFAULT && FlxG.save.data.noteLayout == 'VSlice' && FlxG.save.data.noteTapControls;
+		addAndroidControls(useNoteTap ? NOTETAP : mechMode);
+
+		// Safe to hand `notes` a live reference here: generateSong(SONG.song)
+		// (which creates it) already ran earlier in this same create() call
+		// -- textually further down in this file (generateSong() is defined
+		// after this point), but actually CALLED before it (line ~2659, well
+		// above this block).
+		if (useNoteTap)
+			noteTapInput = new android.flixel.NoteTapInput(androidControls.hitbox, notes, camHUD);
 		#end
 
 		startingSong = true;
@@ -4588,6 +4606,26 @@ class PlayState extends MusicBeatState
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strumTime, Obj2.strumTime);
 	}
 
+	// "VSlice" Note Layout tuning -- ported from NightmareVision-Android-
+	// Support's own VSlice mode (funkin.objects.note.StrumNote.hx), which
+	// pixel-measured its constants against real device screenshots of THAT
+	// note skin/HUD. This codebase's own note-spacing unit (Note.swagWidth
+	// = 160 * 0.7 = 112) happens to already equal their NOTE_SPACING
+	// exactly, so it's reused as-is below instead of inventing a separate
+	// constant -- but the numbers here are a first-pass estimate against
+	// THIS game's different note art, not a calibrated match. Expect these
+	// to need visual tuning once this can actually be seen running.
+	// No separate split-gap constant: it's just Note.swagWidth again (one
+	// full extra note-width gap between the LEFT+DOWN / UP+RIGHT pairs) --
+	// Note.swagWidth is a plain (reassignable) static var, not a constant
+	// expression, so it can't itself be the initializer of a static inline
+	// var here.
+	static inline var VSLICE_BOTTOM_MARGIN:Float = 40; // player strumline's gap from the bottom edge
+	static inline var VSLICE_OPPONENT_SCALE:Float = 0.5; // on top of the note skin's own already-applied Note.noteWidth scale
+	static inline var VSLICE_OPPONENT_GAP:Float = 4; // gap between the opponent's shrunk lanes
+	static inline var VSLICE_OPPONENT_INSET_X:Float = 20;
+	static inline var VSLICE_OPPONENT_INSET_Y:Float = 60; // clears the FPS/GC debug overlay in that same corner (Main.hx)
+
 	private function generateStaticArrows(player:Int, ?funnyTiming:Bool = false):Void
 	{
 		for (i in 0...4)
@@ -4705,6 +4743,34 @@ class PlayState extends MusicBeatState
 							babyArrow.x += ((FlxG.width / 4) * 3) - (babyArrow.width * 2);
 					}
 			}
+
+			#if android
+			// Overrides whatever x/y the classic layout above just set.
+			// 'bonedoggle' (its own 3-way player/CPU/CPU2 split has no VSlice
+			// equivalent to adapt) and player == 2 (any other 3-character
+			// song) are left out of scope entirely -- both keep the classic
+			// layout regardless of Note Layout.
+			if (FlxG.save.data.noteLayout == 'VSlice' && SONG.song.toLowerCase() != 'bonedoggle' && (player == 0 || player == 1))
+			{
+				if (player == 1) // the actual player -- centered, split into two pairs, bottom-anchored
+				{
+					final splitGap:Float = Note.swagWidth; // one extra note-width gap between the two pairs
+					final groupWidth:Float = Note.swagWidth * 3 + splitGap + babyArrow.width;
+					final baseX:Float = (FlxG.width - groupWidth) / 2;
+
+					babyArrow.x = baseX + i * Note.swagWidth + (i >= 2 ? splitGap : 0);
+					babyArrow.y = FlxG.height - babyArrow.height - VSLICE_BOTTOM_MARGIN;
+				}
+				else // player == 0, the main opponent -- shrunk into the top-left corner
+				{
+					babyArrow.setGraphicSize(Std.int(babyArrow.width * VSLICE_OPPONENT_SCALE));
+					babyArrow.updateHitbox();
+
+					babyArrow.x = VSLICE_OPPONENT_INSET_X + i * (babyArrow.width + VSLICE_OPPONENT_GAP);
+					babyArrow.y = VSLICE_OPPONENT_INSET_Y;
+				}
+			}
+			#end
 
 			cpuStrums.forEach(function(spr:FlxSprite)
 			{
@@ -5179,6 +5245,18 @@ class PlayState extends MusicBeatState
 
 	override public function update(elapsed:Float)
 	{
+		#if android
+		// As early in the frame as this code gets to run -- Controls.hx's
+		// bound actions are polled by Flixel's own input pass before ANY
+		// state's update() starts, so a forcePress()/forceRelease() call
+		// from here still lands one frame later than a real touch would.
+		// Same characteristic NightmareVision-Android-Support's own
+		// NoteTapInput has (also a plain per-frame update(), not hooked in
+		// any earlier).
+		if (noteTapInput != null)
+			noteTapInput.update();
+		#end
+
 		#if !debug
 		perfectMode = false;
 		#end
@@ -13445,6 +13523,12 @@ class PlayState extends MusicBeatState
 	{
 		#if android
 		mobile.backend.AndroidUtils.setGameplayState(false);
+
+		if (noteTapInput != null)
+		{
+			noteTapInput.destroy();
+			noteTapInput = null;
+		}
 		#end
 
 		super.destroy();

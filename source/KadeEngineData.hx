@@ -205,6 +205,18 @@ class KadeEngineData
 		if (FlxG.save.data.watchedTitleVid == null)
 			FlxG.save.data.watchedTitleVid = false;
 
+		// noteLayout: 'Normal' (classic side-by-side strumline) or 'VSlice'
+		// (player centered/split, opponent shrunk to a corner) -- see
+		// NoteLayoutOption/NoteTapOption in Options.hx.
+		if (FlxG.save.data.noteLayout == null)
+			FlxG.save.data.noteLayout = 'Normal';
+
+		// Only meaningful (and only exposed in Options) when noteLayout is
+		// 'VSlice': taps the falling note sprite directly instead of the
+		// usual fixed-zone Hitbox. See android.flixel.NoteTapInput.
+		if (FlxG.save.data.noteTapControls == null)
+			FlxG.save.data.noteTapControls = false;
+
 		if (FlxG.save.data.secretChars == null)
 			FlxG.save.data.secretChars = [true, true, true, true, true, true, true, true];
 

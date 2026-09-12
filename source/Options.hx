@@ -355,6 +355,52 @@ class MechsInputVariants extends Option
 	}
 }
 
+class NoteLayoutOption extends Option
+{
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+	}
+
+	public override function press():Bool
+	{
+		FlxG.save.data.noteLayout = (FlxG.save.data.noteLayout == 'Normal') ? 'VSlice' : 'Normal';
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		return 'Note Layout: ' + FlxG.save.data.noteLayout;
+	}
+}
+
+class NoteTapOption extends Option
+{
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+	}
+
+	public override function press():Bool
+	{
+		FlxG.save.data.noteTapControls = !FlxG.save.data.noteTapControls;
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		// Only takes effect with Note Layout set to VSlice (PlayState.hx
+		// falls back to the normal Hitbox otherwise) -- said here rather
+		// than hidden, since this menu has no mechanism to show/hide one
+		// option based on another option's live value.
+		return 'Note Tap Controls: ' + (FlxG.save.data.noteTapControls ? 'On' : 'Off') + (FlxG.save.data.noteLayout != 'VSlice' ? ' (needs VSlice layout)' : '');
+	}
+}
+
 class ShowSubtitles extends Option
 {
 	public function new(desc:String)

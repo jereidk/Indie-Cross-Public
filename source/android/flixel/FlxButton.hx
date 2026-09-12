@@ -261,6 +261,29 @@ class FlxTypedButton<T:FlxSprite> extends FlxSprite implements IFlxInput
 	}
 
 	/**
+	 * Drives this button's pressed state programmatically instead of via an
+	 * actual touch overlapping its own bounds -- for input modes (e.g.
+	 * android.flixel.NoteTapInput) that decide what counts as "pressed" some
+	 * other way (nearest live note under a touch, not a fixed on-screen
+	 * zone) but still want to ride Controls.hx's existing FlxActionDigital/
+	 * addbutton() binding instead of a separate parallel input path.
+	 *
+	 * `input` (the FlxInput<Int> that justPressed/pressed/etc actually read)
+	 * is private to this file, so these exist as the public way in. Pair
+	 * with `visible = false`: update()'s own touch-overlap scan below is
+	 * skipped whenever `visible` is false, so it can never fight with a
+	 * forcePress()/forceRelease() call over the same frame's state, and
+	 * `input.update()` (the edge-advance JUST_PRESSED -> PRESSED /
+	 * JUST_RELEASED -> RELEASED step) still runs unconditionally either way
+	 * since it happens outside that same `if (visible)` block.
+	 */
+	public function forcePress():Void
+		input.press();
+
+	public function forceRelease():Void
+		input.release();
+
+	/**
 	 * Called by the game loop automatically, handles touch over and click detection.
 	 */
 	override public function update(elapsed:Float):Void

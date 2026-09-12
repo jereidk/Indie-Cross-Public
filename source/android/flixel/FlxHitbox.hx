@@ -72,7 +72,7 @@ class FlxHitbox extends FlxSpriteGroup
 		{
 			case SINGLEDODGE | SINGLEATTACK: 1;
 			case DOUBLE | TRIPLE: 2;
-			case DEFAULT: 0;
+			case DEFAULT | NOTETAP: 0;
 		}
 
 		final notchH:Float = btnH * rows;
@@ -94,6 +94,27 @@ class FlxHitbox extends FlxSpriteGroup
 				add(buttonDown = createHint(FlxG.width / 4, 0, Std.int(FlxG.width / 4), FlxG.height, 0x00FFFF));
 				add(buttonUp = createHint(FlxG.width / 2, 0, Std.int(FlxG.width / 4), FlxG.height, 0x00FF00));
 				add(buttonRight = createHint((FlxG.width / 2) + (FlxG.width / 4), 0, Std.int(FlxG.width / 4), FlxG.height, 0xFF0000));
+			case NOTETAP:
+				// Note Tap doesn't use fixed on-screen zones at all -- android.
+				// flixel.NoteTapInput drives these 4 buttons' pressed state
+				// directly (FlxButton.forcePress()/forceRelease()) based on
+				// which live falling note (if any) a touch actually lands on,
+				// wherever that happens to be on screen. Position/size here
+				// are irrelevant (never drawn, never touch-scanned) -- these
+				// only exist so Controls.setHitBox()'s existing addbutton()
+				// binding has real FlxButton instances to attach to, same as
+				// every other mode. `visible = false` is what actually skips
+				// this button's own touch-overlap scan in FlxButton.update()
+				// (see forcePress()'s doc comment there) -- the 1x1 createHint
+				// graphic below is just a harmless placeholder, never seen.
+				add(buttonLeft = createHint(0, 0, 1, 1, 0x000000));
+				add(buttonDown = createHint(0, 0, 1, 1, 0x000000));
+				add(buttonUp = createHint(0, 0, 1, 1, 0x000000));
+				add(buttonRight = createHint(0, 0, 1, 1, 0x000000));
+				buttonLeft.visible = false;
+				buttonDown.visible = false;
+				buttonUp.visible = false;
+				buttonRight.visible = false;
 			case SINGLEATTACK:
 				add(buttonLeft = createHint(0, leftY, Std.int(btnW), Std.int(leftH), 0xFF00FF));
 				add(buttonDown = createHint(FlxG.width / 4, 0, Std.int(FlxG.width / 4), FlxG.height, 0x00FFFF));
@@ -244,4 +265,5 @@ enum Modes
 	SINGLEDODGE;
 	DOUBLE;
 	TRIPLE;
+	NOTETAP;
 }
