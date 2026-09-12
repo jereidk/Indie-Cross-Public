@@ -4621,10 +4621,23 @@ class PlayState extends MusicBeatState
 	// expression, so it can't itself be the initializer of a static inline
 	// var here.
 	static inline var VSLICE_BOTTOM_MARGIN:Float = 40; // player strumline's gap from the bottom edge
+	// Measured against a real NightmareVision-Android-Support reference screenshot
+	// (connected-component blob detection on both, at matching 1600x720 resolution).
+	static inline var VSLICE_PLAYER_SPACING_MULT:Float = 1.647; // Note.swagWidth * this = per-lane spacing
+	static inline var VSLICE_PLAYER_SPLIT_GAP_MULT:Float = 0.768; // Note.swagWidth * this = extra gap between the LEFT+DOWN / UP+RIGHT pairs
+	static inline var VSLICE_PLAYER_SIZE_SCALE:Float = 1.272; // on top of the note skin's own already-applied Note.noteWidth scale
 	static inline var VSLICE_OPPONENT_SCALE:Float = 0.5; // on top of the note skin's own already-applied Note.noteWidth scale
 	static inline var VSLICE_OPPONENT_GAP:Float = 4; // gap between the opponent's shrunk lanes
 	static inline var VSLICE_OPPONENT_INSET_X:Float = 20;
-	static inline var VSLICE_OPPONENT_INSET_Y:Float = 60; // clears the FPS/GC debug overlay in that same corner (Main.hx)
+	static inline var VSLICE_OPPONENT_INSET_Y:Float = 20; // moved up from the previous 60 -- was sitting too low onscreen
+
+	#if android
+	// Single source of truth for "is the VSlice note layout actually in effect
+	// right now" -- 'bonedoggle' keeps its own 3-way split regardless of the
+	// Note Layout setting, same exclusion generateStaticArrows() already used.
+	inline function vsliceLayoutActive():Bool
+		return FlxG.save.data.noteLayout == 'VSlice' && SONG.song.toLowerCase() != 'bonedoggle';
+	#end
 
 	private function generateStaticArrows(player:Int, ?funnyTiming:Bool = false):Void
 	{
@@ -4750,15 +4763,19 @@ class PlayState extends MusicBeatState
 			// equivalent to adapt) and player == 2 (any other 3-character
 			// song) are left out of scope entirely -- both keep the classic
 			// layout regardless of Note Layout.
-			if (FlxG.save.data.noteLayout == 'VSlice' && SONG.song.toLowerCase() != 'bonedoggle' && (player == 0 || player == 1))
+			if (vsliceLayoutActive() && (player == 0 || player == 1))
 			{
 				if (player == 1) // the actual player -- centered, split into two pairs, bottom-anchored
 				{
-					final splitGap:Float = Note.swagWidth; // one extra note-width gap between the two pairs
-					final groupWidth:Float = Note.swagWidth * 3 + splitGap + babyArrow.width;
+					babyArrow.setGraphicSize(Std.int(babyArrow.width * VSLICE_PLAYER_SIZE_SCALE));
+					babyArrow.updateHitbox();
+
+					final spacing:Float = Note.swagWidth * VSLICE_PLAYER_SPACING_MULT; // per-lane spacing
+					final splitGap:Float = Note.swagWidth * VSLICE_PLAYER_SPLIT_GAP_MULT; // extra gap between the two pairs
+					final groupWidth:Float = spacing * 3 + splitGap + babyArrow.width;
 					final baseX:Float = (FlxG.width - groupWidth) / 2;
 
-					babyArrow.x = baseX + i * Note.swagWidth + (i >= 2 ? splitGap : 0);
+					babyArrow.x = baseX + i * spacing + (i >= 2 ? splitGap : 0);
 					babyArrow.y = FlxG.height - babyArrow.height - VSLICE_BOTTOM_MARGIN;
 				}
 				else // player == 0, the main opponent -- shrunk into the top-left corner
@@ -7168,6 +7185,14 @@ class PlayState extends MusicBeatState
 
 								cpuStrums.forEach(function(spr:FlxSprite)
 								{
+									#if android
+									if (vsliceLayoutActive())
+									{
+										spr.animation.play('static');
+										spr.centerOffsets();
+										return;
+									}
+									#end
 									if (Math.abs(daNote.noteData) == spr.ID)
 									{
 										spr.animation.play('confirm', true);
@@ -7183,6 +7208,14 @@ class PlayState extends MusicBeatState
 								});
 								altCpuStrums.forEach(function(spr:FlxSprite)
 								{
+									#if android
+									if (vsliceLayoutActive())
+									{
+										spr.animation.play('static');
+										spr.centerOffsets();
+										return;
+									}
+									#end
 									if (Math.abs(daNote.noteData) == spr.ID)
 									{
 										spr.animation.play('confirm', true);
@@ -8565,6 +8598,14 @@ class PlayState extends MusicBeatState
 
 		playerStrums.forEach(function(spr:FlxSprite)
 		{
+			#if android
+			if (vsliceLayoutActive())
+			{
+				spr.animation.play('static');
+				spr.centerOffsets();
+				return;
+			}
+			#end
 			if (pressArray[spr.ID] && spr.animation.curAnim.name != 'confirm' && spr.animation.curAnim.name != 'pressed' && !utmode)
 				spr.animation.play('pressed');
 
@@ -8583,6 +8624,14 @@ class PlayState extends MusicBeatState
 
 		altPlayerStrums.forEach(function(spr:FlxSprite)
 		{
+			#if android
+			if (vsliceLayoutActive())
+			{
+				spr.animation.play('static');
+				spr.centerOffsets();
+				return;
+			}
+			#end
 			if (pressArray[spr.ID] && spr.animation.curAnim.name != 'confirm' && spr.animation.curAnim.name != 'pressed')
 				spr.animation.play('pressed');
 
@@ -12433,6 +12482,14 @@ class PlayState extends MusicBeatState
 		{
 			playerStrums.forEach(function(spr:FlxSprite)
 			{
+				#if android
+				if (vsliceLayoutActive())
+				{
+					spr.animation.play('static');
+					spr.centerOffsets();
+					return;
+				}
+				#end
 				if (Math.abs(note.noteData) == spr.ID)
 				{
 					spr.animation.play('confirm', true);
@@ -12469,6 +12526,10 @@ class PlayState extends MusicBeatState
 		{
 			playerStrums.forEach(function(spr:FlxSprite)
 			{
+				#if android
+				if (vsliceLayoutActive())
+					return;
+				#end
 				if (Math.abs(note.noteData) == spr.ID)
 				{
 					spr.animation.play('confirm', true);
