@@ -7185,14 +7185,6 @@ class PlayState extends MusicBeatState
 
 								cpuStrums.forEach(function(spr:FlxSprite)
 								{
-									#if android
-									if (vsliceLayoutActive())
-									{
-										spr.animation.play('static');
-										spr.centerOffsets();
-										return;
-									}
-									#end
 									if (Math.abs(daNote.noteData) == spr.ID)
 									{
 										spr.animation.play('confirm', true);
@@ -7208,14 +7200,6 @@ class PlayState extends MusicBeatState
 								});
 								altCpuStrums.forEach(function(spr:FlxSprite)
 								{
-									#if android
-									if (vsliceLayoutActive())
-									{
-										spr.animation.play('static');
-										spr.centerOffsets();
-										return;
-									}
-									#end
 									if (Math.abs(daNote.noteData) == spr.ID)
 									{
 										spr.animation.play('confirm', true);
@@ -7438,6 +7422,16 @@ class PlayState extends MusicBeatState
 						daNote.visible = true;
 					}
 				}
+
+				#if android
+				// VSlice: the opponent's receptor stays fully normal (plays its
+				// usual confirm animation like any other layout), but the
+				// falling note sprites themselves never render for the
+				// opponent -- only the player's and player3's (any 3-character
+				// song) falling notes are shown.
+				if (vsliceLayoutActive() && !daNote.mustPress && !daNote.player3Note)
+					daNote.visible = false;
+				#end
 			});
 		}
 
@@ -8598,14 +8592,6 @@ class PlayState extends MusicBeatState
 
 		playerStrums.forEach(function(spr:FlxSprite)
 		{
-			#if android
-			if (vsliceLayoutActive())
-			{
-				spr.animation.play('static');
-				spr.centerOffsets();
-				return;
-			}
-			#end
 			if (pressArray[spr.ID] && spr.animation.curAnim.name != 'confirm' && spr.animation.curAnim.name != 'pressed' && !utmode)
 				spr.animation.play('pressed');
 
@@ -8624,14 +8610,6 @@ class PlayState extends MusicBeatState
 
 		altPlayerStrums.forEach(function(spr:FlxSprite)
 		{
-			#if android
-			if (vsliceLayoutActive())
-			{
-				spr.animation.play('static');
-				spr.centerOffsets();
-				return;
-			}
-			#end
 			if (pressArray[spr.ID] && spr.animation.curAnim.name != 'confirm' && spr.animation.curAnim.name != 'pressed')
 				spr.animation.play('pressed');
 
@@ -12482,14 +12460,6 @@ class PlayState extends MusicBeatState
 		{
 			playerStrums.forEach(function(spr:FlxSprite)
 			{
-				#if android
-				if (vsliceLayoutActive())
-				{
-					spr.animation.play('static');
-					spr.centerOffsets();
-					return;
-				}
-				#end
 				if (Math.abs(note.noteData) == spr.ID)
 				{
 					spr.animation.play('confirm', true);
@@ -12526,10 +12496,6 @@ class PlayState extends MusicBeatState
 		{
 			playerStrums.forEach(function(spr:FlxSprite)
 			{
-				#if android
-				if (vsliceLayoutActive())
-					return;
-				#end
 				if (Math.abs(note.noteData) == spr.ID)
 				{
 					spr.animation.play('confirm', true);
