@@ -35,6 +35,12 @@ class ScreenUtil
 		"()I"
 	);
 
+	static var _getRefreshRate = JNI.createStaticMethod(
+		"mobile/backend/java/ScreenUtil",
+		"getRefreshRate",
+		"()F"
+	);
+
 	/**
 	 * Display-cutout (notch/punch-hole) safe insets, in density-independent
 	 * pixels -- how far UI needs to stay clear of each edge to avoid being
@@ -63,6 +69,18 @@ class ScreenUtil
 	{
 		try return _getSafeInsetRight()
 		catch (e:Dynamic) return 0;
+	}
+
+	/**
+	 * The device's CURRENTLY ACTIVE display refresh rate in Hz, e.g.
+	 * 60/90/120 -- queried fresh every call (not cached), so it reflects a
+	 * refresh-rate switch made in Android's own display settings while the
+	 * game is already running. Falls back to 60 if unavailable.
+	 */
+	public static function getRefreshRate():Int
+	{
+		try return Math.round(_getRefreshRate())
+		catch (e:Dynamic) return 60;
 	}
 
 	static var _cachedSafeArea:Null<{top:Float, bottom:Float, left:Float, right:Float}> = null;

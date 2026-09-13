@@ -152,10 +152,35 @@ class MusicBeatState extends FNFState
 
 	var skippedFrames = 0;
 
+	#if android
+	// How often to re-check the device's live display refresh rate (seconds)
+	// -- some phones let you switch 60/90/120Hz from a quick-settings toggle
+	// or an app's own request while this game keeps running, and the FPS cap
+	// needs to track that without a restart. A JNI call every single frame
+	// would be wasteful for a value that changes this rarely.
+	static inline var REFRESH_RATE_POLL_INTERVAL:Float = 1.0;
+	// Starts at 0 (not REFRESH_RATE_POLL_INTERVAL) so the very first
+	// update() call on the very first state (TitleState) already picks up
+	// the real rate instead of running one full second at KadeEngineData's
+	// hardcoded 60 default on a high-refresh-rate device.
+	var refreshRatePollTimer:Float = 0;
+	#end
+
 	override function update(elapsed:Float)
 	{
 		updateCurStep();
 		updateBeat();
+
+		#if android
+		refreshRatePollTimer -= elapsed;
+		if (refreshRatePollTimer <= 0)
+		{
+			refreshRatePollTimer = REFRESH_RATE_POLL_INTERVAL;
+			var liveRefreshRate:Int = mobile.backend.ScreenUtil.getRefreshRate();
+			if (liveRefreshRate > 0 && FlxG.save.data.fpsCap != liveRefreshRate)
+				FlxG.save.data.fpsCap = liveRefreshRate;
+		}
+		#end
 
 		if (FlxG.save.data.fpsRain && skippedFrames >= 6)
 		{

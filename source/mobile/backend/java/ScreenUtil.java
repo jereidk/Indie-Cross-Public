@@ -3,6 +3,7 @@ package mobile.backend.java;
 import android.app.Activity;
 import android.graphics.Rect;
 import android.os.Build;
+import android.view.Display;
 import android.view.DisplayCutout;
 import android.view.View;
 import android.view.WindowInsets;
@@ -99,4 +100,27 @@ public class ScreenUtil extends Extension {
     public static int getSafeInsetBottom() { ensureCached(); return cachedBottom; }
     public static int getSafeInsetLeft()   { ensureCached(); return cachedLeft;   }
     public static int getSafeInsetRight()  { ensureCached(); return cachedRight;  }
+
+    /**
+     * The display's CURRENTLY ACTIVE refresh rate in Hz -- not a cached
+     * value, queried fresh every call, so it reflects a refresh-rate switch
+     * the user makes in Android's own display settings (60/90/120Hz etc.)
+     * while the game is already running. getDefaultDisplay() is deprecated
+     * on API 30+ but still functional there; not worth a second codepath
+     * through Activity.getDisplay() (API 30+ only) just to silence that.
+     */
+    public static float getRefreshRate() {
+        try {
+            Activity activity = mainActivity;
+            if (activity == null) return 60f;
+
+            Display display = activity.getWindowManager().getDefaultDisplay();
+            if (display == null) return 60f;
+
+            float rate = display.getRefreshRate();
+            return rate > 0f ? rate : 60f;
+        } catch (Exception e) {
+            return 60f;
+        }
+    }
 }
