@@ -217,6 +217,13 @@ class KadeEngineData
 		if (FlxG.save.data.noteTapControls == null)
 			FlxG.save.data.noteTapControls = false;
 
+		// When true (default), fpsCap continuously tracks the device's live
+		// display refresh rate (MusicBeatState.hx) and the manual FPS Cap
+		// option below has no lasting effect. Turn off to set your own cap
+		// again -- e.g. to save battery below your screen's max refresh rate.
+		if (FlxG.save.data.autoRefreshRateSync == null)
+			FlxG.save.data.autoRefreshRateSync = true;
+
 		if (FlxG.save.data.secretChars == null)
 			FlxG.save.data.secretChars = [true, true, true, true, true, true, true, true];
 

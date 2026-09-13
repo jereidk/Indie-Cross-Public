@@ -401,6 +401,27 @@ class NoteTapOption extends Option
 	}
 }
 
+class AutoRefreshRateSyncOption extends Option
+{
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+	}
+
+	public override function press():Bool
+	{
+		FlxG.save.data.autoRefreshRateSync = !FlxG.save.data.autoRefreshRateSync;
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		return 'Auto Refresh Rate Sync: ' + (FlxG.save.data.autoRefreshRateSync ? 'On' : 'Off');
+	}
+}
+
 class ShowSubtitles extends Option
 {
 	public function new(desc:String)

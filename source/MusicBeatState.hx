@@ -172,13 +172,16 @@ class MusicBeatState extends FNFState
 		updateBeat();
 
 		#if android
-		refreshRatePollTimer -= elapsed;
-		if (refreshRatePollTimer <= 0)
+		if (FlxG.save.data.autoRefreshRateSync)
 		{
-			refreshRatePollTimer = REFRESH_RATE_POLL_INTERVAL;
-			var liveRefreshRate:Int = mobile.backend.ScreenUtil.getRefreshRate();
-			if (liveRefreshRate > 0 && FlxG.save.data.fpsCap != liveRefreshRate)
-				FlxG.save.data.fpsCap = liveRefreshRate;
+			refreshRatePollTimer -= elapsed;
+			if (refreshRatePollTimer <= 0)
+			{
+				refreshRatePollTimer = REFRESH_RATE_POLL_INTERVAL;
+				var liveRefreshRate:Int = mobile.backend.ScreenUtil.getRefreshRate();
+				if (liveRefreshRate > 0 && FlxG.save.data.fpsCap != liveRefreshRate)
+					FlxG.save.data.fpsCap = liveRefreshRate;
+			}
 		}
 		#end
 
