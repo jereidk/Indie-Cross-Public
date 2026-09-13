@@ -158,6 +158,12 @@ class PlayState extends MusicBeatState
 	// applies to songs with no dodge/attack mechanic of their own.
 	var noteTapInput:android.flixel.NoteTapInput;
 
+	// Ported from NightmareVision-Android-Support (its mobilePauseBtn/
+	// _pauseLabel in PlayState.hx) -- a touch-only translucent circle button
+	// in the top-right corner, since there's no PAUSE key on Android.
+	var mobilePauseBtn:FlxSprite;
+	var mobilePauseLabel:FlxText;
+
 	var utJoystick:SimpleJoystick;
 	var utStickTouch:FlxTouch;
 	// Visual-only: how far off-center and in which direction the thumb is
@@ -3136,6 +3142,29 @@ class PlayState extends MusicBeatState
 		// above this block).
 		if (useNoteTap)
 			noteTapInput = new android.flixel.NoteTapInput(androidControls.hitbox, notes, camHUD);
+
+		// Pause button -- ported from NightmareVision-Android-Support, sized
+		// up a bit from its original 68px and given an overall 0.7 alpha
+		// instead of just the translucent fill/stroke colors it used.
+		final pauseBtnSize:Int = 90;
+		mobilePauseBtn = new FlxSprite();
+		mobilePauseBtn.makeGraphic(pauseBtnSize, pauseBtnSize, FlxColor.TRANSPARENT, true);
+		FlxSpriteUtil.drawCircle(mobilePauseBtn, -1, -1, -1, 0x66000000, {thickness: 2, color: 0x40FFFFFF});
+		mobilePauseBtn.x = FlxG.width - mobilePauseBtn.width - 5;
+		mobilePauseBtn.y = 5;
+		mobilePauseBtn.alpha = 0.7;
+		mobilePauseBtn.scrollFactor.set();
+		mobilePauseBtn.cameras = [camHUD];
+		add(mobilePauseBtn);
+
+		final pauseLabelSize:Int = Std.int(26 * pauseBtnSize / 55);
+		final pauseLabelYOffset:Int = Std.int(9 * pauseBtnSize / 55);
+		mobilePauseLabel = new FlxText(mobilePauseBtn.x, mobilePauseBtn.y + pauseLabelYOffset, mobilePauseBtn.width, 'II', pauseLabelSize);
+		mobilePauseLabel.setFormat(null, pauseLabelSize, FlxColor.WHITE, CENTER);
+		mobilePauseLabel.alpha = 0.7;
+		mobilePauseLabel.scrollFactor.set();
+		mobilePauseLabel.cameras = [camHUD];
+		add(mobilePauseLabel);
 		#end
 
 		startingSong = true;
@@ -6409,6 +6438,26 @@ class PlayState extends MusicBeatState
 		{
 			pauseGame();
 		}
+
+		#if android
+		if (startedCountdown && canPause && !transitioningToState && songStarted && mobilePauseBtn != null)
+		{
+			for (touch in FlxG.touches.list)
+			{
+				if (touch.justPressed)
+				{
+					final tp = touch.getScreenPosition(camHUD);
+					if (mobilePauseBtn.overlapsPoint(tp, true, camHUD))
+					{
+						tp.put();
+						pauseGame();
+						break;
+					}
+					tp.put();
+				}
+			}
+		}
+		#end
 
 		if ((FlxG.keys.justPressed.SEVEN && !dead && !transitioningToState) && (!isStoryMode || MainMenuState.debugTools))
 		{
