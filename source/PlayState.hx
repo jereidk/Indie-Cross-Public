@@ -153,11 +153,6 @@ class PlayState extends MusicBeatState
 	var cangethurt:Bool = true;
 
 	#if android
-	// Non-null only when Note Tap gameplay input is actually active this
-	// song (see the addAndroidControls() call site) -- Note Tap only
-	// applies to songs with no dodge/attack mechanic of their own.
-	var noteTapInput:android.flixel.NoteTapInput;
-
 	// Ported from NightmareVision-Android-Support (its mobilePauseBtn/
 	// _pauseLabel in PlayState.hx) -- a touch-only translucent circle button
 	// in the top-right corner, since there's no PAUSE key on Android.
@@ -2613,7 +2608,7 @@ class PlayState extends MusicBeatState
 		{
 			case SINGLEDODGE | SINGLEATTACK: 1;
 			case DOUBLE | TRIPLE: 2;
-			case DEFAULT | NOTETAP: 0;
+			case DEFAULT: 0;
 		}
 		final row0Y:Float = bottomAnchored ? FlxG.height - (btnH * rows) : 0;
 		final row1Y:Float = row0Y + btnH;
@@ -2627,7 +2622,7 @@ class PlayState extends MusicBeatState
 			case DOUBLE | TRIPLE:
 				dodgeHud.y = row0Y;
 				attackHud.y = row1Y;
-			case DEFAULT | NOTETAP:
+			case DEFAULT:
 		}
 		#end
 
@@ -3126,22 +3121,7 @@ class PlayState extends MusicBeatState
 			iconP2alt.cameras = [camHUD];
 
 		#if android
-		// mechMode computed once, up near dodgeHud/attackHud's creation --
-		// see the comment there. Note Tap only replaces it for songs with no
-		// mechanic of their own (mechMode == DEFAULT) -- this port doesn't
-		// implement combining a tap-the-note input mode with a dodge/attack
-		// corner button, so mechanic songs keep using the ordinary Hitbox
-		// for that song's mechanic regardless of this preference.
-		final useNoteTap:Bool = mechMode == DEFAULT && FlxG.save.data.noteLayout == 'VSlice' && FlxG.save.data.noteTapControls;
-		addAndroidControls(useNoteTap ? NOTETAP : mechMode);
-
-		// Safe to hand `notes` a live reference here: generateSong(SONG.song)
-		// (which creates it) already ran earlier in this same create() call
-		// -- textually further down in this file (generateSong() is defined
-		// after this point), but actually CALLED before it (line ~2659, well
-		// above this block).
-		if (useNoteTap)
-			noteTapInput = new android.flixel.NoteTapInput(androidControls.hitbox, notes, camHUD);
+		addAndroidControls(mechMode);
 
 		// Pause button -- ported from NightmareVision-Android-Support, sized
 		// up a bit from its original 68px and given an overall 0.7 alpha
@@ -4635,39 +4615,6 @@ class PlayState extends MusicBeatState
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strumTime, Obj2.strumTime);
 	}
 
-	// "VSlice" Note Layout tuning -- ported from NightmareVision-Android-
-	// Support's own VSlice mode (funkin.objects.note.StrumNote.hx), which
-	// pixel-measured its constants against real device screenshots of THAT
-	// note skin/HUD. This codebase's own note-spacing unit (Note.swagWidth
-	// = 160 * 0.7 = 112) happens to already equal their NOTE_SPACING
-	// exactly, so it's reused as-is below instead of inventing a separate
-	// constant -- but the numbers here are a first-pass estimate against
-	// THIS game's different note art, not a calibrated match. Expect these
-	// to need visual tuning once this can actually be seen running.
-	// No separate split-gap constant: it's just Note.swagWidth again (one
-	// full extra note-width gap between the LEFT+DOWN / UP+RIGHT pairs) --
-	// Note.swagWidth is a plain (reassignable) static var, not a constant
-	// expression, so it can't itself be the initializer of a static inline
-	// var here.
-	static inline var VSLICE_BOTTOM_MARGIN:Float = 40; // player strumline's gap from the bottom edge
-	// Measured against a real NightmareVision-Android-Support reference screenshot
-	// (connected-component blob detection on both, at matching 1600x720 resolution).
-	static inline var VSLICE_PLAYER_SPACING_MULT:Float = 1.647; // Note.swagWidth * this = per-lane spacing
-	static inline var VSLICE_PLAYER_SPLIT_GAP_MULT:Float = 0.768; // Note.swagWidth * this = extra gap between the LEFT+DOWN / UP+RIGHT pairs
-	static inline var VSLICE_PLAYER_SIZE_SCALE:Float = 1.272; // on top of the note skin's own already-applied Note.noteWidth scale
-	static inline var VSLICE_OPPONENT_SCALE:Float = 0.5; // on top of the note skin's own already-applied Note.noteWidth scale
-	static inline var VSLICE_OPPONENT_GAP:Float = 4; // gap between the opponent's shrunk lanes
-	static inline var VSLICE_OPPONENT_INSET_X:Float = 20;
-	static inline var VSLICE_OPPONENT_INSET_Y:Float = 20; // moved up from the previous 60 -- was sitting too low onscreen
-
-	#if android
-	// Single source of truth for "is the VSlice note layout actually in effect
-	// right now" -- 'bonedoggle' keeps its own 3-way split regardless of the
-	// Note Layout setting, same exclusion generateStaticArrows() already used.
-	inline function vsliceLayoutActive():Bool
-		return FlxG.save.data.noteLayout == 'VSlice' && SONG.song.toLowerCase() != 'bonedoggle';
-	#end
-
 	private function generateStaticArrows(player:Int, ?funnyTiming:Bool = false):Void
 	{
 		for (i in 0...4)
@@ -4785,38 +4732,6 @@ class PlayState extends MusicBeatState
 							babyArrow.x += ((FlxG.width / 4) * 3) - (babyArrow.width * 2);
 					}
 			}
-
-			#if android
-			// Overrides whatever x/y the classic layout above just set.
-			// 'bonedoggle' (its own 3-way player/CPU/CPU2 split has no VSlice
-			// equivalent to adapt) and player == 2 (any other 3-character
-			// song) are left out of scope entirely -- both keep the classic
-			// layout regardless of Note Layout.
-			if (vsliceLayoutActive() && (player == 0 || player == 1))
-			{
-				if (player == 1) // the actual player -- centered, split into two pairs, bottom-anchored
-				{
-					babyArrow.setGraphicSize(Std.int(babyArrow.width * VSLICE_PLAYER_SIZE_SCALE));
-					babyArrow.updateHitbox();
-
-					final spacing:Float = Note.swagWidth * VSLICE_PLAYER_SPACING_MULT; // per-lane spacing
-					final splitGap:Float = Note.swagWidth * VSLICE_PLAYER_SPLIT_GAP_MULT; // extra gap between the two pairs
-					final groupWidth:Float = spacing * 3 + splitGap + babyArrow.width;
-					final baseX:Float = (FlxG.width - groupWidth) / 2;
-
-					babyArrow.x = baseX + i * spacing + (i >= 2 ? splitGap : 0);
-					babyArrow.y = FlxG.height - babyArrow.height - VSLICE_BOTTOM_MARGIN;
-				}
-				else // player == 0, the main opponent -- shrunk into the top-left corner
-				{
-					babyArrow.setGraphicSize(Std.int(babyArrow.width * VSLICE_OPPONENT_SCALE));
-					babyArrow.updateHitbox();
-
-					babyArrow.x = VSLICE_OPPONENT_INSET_X + i * (babyArrow.width + VSLICE_OPPONENT_GAP);
-					babyArrow.y = VSLICE_OPPONENT_INSET_Y;
-				}
-			}
-			#end
 
 			cpuStrums.forEach(function(spr:FlxSprite)
 			{
@@ -5291,18 +5206,6 @@ class PlayState extends MusicBeatState
 
 	override public function update(elapsed:Float)
 	{
-		#if android
-		// As early in the frame as this code gets to run -- Controls.hx's
-		// bound actions are polled by Flixel's own input pass before ANY
-		// state's update() starts, so a forcePress()/forceRelease() call
-		// from here still lands one frame later than a real touch would.
-		// Same characteristic NightmareVision-Android-Support's own
-		// NoteTapInput has (also a plain per-frame update(), not hooked in
-		// any earlier).
-		if (noteTapInput != null)
-			noteTapInput.update();
-		#end
-
 		#if !debug
 		perfectMode = false;
 		#end
@@ -7471,16 +7374,6 @@ class PlayState extends MusicBeatState
 						daNote.visible = true;
 					}
 				}
-
-				#if android
-				// VSlice: the opponent's receptor stays fully normal (plays its
-				// usual confirm animation like any other layout), but the
-				// falling note sprites themselves never render for the
-				// opponent -- only the player's and player3's (any 3-character
-				// song) falling notes are shown.
-				if (vsliceLayoutActive() && !daNote.mustPress && !daNote.player3Note)
-					daNote.visible = false;
-				#end
 			});
 		}
 
@@ -13599,12 +13492,6 @@ class PlayState extends MusicBeatState
 	{
 		#if android
 		mobile.backend.AndroidUtils.setGameplayState(false);
-
-		if (noteTapInput != null)
-		{
-			noteTapInput.destroy();
-			noteTapInput = null;
-		}
 		#end
 
 		super.destroy();

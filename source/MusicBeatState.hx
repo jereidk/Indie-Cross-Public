@@ -33,10 +33,7 @@ class MusicBeatState extends FNFState
 
 	#if android
 	public var virtualPad:FlxVirtualPad;
-	// Was module-private (no `public`) -- PlayState.hx (a different module)
-	// needs to read androidControls.hitbox directly to wire up
-	// android.flixel.NoteTapInput after addAndroidControls() runs.
-	public var androidControls:AndroidControls;
+	var androidControls:AndroidControls;
 	var trackedinputs:Array<FlxActionInput> = [];
 
 	public function addVirtualPad(DPad:FlxDPadMode, Action:FlxActionMode)
