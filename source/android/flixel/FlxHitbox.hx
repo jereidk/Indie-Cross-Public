@@ -48,18 +48,23 @@ class FlxHitbox extends FlxSpriteGroup
 	/**
 	 * Create the zone.
 	 */
-	public function new(mode:Modes)
+	public function new(mode:Modes, ?strumLineY:Null<Float>)
 	{
 		super();
 
-		// True = "Bottom hitboxes", false = "Top Hitboxes" (Options.hx's
-		// MechsInputVariants) -- repurposed from choosing which edge the
-		// OLD full-width mechanic band sat against to choosing which edge
-		// (bottom-left or top-left) this new compact button cluster
-		// anchors to instead. PlayState.hx repositions dodgeHud/attackHud
-		// to match this same flag, so the icon players see stays exactly
-		// on top of whichever corner is actually tappable.
-		final bottomAnchored:Bool = FlxG.save.data.mechsInputVariants;
+		// Same reasoning as PlayState.hx's own dodgeHud/attackHud
+		// repositioning (duplicated, not shared, for the reason noted
+		// there): anchor to whichever screen edge is farther from the
+		// strum line, so the corner cluster and the strum line never end
+		// up crowded into the same corner regardless of the
+		// useDownscroll/mechsInputVariants ("Bottom hitboxes"/"Top
+		// Hitboxes") combination. strumLineY is null only if this is ever
+		// constructed without PlayState passing one through -- falls back
+		// to the plain manual setting in that case.
+		final bottomAnchored:Bool = (strumLineY == null) ? FlxG.save.data.mechsInputVariants
+			: (strumLineY < FlxG.height / 2) ? true
+			: (strumLineY > FlxG.height / 2) ? false
+			: FlxG.save.data.mechsInputVariants;
 
 		final btnW:Float = FlxG.width / BTN_W_DIV;
 		final btnH:Float = FlxG.height / BTN_H_DIV;

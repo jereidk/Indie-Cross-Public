@@ -2602,7 +2602,24 @@ class PlayState extends MusicBeatState
 		// SHIFT does" hint sitting next to an invisible band elsewhere on
 		// screen -- moving one without the other silently breaks the tap
 		// target's alignment with what the player actually sees.
-		final bottomAnchored:Bool = FlxG.save.data.mechsInputVariants;
+		//
+		// bottomAnchored used to be a straight read of the manual "Bottom
+		// hitboxes"/"Top Hitboxes" option (mechsInputVariants), independent
+		// of where the strum line actually ended up (useDownscroll moves
+		// it, separately from this setting). That combination is exactly
+		// what a downscroll player with the (default) "Bottom hitboxes"
+		// setting hit: strumLine.y already near the bottom edge, cluster
+		// ALSO anchored to the bottom edge, so both crowd into the same
+		// corner (reported: "está muy abajo... junto a los Hitboxs" -- the
+		// cluster floating detached above/into the strumline instead of
+		// sitting comfortably clear of it). Anchoring to whichever edge is
+		// actually farther from the strum line avoids that regardless of
+		// the useDownscroll/mechsInputVariants combination; the manual
+		// setting only still matters as a tie-break on the (practically
+		// never happening) exact-center case.
+		final bottomAnchored:Bool = (strumLine.y < FlxG.height / 2) ? true
+			: (strumLine.y > FlxG.height / 2) ? false
+			: FlxG.save.data.mechsInputVariants;
 		final btnH:Float = FlxG.height / 5;
 		final rows:Int = switch (mechMode)
 		{
@@ -3121,7 +3138,7 @@ class PlayState extends MusicBeatState
 			iconP2alt.cameras = [camHUD];
 
 		#if android
-		addAndroidControls(mechMode);
+		addAndroidControls(mechMode, strumLine.y);
 
 		// Pause button -- ported from NightmareVision-Android-Support, sized
 		// up a bit from its original 68px and given an overall 0.7 alpha
