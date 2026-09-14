@@ -89,7 +89,7 @@ class OptionsMenu extends MusicBeatState
 	// a field initializer, so this runs fresh on every menu entry) --
 	// Debug Tools/Showcase Mode only show up here once their matching cheat
 	// code (CheatCodes.hx, android-only) has been typed at least once.
-	function buildMiscOptions():Array<Option>
+	static function buildMiscOptions():Array<Option>
 	{
 		var opts:Array<Option> = [new GameLogsOption("Write a persistent game.log to disk (Android only -- harmless elsewhere). Turn off to stop the extra disk writes.")];
 
