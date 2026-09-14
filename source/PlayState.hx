@@ -2572,76 +2572,8 @@ class PlayState extends MusicBeatState
 
 		// make da hud elements
 
-		#if android
-		// Hoisted out of the old #if android block further down (that one
-		// used to be the ONLY place this song -> Modes mapping existed) so
-		// dodgeHud/attackHud below can be positioned to match, without
-		// keeping two separate switches on SONG.song in sync by hand.
-		// mechMode is consumed again, unchanged, at the addAndroidControls
-		// call site later in this function.
-		final mechMode:Modes = switch (PlayState.SONG.song.toLowerCase())
-		{
-			case 'whoopee' | 'satanic-funkin' | 'ritual' | 'bad-time': SINGLEDODGE;
-			case 'last-reel' | 'despair': TRIPLE;
-			case 'knockout' | 'devils-gambit' | 'sansational' | 'burning-in-hell': DOUBLE;
-			case 'technicolor-tussle': SINGLEATTACK;
-			default: DEFAULT;
-		}
-		#end
-
 		attackHud = new HudIcon(6, 235, 'attack');
 		dodgeHud = new HudIcon(6, 145 + attackHud.height, 'dodge');
-
-		#if android
-		// Reposition to sit exactly on top of AndroidControls' compact
-		// dodge/attack touch buttons (see FlxHitbox.hx's `new()` -- same
-		// btnW/btnH/rows/row0Y/row1Y math, duplicated here rather than
-		// shared because FlxHitbox has no reference to these HudIcon
-		// instances and vice versa) instead of this fixed desktop-tuned
-		// spot. These icons ARE the button now, not a passive "here's what
-		// SHIFT does" hint sitting next to an invisible band elsewhere on
-		// screen -- moving one without the other silently breaks the tap
-		// target's alignment with what the player actually sees.
-		//
-		// bottomAnchored used to be a straight read of the manual "Bottom
-		// hitboxes"/"Top Hitboxes" option (mechsInputVariants), independent
-		// of where the strum line actually ended up (useDownscroll moves
-		// it, separately from this setting). That combination is exactly
-		// what a downscroll player with the (default) "Bottom hitboxes"
-		// setting hit: strumLine.y already near the bottom edge, cluster
-		// ALSO anchored to the bottom edge, so both crowd into the same
-		// corner (reported: "está muy abajo... junto a los Hitboxs" -- the
-		// cluster floating detached above/into the strumline instead of
-		// sitting comfortably clear of it). Anchoring to whichever edge is
-		// actually farther from the strum line avoids that regardless of
-		// the useDownscroll/mechsInputVariants combination; the manual
-		// setting only still matters as a tie-break on the (practically
-		// never happening) exact-center case.
-		final bottomAnchored:Bool = (strumLine.y < FlxG.height / 2) ? true
-			: (strumLine.y > FlxG.height / 2) ? false
-			: FlxG.save.data.mechsInputVariants;
-		final btnH:Float = FlxG.height / 5;
-		final rows:Int = switch (mechMode)
-		{
-			case SINGLEDODGE | SINGLEATTACK: 1;
-			case DOUBLE | TRIPLE: 2;
-			case DEFAULT: 0;
-		}
-		final row0Y:Float = bottomAnchored ? FlxG.height - (btnH * rows) : 0;
-		final row1Y:Float = row0Y + btnH;
-
-		switch (mechMode)
-		{
-			case SINGLEDODGE:
-				dodgeHud.y = row0Y;
-			case SINGLEATTACK:
-				attackHud.y = row0Y;
-			case DOUBLE | TRIPLE:
-				dodgeHud.y = row0Y;
-				attackHud.y = row1Y;
-			case DEFAULT:
-		}
-		#end
 
 		dodgeHud.cameras = [camHUD];
 		attackHud.cameras = [camHUD];
@@ -3138,7 +3070,19 @@ class PlayState extends MusicBeatState
 			iconP2alt.cameras = [camHUD];
 
 		#if android
-		addAndroidControls(mechMode, strumLine.y);
+		switch (PlayState.SONG.song.toLowerCase())
+		{
+			case 'whoopee' | 'satanic-funkin' | 'ritual' | 'bad-time':
+				addAndroidControls(SINGLEDODGE);
+			case 'last-reel' | 'despair':
+				addAndroidControls(TRIPLE);
+			case 'knockout' | 'devils-gambit' | 'sansational' | 'burning-in-hell':
+				addAndroidControls(DOUBLE);
+			case 'technicolor-tussle':
+				addAndroidControls(SINGLEATTACK);
+			default:
+				addAndroidControls(DEFAULT);
+		}
 
 		// Pause button -- ported from NightmareVision-Android-Support, sized
 		// up a bit from its original 68px and given an overall 0.7 alpha

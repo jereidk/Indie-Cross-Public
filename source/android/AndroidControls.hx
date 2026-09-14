@@ -12,11 +12,11 @@ class AndroidControls extends FlxSpriteGroup
 {
 	public var hitbox:FlxHitbox;
 
-	public function new(mechsType:Modes = DEFAULT, ?strumLineY:Null<Float>)
+	public function new(mechsType:Modes = DEFAULT)
 	{
 		super();
 
-		hitbox = new FlxHitbox(mechsType, strumLineY);
+		hitbox = new FlxHitbox(mechsType);
 		add(hitbox);
 	}
 

@@ -55,9 +55,9 @@ class MusicBeatState extends FNFState
 			remove(virtualPad);
 	}
 
-	public function addAndroidControls(mechsType:Modes = DEFAULT, ?strumLineY:Null<Float>)
+	public function addAndroidControls(mechsType:Modes = DEFAULT)
 	{
-		androidControls = new AndroidControls(mechsType, strumLineY);
+		androidControls = new AndroidControls(mechsType);
 
 		controls.setHitBox(androidControls.hitbox, mechsType);
 		trackedinputs = controls.trackedinputs;
