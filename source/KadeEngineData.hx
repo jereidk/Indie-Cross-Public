@@ -212,6 +212,22 @@ class KadeEngineData
 		if (FlxG.save.data.autoRefreshRateSync == null)
 			FlxG.save.data.autoRefreshRateSync = true;
 
+		// Set by the DEBUGTOOLS/SHOWCASE cheat codes (CheatCodes.hx) -- until
+		// then, Debug Tools/Showcase Mode have no toggle in Options > Misc at
+		// all (OptionsMenu.hx's buildMiscOptions()), same idea as
+		// NightmareVision-Android-Support only revealing its own Showcase
+		// option once Dev Mode is on.
+		if (FlxG.save.data.debugToolsCodeUnlocked == null)
+			FlxG.save.data.debugToolsCodeUnlocked = false;
+		if (FlxG.save.data.showcaseCodeUnlocked == null)
+			FlxG.save.data.showcaseCodeUnlocked = false;
+
+		// Persistent game.log file on Android (GameLogger.hx). On by default
+		// so a reporting player doesn't need to be walked through enabling a
+		// hidden setting first -- turn off to stop the extra disk writes.
+		if (FlxG.save.data.gameLogsEnabled == null)
+			FlxG.save.data.gameLogsEnabled = true;
+
 		if (FlxG.save.data.secretChars == null)
 			FlxG.save.data.secretChars = [true, true, true, true, true, true, true, true];
 

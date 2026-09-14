@@ -114,7 +114,8 @@ class LaneUnderlayOption extends Option
 
 	private override function updateDisplay():String
 	{
-		return (FlxG.save.data.laneUnderlay ? "Lane underlay" : "No lane underlay");
+		return (FlxG.save.data.laneUnderlay ? "Lane underlay" : "No lane underlay")
+			+ " (" + HelperFunctions.truncateFloat(FlxG.save.data.laneTransparency, 1) + ")";
 	}
 
 	override function right():Bool
@@ -126,6 +127,7 @@ class LaneUnderlayOption extends Option
 
 		if (FlxG.save.data.laneTransparency > 1)
 			FlxG.save.data.laneTransparency = 1;
+		display = updateDisplay();
 		return true;
 	}
 
@@ -144,6 +146,7 @@ class LaneUnderlayOption extends Option
 		if (FlxG.save.data.laneTransparency > 1)
 			FlxG.save.data.laneTransparency = 1;
 
+		display = updateDisplay();
 		return true;
 	}
 }
@@ -373,6 +376,73 @@ class AutoRefreshRateSyncOption extends Option
 	private override function updateDisplay():String
 	{
 		return 'Auto Refresh Rate Sync: ' + (FlxG.save.data.autoRefreshRateSync ? 'On' : 'Off');
+	}
+}
+
+// Only ever added to OptionsMenu's Misc category once the DEBUGTOOLS cheat
+// code (CheatCodes.hx) has been typed -- see buildMiscOptions().
+class DebugToolsOption extends Option
+{
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+	}
+
+	public override function press():Bool
+	{
+		MainMenuState.debugTools = !MainMenuState.debugTools;
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		return 'Debug Tools: ' + (MainMenuState.debugTools ? 'On' : 'Off');
+	}
+}
+
+// Only ever added to OptionsMenu's Misc category once the SHOWCASE cheat
+// code (CheatCodes.hx) has been typed -- see buildMiscOptions().
+class ShowcaseModeOption extends Option
+{
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+	}
+
+	public override function press():Bool
+	{
+		MainMenuState.showcase = !MainMenuState.showcase;
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		return 'Showcase Mode: ' + (MainMenuState.showcase ? 'On' : 'Off');
+	}
+}
+
+class GameLogsOption extends Option
+{
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+	}
+
+	public override function press():Bool
+	{
+		FlxG.save.data.gameLogsEnabled = !FlxG.save.data.gameLogsEnabled;
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		return 'Game Logs: ' + (FlxG.save.data.gameLogsEnabled ? 'On' : 'Off');
 	}
 }
 
@@ -705,7 +775,7 @@ class Judgement extends Option
 
 	private override function updateDisplay():String
 	{
-		return "Safe Frames";
+		return "Safe Frames: " + Conductor.safeFrames;
 	}
 
 	override function left():Bool
@@ -717,7 +787,8 @@ class Judgement extends Option
 		FlxG.save.data.frames = Conductor.safeFrames;
 
 		Conductor.recalculateTimings();
-		return false;
+		display = updateDisplay();
+		return true;
 	}
 
 	override function getValue():String
@@ -775,6 +846,7 @@ class Colorblind extends Option
 
 		FXHandler.UpdateColors();
 
+		display = updateDisplay();
 		return true;
 	}
 
@@ -785,7 +857,7 @@ class Colorblind extends Option
 
 	private override function updateDisplay():String
 	{
-		return "Colorblind Mode";
+		return "Colorblind Mode: " + intToMode(FlxG.save.data.colorblind);
 	}
 
 	function intToMode(i:Int):String
@@ -825,6 +897,7 @@ class Colorblind extends Option
 
 		FXHandler.UpdateColors();
 
+		display = updateDisplay();
 		return true;
 	}
 }
@@ -858,6 +931,7 @@ class Resolution extends Option
 		trace(FlxG.save.data.resolution);
 		// FlxG.resizeWindow(intToMode(FlxG.save.data.resolution)[0],intToMode(FlxG.save.data.resolution)[1]);
 
+		display = updateDisplay();
 		return true;
 	}
 
@@ -906,6 +980,7 @@ class Resolution extends Option
 		FlxG.save.data.resolution += 1;
 		trace(FlxG.save.data.resolution);
 
+		display = updateDisplay();
 		return true;
 	}
 }
@@ -927,7 +1002,7 @@ class Gamma extends Option
 
 	private override function updateDisplay():String
 	{
-		return "Gamma";
+		return "Gamma: " + FlxG.save.data.gamma;
 	}
 
 	override function right():Bool
@@ -943,6 +1018,7 @@ class Gamma extends Option
 			return false;
 		}
 
+		display = updateDisplay();
 		return true;
 	}
 
@@ -959,6 +1035,7 @@ class Gamma extends Option
 			return false;
 		}
 
+		display = updateDisplay();
 		return true;
 	}
 
@@ -985,7 +1062,7 @@ class Brightness extends Option
 
 	private override function updateDisplay():String
 	{
-		return "Brightness";
+		return "Brightness: " + FlxG.save.data.brightness;
 	}
 
 	override function right():Bool
@@ -1001,6 +1078,7 @@ class Brightness extends Option
 			return false;
 		}
 
+		display = updateDisplay();
 		return true;
 	}
 
@@ -1017,6 +1095,7 @@ class Brightness extends Option
 			return false;
 		}
 
+		display = updateDisplay();
 		return true;
 	}
 
@@ -1086,7 +1165,7 @@ class FPSCapOption extends Option
 
 	private override function updateDisplay():String
 	{
-		return "FPS Cap";
+		return "FPS Cap: " + FlxG.save.data.fpsCap;
 	}
 
 	override function right():Bool
@@ -1100,6 +1179,7 @@ class FPSCapOption extends Option
 			FlxG.save.data.fpsCap = FlxG.save.data.fpsCap + 10;
 		(cast(Lib.current.getChildAt(0), Main)).setFPSCap(FlxG.save.data.fpsCap);
 
+		display = updateDisplay();
 		return true;
 	}
 
@@ -1112,6 +1192,7 @@ class FPSCapOption extends Option
 		else
 			FlxG.save.data.fpsCap = FlxG.save.data.fpsCap - 10;
 				(cast(Lib.current.getChildAt(0), Main)).setFPSCap(FlxG.save.data.fpsCap);
+		display = updateDisplay();
 		return true;
 	}
 
@@ -1143,13 +1224,14 @@ class DebugDisplaySizeOption extends Option
 
 	private override function updateDisplay():String
 	{
-		return "FPS/Memory Counter Size";
+		return "FPS/Memory Counter Size: " + FlxG.save.data.debugDisplaySize + "px";
 	}
 
 	override function right():Bool
 	{
 		FlxG.save.data.debugDisplaySize = Std.int(Math.min(MAX_SIZE, FlxG.save.data.debugDisplaySize + STEP));
 		(cast(Lib.current.getChildAt(0), Main)).setDebugDisplaySize(FlxG.save.data.debugDisplaySize);
+		display = updateDisplay();
 		return true;
 	}
 
@@ -1157,6 +1239,7 @@ class DebugDisplaySizeOption extends Option
 	{
 		FlxG.save.data.debugDisplaySize = Std.int(Math.max(MIN_SIZE, FlxG.save.data.debugDisplaySize - STEP));
 		(cast(Lib.current.getChildAt(0), Main)).setDebugDisplaySize(FlxG.save.data.debugDisplaySize);
+		display = updateDisplay();
 		return true;
 	}
 
@@ -1182,7 +1265,7 @@ class HudAlpha extends Option
 
 	private override function updateDisplay():String
 	{
-		return "HUD Transparency";
+		return "HUD Transparency: " + HelperFunctions.truncateFloat(FlxG.save.data.hudalpha, 1);
 	}
 
 	override function right():Bool
@@ -1192,6 +1275,7 @@ class HudAlpha extends Option
 		else
 			FlxG.save.data.hudalpha += 0.1;
 
+		display = updateDisplay();
 		return true;
 	}
 
@@ -1201,6 +1285,7 @@ class HudAlpha extends Option
 			FlxG.save.data.hudalpha = 0.4;
 		else
 			FlxG.save.data.hudalpha -= 0.1;
+		display = updateDisplay();
 		return true;
 	}
 

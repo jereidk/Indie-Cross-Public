@@ -77,12 +77,31 @@ class OptionsMenu extends MusicBeatState
 			new HitboxesAlpha("Hitboxes Opacity or contrast whatever.")
 		]),
 		#end
+		new OptionCategory("Misc", buildMiscOptions()),
 		new OptionCategory("Accessibility", [
 			new ShowSubtitles("Show subtitles during cutscenes."),
 			new Colorblind("") // new LogInGJ("Log into gamejolt for achievements & perks"),
 				// new LogOutGJ("Log out of your gamejolt account")
 		])
 	];
+
+	// Rebuilt every time OptionsMenu is created (the `options` array above is
+	// a field initializer, so this runs fresh on every menu entry) --
+	// Debug Tools/Showcase Mode only show up here once their matching cheat
+	// code (CheatCodes.hx, android-only) has been typed at least once.
+	function buildMiscOptions():Array<Option>
+	{
+		var opts:Array<Option> = [new GameLogsOption("Write a persistent game.log to disk (Android only -- harmless elsewhere). Turn off to stop the extra disk writes.")];
+
+		#if android
+		if (FlxG.save.data.debugToolsCodeUnlocked)
+			opts.push(new DebugToolsOption("Enables developer hotkeys and debug traces."));
+		if (FlxG.save.data.showcaseCodeUnlocked)
+			opts.push(new ShowcaseModeOption("Songs autoplay like Botplay, for recording clean gameplay footage."));
+		#end
+
+		return opts;
+	}
 
 	public var acceptInput:Bool = true;
 
@@ -334,18 +353,29 @@ class OptionsMenu extends MusicBeatState
 
 	function catOption()
 	{
+		var changed:Bool = false;
+
 		if ((FlxG.keys.pressed.SHIFT #if android || virtualPad.buttonC.pressed #end)
 			|| !currentSelectedCat.getOptions()[curSelected].allowFastChange)
 		{
 			if (controls.RIGHT)
-				currentSelectedCat.getOptions()[curSelected].right();
+				changed = currentSelectedCat.getOptions()[curSelected].right();
 			else if (controls.LEFT)
-				currentSelectedCat.getOptions()[curSelected].left();
+				changed = currentSelectedCat.getOptions()[curSelected].left();
 		}
 		else if (controls.RIGHT_P)
-			currentSelectedCat.getOptions()[curSelected].right();
+			changed = currentSelectedCat.getOptions()[curSelected].right();
 		else if (controls.LEFT_P)
-			currentSelectedCat.getOptions()[curSelected].left();
+			changed = currentSelectedCat.getOptions()[curSelected].left();
+
+		// left()/right() only ever changed FlxG.save.data directly before --
+		// the on-screen row title (an Alphabet, built from getDisplay()) sat
+		// stale until the option was later press()'d (accept()'s own
+		// changeText() call) or the menu was re-entered. Only the value line
+		// below (versionShit, from getValue()) ever reflected the change
+		// live. Mirrors accept()'s own press() handling.
+		if (changed)
+			grpControls.members[curSelected].changeText(currentSelectedCat.getOptions()[curSelected].getDisplay());
 
 		versionShit.text = currentSelectedCat.getOptions()[curSelected].getValue();
 		if (currentDescription != '')

@@ -245,7 +245,7 @@ class MainMenuState extends MusicBeatState
 	static final padClearanceX:Float = 140;
 
 	#if android
-	var devPanel:DevPanel;
+	var cheatCodes:CheatCodes;
 	#end
 
 	final name:String = Lib.application.meta["name"];
@@ -376,8 +376,8 @@ class MainMenuState extends MusicBeatState
 		addVirtualPad(UP_DOWN, A_B_C);
 		virtualPad.y = -22;
 
-		devPanel = new DevPanel(this);
-		add(devPanel);
+		cheatCodes = new CheatCodes(this);
+		add(cheatCodes);
 		#end
 
 		if (showCredits)

@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxG;
 #if sys
 import sys.FileSystem;
 import sys.io.File;
@@ -194,6 +195,11 @@ class GameLogger
 	{
 		#if android
 		if (logPath.length == 0) return;
+		// Options > Misc's Game Logs toggle (default on) -- every write
+		// path (Logger.log()'s write(), the haxe.Log.trace chain, and the
+		// FlxLog style hooks below in init()) funnels through this one
+		// function, so gating here covers all of them at once.
+		if (FlxG.save.data.gameLogsEnabled == false) return;
 		try
 		{
 			final out = File.append(logPath, false);
